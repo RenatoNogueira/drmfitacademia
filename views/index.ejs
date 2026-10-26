@@ -39,17 +39,6 @@ const heroImg = img('hero');
     </div>
   </div>
 
-  <div class="hero-chips" aria-hidden="true">
-    <div class="chip chip-a">
-      <strong><%= site.stats[0].value.toLocaleString('pt-BR') %><%= site.stats[0].suffix %></strong>
-      <span><%= site.stats[0].label %></span>
-    </div>
-    <div class="chip chip-b">
-      <%- include('partials/icon', { name: 'heart' }) %>
-      <div><strong>Aula experimental</strong><span>100% gratuita</span></div>
-    </div>
-  </div>
-
   <a class="scroll-cue" href="/#sobre" aria-label="Rolar para a próxima seção"><span class="mouse"><i></i></span><span class="txt">Role</span></a>
 </section>
 
