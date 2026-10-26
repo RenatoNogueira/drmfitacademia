@@ -33,9 +33,22 @@ const nav = [
         <a href="<%= item.href %>" data-spy="<%= item.href.split('#')[1] %>"><%= item.label %></a>
       <% }) %>
       <a href="/#contato" class="btn btn-sm nav-cta">Agendar treino</a>
+
+      <div class="nav-extra">
+        <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Gostaria de agendar uma aula experimental na DRMFIT.') %>">
+          <%- include('icon', { name: 'whatsapp' }) %> Chamar no WhatsApp
+        </a>
+        <p class="nav-address"><%- include('icon', { name: 'pin' }) %> <%= site.brand.address %></p>
+        <div class="nav-social">
+          <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('icon', { name: 'instagram' }) %></a>
+          <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('icon', { name: 'facebook' }) %></a>
+          <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('icon', { name: 'youtube' }) %></a>
+        </div>
+      </div>
     </nav>
     <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="main-nav">
-      <%- include('icon', { name: 'menu' }) %>
+      <span class="ico-open"><%- include('icon', { name: 'menu' }) %></span>
+      <span class="ico-close"><%- include('icon', { name: 'x' }) %></span>
     </button>
   </div>
 </header>

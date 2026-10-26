@@ -3,16 +3,33 @@ document.documentElement.classList.add('js');
 // Menu mobile
 const toggle = document.getElementById('nav-toggle');
 const nav = document.getElementById('main-nav');
-const closeMenu = () => {
-  if (!nav) return;
-  nav.classList.remove('open');
-  toggle?.setAttribute('aria-expanded', 'false');
+// Com o menu aberto a página fica travada (funciona também no iOS, onde overflow:hidden não basta)
+let lockedY = 0;
+const lockScroll = () => {
+  lockedY = window.scrollY;
+  document.documentElement.classList.add('menu-open');
+  Object.assign(document.body.style, { position: 'fixed', top: `-${lockedY}px`, left: '0', right: '0', width: '100%' });
 };
+const unlockScroll = () => {
+  document.documentElement.classList.remove('menu-open');
+  Object.assign(document.body.style, { position: '', top: '', left: '', right: '', width: '' });
+  window.scrollTo(0, lockedY);
+};
+const isMenuOpen = () => !!nav && nav.classList.contains('open');
+const setMenu = (open) => {
+  if (!nav || !toggle || open === isMenuOpen()) return;
+  nav.classList.toggle('open', open);
+  toggle.setAttribute('aria-expanded', String(open));
+  toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+  if (open) { lockScroll(); nav.querySelector('a')?.focus({ preventScroll: true }); } else { unlockScroll(); }
+};
+const closeMenu = () => setMenu(false);
 if (toggle && nav) {
-  toggle.addEventListener('click', () => {
-    const open = nav.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', String(open));
-  });
+  toggle.addEventListener('click', () => setMenu(!isMenuOpen()));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isMenuOpen()) { closeMenu(); toggle.focus(); } });
+  window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => { if (e.matches) closeMenu(); });
+  // Cliques em qualquer link do menu (inclusive de outras páginas) fecham o painel
+  nav.addEventListener('click', (e) => { if (e.target.closest('a')) closeMenu(); });
 }
 
 // Rolagem suave com aceleração/desaceleração (easeInOutCubic)
