@@ -145,6 +145,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 // Elementos que animam automaticamente, mesmo sem a classe .reveal no HTML
 document.querySelectorAll('.section-head, .stat, .promo .container, .cta-inner, .g-item, .class-card, .footer-grid > div, .contact-info, .contact-form, .table-wrap, .hours, .faq')
   .forEach((el) => el.classList.add('reveal'));
+document.querySelectorAll('.g-item').forEach((el) => el.classList.remove('reveal'));
 
 // Escalonamento: filhos de uma mesma grade entram um após o outro
 document.querySelectorAll('.grid, .carousel, .gallery, .stats-grid, .hours-row, .footer-grid').forEach((parent) => {
@@ -167,6 +168,24 @@ if ('IntersectionObserver' in window) {
   reveals.forEach((el) => io.observe(el));
 } else {
   reveals.forEach((el) => el.classList.add('visible'));
+}
+
+// Galeria: cada foto é "pintada" com uma pincelada quando entra na tela (inclusive ao rolar a galeria para o lado)
+const brushItems = document.querySelectorAll('.g-item');
+brushItems.forEach((el) => el.classList.add('brush'));
+if ('IntersectionObserver' in window && !reduceMotion) {
+  const bo = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      bo.unobserve(el);
+      el.classList.add('painted');
+      setTimeout(() => el.classList.add('done'), 1800);
+    });
+  }, { threshold: 0.35 });
+  brushItems.forEach((el) => bo.observe(el));
+} else {
+  brushItems.forEach((el) => el.classList.add('painted', 'done'));
 }
 
 // Contadores: começam quando aparecem na tela
