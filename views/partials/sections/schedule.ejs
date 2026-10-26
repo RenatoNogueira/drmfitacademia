@@ -1,0 +1,31 @@
+<section class="section alt">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Grade de aulas</span>
+      <h2>Horários que cabem na <span class="outline">sua rotina</span></h2>
+    </div>
+    <div class="table-wrap reveal">
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <% site.schedule.days.forEach(d => { %><th><%= d %></th><% }) %>
+          </tr>
+        </thead>
+        <tbody>
+          <% site.schedule.rows.forEach(r => { %>
+            <tr>
+              <th scope="row"><%= r.time %></th>
+              <% r.classes.forEach((c, i) => { %><td data-label="<%= site.schedule.days[i] %>" class="<%= c === '—' ? 'empty' : '' %>"><%= c %></td><% }) %>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <div class="hours-row">
+      <% site.schedule.hours.forEach(h => { %>
+        <div class="card hours reveal"><%- include('../icon', { name: 'clock' }) %><div><span><%= h.label %></span><strong><%= h.value %></strong></div></div>
+      <% }) %>
+    </div>
+  </div>
+</section>

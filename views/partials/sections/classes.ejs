@@ -1,0 +1,27 @@
+<section class="section alt" id="aulas">
+  <div class="container">
+    <div class="section-head split-head">
+      <div>
+        <span class="eyebrow">Aulas</span>
+        <h2>Nossas <span class="outline">aulas</span></h2>
+      </div>
+      <div class="carousel-nav">
+        <button type="button" data-carousel-prev aria-label="Anterior"><%- include('../icon', { name: 'back' }) %></button>
+        <button type="button" data-carousel-next aria-label="Próximo"><%- include('../icon', { name: 'arrow' }) %></button>
+      </div>
+    </div>
+    <div class="carousel" data-carousel>
+      <% site.classes.forEach(c => { %>
+        <article class="class-card">
+          <div class="media"><%- include('../photo', { name: 'aula-' + c.slug, alt: 'Aula de ' + c.name }) %></div>
+          <div class="class-body">
+            <h3><%= c.name %></h3>
+            <% c.slots.forEach(s => { %>
+              <div class="slot"><span><%= s[0] %></span><strong><%= s[1] %></strong></div>
+            <% }) %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>

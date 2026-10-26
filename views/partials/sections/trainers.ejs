@@ -1,0 +1,21 @@
+<section class="section" id="equipe">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Equipe</span>
+      <h2>Quem treina <span class="outline">com você</span></h2>
+    </div>
+    <div class="grid grid-4">
+      <% site.trainers.forEach((t, i) => { %>
+        <article class="trainer reveal">
+          <div class="photo">
+            <% const src = img('equipe-' + (i + 1)); %>
+            <% if (src) { %><img src="<%= src %>" alt="<%= t.name %>" loading="lazy">
+            <% } else { %><div class="ph"><span class="initials"><%= t.initials %></span><small><code>equipe-<%= i + 1 %>.jpg</code></small></div><% } %>
+          </div>
+          <h3><%= t.name %></h3>
+          <p><%= t.role %></p>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>

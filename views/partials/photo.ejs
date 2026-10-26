@@ -1,0 +1,9 @@
+<% const src = img(name); %>
+<% if (src) { %>
+  <img src="<%= src %>" alt="<%= alt %>" loading="lazy">
+<% } else { %>
+  <div class="ph" role="img" aria-label="<%= alt %>">
+    <%- include('icon', { name: 'camera' }) %>
+    <small>Adicione <code>public/media/<%= name %>.jpg</code></small>
+  </div>
+<% } %>

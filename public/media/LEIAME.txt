@@ -1,0 +1,29 @@
+COMO ADICIONAR FOTOS E VÍDEOS DA DRMFIT
+=======================================
+Basta salvar os arquivos nesta pasta (public/media) com os nomes abaixo.
+Aceita .jpg .jpeg .png .webp .avif para imagens e .mp4 .webm para vídeos.
+Não precisa mexer em código: recarregue a página e a mídia aparece.
+Enquanto o arquivo não existir, o site mostra um espaço reservado.
+
+HERO (topo da página)
+  hero.jpg            foto de fundo do topo (1920x1080, pessoa à direita funciona melhor)
+  hero.mp4            (opcional) vídeo de fundo; se existir, substitui a foto. Curto, sem som, até ~10 MB
+
+SOBRE
+  sobre.jpg           foto principal (vertical, ~800x1000)
+  sobre-2.jpg         foto menor sobreposta (opcional)
+  sobre.mp4           vídeo de apresentação; se existir, aparece o botão de play que abre o vídeo
+
+OFERTA / BANNER
+  banner.jpg          fundo da faixa de promoção (1920x700)
+  contato.jpg         (opcional) fundo do topo das páginas internas
+
+MODALIDADES / AULAS (um por aula)
+  aula-musculacao.jpg   aula-crossfit.jpg   aula-spinning.jpg
+  aula-danca.jpg        aula-lutas.jpg       aula-yoga.jpg
+
+EQUIPE (um por profissional, na ordem de data/site.js)
+  equipe-1.jpg  equipe-2.jpg  equipe-3.jpg  equipe-4.jpg   (quadrada ou vertical)
+
+GALERIA
+  galeria/        coloque aqui quantas fotos quiser (ordem alfabética: 01.jpg, 02.jpg ...)

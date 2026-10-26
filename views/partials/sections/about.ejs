@@ -1,0 +1,23 @@
+<section class="section" id="sobre">
+  <div class="container about">
+    <div class="about-media reveal reveal-left">
+      <div class="frame">
+        <div class="about-main"><%- include('../photo', { name: 'sobre', alt: 'Alunos treinando na DRMFIT' }) %></div>
+      </div>
+      <% if (img('sobre-2')) { %><div class="about-second"><%- include('../photo', { name: 'sobre-2', alt: 'Treino na DRMFIT' }) %></div><% } %>
+      <% const vid = video('sobre'); %>
+      <% if (vid) { %>
+        <button type="button" class="play" data-video="<%= vid %>" aria-label="Assistir vídeo da DRMFIT"><%- include('../icon', { name: 'play' }) %></button>
+      <% } %>
+    </div>
+    <div class="reveal reveal-right">
+      <span class="eyebrow">Sobre nós</span>
+      <h2><%= site.about.title %> <span class="outline"><%= site.about.highlight %></span></h2>
+      <% site.about.paragraphs.forEach(p => { %><p><%= p %></p><% }) %>
+      <div class="signature">
+        <strong><%= site.about.signature %></strong>
+        <span><%= site.about.role %></span>
+      </div>
+    </div>
+  </div>
+</section>

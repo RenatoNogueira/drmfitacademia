@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+
+<%
+const heroVideo = video('hero');
+const heroImg = img('hero');
+%>
+<section class="hero" id="inicio">
+  <div class="hero-bg" aria-hidden="true">
+    <% if (heroVideo) { %>
+      <video autoplay muted loop playsinline <% if (heroImg) { %>poster="<%= heroImg %>"<% } %>><source src="<%= heroVideo %>"></video>
+    <% } else if (heroImg) { %>
+      <img src="<%= heroImg %>" alt="">
+    <% } %>
+  </div>
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow line">Academia completa</span>
+      <h1>Supere mais<br>a cada <span class="outline">treino!</span></h1>
+      <p>Musculação, aulas coletivas, personal e avaliação física em um só lugar. Comece hoje com uma aula experimental gratuita.</p>
+      <div class="hero-actions">
+        <a href="/#contato" class="btn">Agendar treino</a>
+        <a href="/#planos" class="btn btn-outline">Ver planos</a>
+      </div>
+      <div class="hero-social">
+        <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('partials/icon', { name: 'facebook' }) %></a>
+        <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('partials/icon', { name: 'instagram' }) %></a>
+        <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('partials/icon', { name: 'youtube' }) %></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="container stats-grid">
+    <% site.stats.forEach(s => { %>
+      <div class="stat">
+        <strong><span data-count="<%= s.value %>">0</span><%= s.suffix %></strong>
+        <span><%= s.label %></span>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<%- include('partials/sections/about') %>
+<%- include('partials/sections/modalities') %>
+<%- include('partials/sections/classes') %>
+<%- include('partials/sections/promo') %>
+<%- include('partials/sections/plans') %>
+<%- include('partials/sections/gallery') %>
+<%- include('partials/sections/trainers') %>
+<%- include('partials/sections/testimonials') %>
+<%- include('partials/sections/faq') %>
+<%- include('partials/sections/contact') %>
+
+<%- include('partials/footer') %>

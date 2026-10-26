@@ -1,0 +1,71 @@
+<section class="section" id="contato">
+  <% if (typeof hideHead === 'undefined') { %>
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Contato</span>
+      <h2>Fale com a <span class="outline">DRMFIT</span></h2>
+    </div>
+  </div>
+  <% } %>
+  <div class="container contact-grid">
+    <div class="contact-info">
+      <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Gostaria de agendar uma aula experimental na DRMFIT.') %>">
+        <%- include('../icon', { name: 'whatsapp' }) %> Falar no WhatsApp
+      </a>
+
+      <ul class="info-list">
+        <li><%- include('../icon', { name: 'pin' }) %><div><strong>Endereço</strong><span><%= site.brand.address %></span><a class="link-arrow" href="<%= site.brand.mapsLink %>" target="_blank" rel="noopener">Como chegar <%- include('../icon', { name: 'arrow' }) %></a></div></li>
+        <li><%- include('../icon', { name: 'phone' }) %><div><strong>Telefone / WhatsApp</strong><a href="tel:+<%= site.brand.whatsappNumber %>"><%= site.brand.phone %></a></div></li>
+        <li><%- include('../icon', { name: 'mail' }) %><div><strong>E-mail</strong><a href="mailto:<%= site.brand.email %>"><%= site.brand.email %></a></div></li>
+        <li><%- include('../icon', { name: 'clock' }) %><div><strong>Funcionamento</strong>
+          <% site.schedule.hours.forEach(h => { %><span><%= h.label %>: <%= h.value %></span><% }) %>
+        </div></li>
+      </ul>
+    </div>
+
+    <form class="card contact-form" method="post" action="/contato" novalidate data-ajax-form>
+      <h3>Envie uma mensagem</h3>
+
+      <div class="form-status" role="status" aria-live="polite">
+        <% if (status === 'ok') { %>
+          <div class="alert alert-ok">Mensagem enviada! Entraremos em contato em breve.</div>
+        <% } else if (status === 'error') { %>
+          <div class="alert alert-error">Revise os campos destacados.</div>
+        <% } %>
+      </div>
+
+      <label>Nome
+        <input type="text" name="nome" value="<%= values.nome || '' %>" required autocomplete="name">
+        <small class="error" data-error="nome"><%= errors.nome || '' %></small>
+      </label>
+      <div class="form-row">
+        <label>E-mail
+          <input type="email" name="email" value="<%= values.email || '' %>" required autocomplete="email">
+          <small class="error" data-error="email"><%= errors.email || '' %></small>
+        </label>
+        <label>Telefone
+          <input type="tel" name="telefone" value="<%= values.telefone || '' %>" placeholder="(98) 99999-9999" required autocomplete="tel">
+          <small class="error" data-error="telefone"><%= errors.telefone || '' %></small>
+        </label>
+      </div>
+      <label>Plano de interesse
+        <select name="plano">
+          <option value="">Ainda não sei</option>
+          <% site.plans.forEach(p => { %>
+            <option value="<%= p.name %>" <%= values.plano === p.name ? 'selected' : '' %>><%= p.name %> - R$ <%= p.price %>/mês</option>
+          <% }) %>
+        </select>
+      </label>
+      <label>Mensagem
+        <textarea name="mensagem" rows="5" required><%= values.mensagem || '' %></textarea>
+        <small class="error" data-error="mensagem"><%= errors.mensagem || '' %></small>
+      </label>
+      <button class="btn btn-block" type="submit">Enviar mensagem</button>
+    </form>
+  </div>
+
+  <div class="map">
+    <iframe title="Localização da DRMFIT" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      src="https://www.google.com/maps?q=<%= encodeURIComponent(site.brand.mapQuery) %>&output=embed"></iframe>
+  </div>
+</section>

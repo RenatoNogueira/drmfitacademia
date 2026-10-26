@@ -1,0 +1,8 @@
+<% const b = img('banner'); %>
+<section class="promo" <% if (b) { %>style="background-image:url('<%= b %>')"<% } %>>
+  <div class="container center">
+    <span class="eyebrow"><%= site.promo.kicker %></span>
+    <h2><%= site.promo.before %> <span class="outline"><%= site.promo.highlight %></span> <%= site.promo.after %></h2>
+    <a class="btn" href="/#contato">Agendar treino</a>
+  </div>
+</section>

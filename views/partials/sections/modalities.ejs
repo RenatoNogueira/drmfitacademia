@@ -1,0 +1,18 @@
+<section class="section" id="servicos">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">O que fazemos</span>
+      <h2>Nossos <span class="outline">serviços</span></h2>
+    </div>
+    <div class="grid grid-3">
+      <% site.modalities.forEach(m => { %>
+        <article class="card service reveal">
+          <%- include('../icon', { name: m.icon }) %>
+          <h3><%= m.name %></h3>
+          <p><%= m.text %></p>
+          <a class="link-arrow" href="<%= site.whatsappLink('Olá! Quero saber mais sobre ' + m.name + ' na DRMFIT.') %>" target="_blank" rel="noopener">Quero saber mais <%- include('../icon', { name: 'arrow' }) %></a>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>

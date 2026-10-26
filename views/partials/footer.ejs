@@ -1,0 +1,71 @@
+</main>
+
+<section class="cta-band">
+  <div class="container cta-inner">
+    <div>
+      <h2>Pronto para <span class="outline">começar?</span></h2>
+      <p>Agende sua aula experimental gratuita e conheça a DRMFIT.</p>
+    </div>
+    <a class="btn btn-whatsapp" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Quero agendar uma aula experimental na DRMFIT.') %>">
+      <%- include('icon', { name: 'whatsapp' }) %> Chamar no WhatsApp
+    </a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a href="/" class="logo"><img src="/img/logo-transparent.png" alt="DRMFIT Academia" width="133" height="52"></a>
+      <p class="muted"><%= site.brand.tagline %> Estrutura completa, profissionais dedicados e um ambiente que motiva.</p>
+      <div class="social">
+        <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('icon', { name: 'instagram' }) %></a>
+        <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('icon', { name: 'facebook' }) %></a>
+        <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('icon', { name: 'youtube' }) %></a>
+      </div>
+    </div>
+    <div>
+      <h4>Links</h4>
+      <ul>
+        <li><a href="/#sobre">Sobre nós</a></li>
+        <li><a href="/#servicos">Modalidades</a></li>
+        <li><a href="/#planos">Planos</a></li>
+        <li><a href="/#aulas">Horários</a></li>
+        <li><a href="/#equipe">Equipe</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Horário</h4>
+      <ul class="muted">
+        <% site.schedule.hours.forEach(h => { %>
+          <li><%= h.label %>: <strong><%= h.value %></strong></li>
+        <% }) %>
+      </ul>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <ul class="muted">
+        <li><%= site.brand.address %></li>
+        <li><a href="tel:+<%= site.brand.whatsappNumber %>"><%= site.brand.phone %></a></li>
+        <li><a href="mailto:<%= site.brand.email %>"><%= site.brand.email %></a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>&copy; <%= year %> DRMFIT Academia. Todos os direitos reservados.</span>
+  </div>
+</footer>
+
+<a class="wa-float" target="_blank" rel="noopener" aria-label="Fale conosco no WhatsApp" href="<%= site.whatsappLink('Olá! Gostaria de saber mais sobre a DRMFIT.') %>">
+  <%- include('icon', { name: 'whatsapp' }) %>
+</a>
+
+<button class="to-top" id="to-top" aria-label="Voltar ao topo"><%- include('icon', { name: 'up' }) %></button>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Visualizador de mídia">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Fechar"><%- include('icon', { name: 'x' }) %></button>
+  <div class="lightbox-body" id="lightbox-body"></div>
+</div>
+
+<script src="/js/main.js" defer></script>
+</body>
+</html>

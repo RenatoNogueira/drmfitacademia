@@ -1,0 +1,9 @@
+<section class="page-hero">
+  <% const bg = img('topo-paginas'); %>
+  <% if (bg) { %><div class="page-hero-bg" style="background-image:url('<%= bg %>')"></div><% } %>
+  <div class="container">
+    <span class="eyebrow"><%= eyebrow %></span>
+    <h1><%- heading %></h1>
+    <p><%= text %></p>
+  </div>
+</section>

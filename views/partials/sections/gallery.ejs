@@ -1,0 +1,26 @@
+<% const pics = galleryImages(); %>
+<section class="section gallery-sec">
+  <div class="container">
+    <div class="section-head split-head">
+      <div>
+        <span class="eyebrow">Galeria</span>
+        <h2>Vida na <span class="outline">DRMFIT</span></h2>
+      </div>
+      <div class="carousel-nav">
+        <button type="button" data-carousel-prev aria-label="Fotos anteriores"><%- include('../icon', { name: 'back' }) %></button>
+        <button type="button" data-carousel-next aria-label="Próximas fotos"><%- include('../icon', { name: 'arrow' }) %></button>
+      </div>
+    </div>
+  </div>
+  <div class="gallery" data-carousel>
+    <% if (pics.length) { %>
+      <% pics.forEach(src => { %>
+        <button type="button" class="g-item" data-image="<%= src %>" aria-label="Ampliar foto"><img src="<%= src %>" alt="Foto da academia DRMFIT" loading="lazy"></button>
+      <% }) %>
+    <% } else { %>
+      <% for (let i = 1; i <= 5; i++) { %>
+        <div class="g-item"><div class="ph"><%- include('../icon', { name: 'camera' }) %><small>Adicione fotos em <code>public/media/galeria/</code></small></div></div>
+      <% } %>
+    <% } %>
+  </div>
+</section>
