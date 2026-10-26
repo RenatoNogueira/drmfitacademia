@@ -323,3 +323,26 @@ if (tel) {
       : d.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
   });
 }
+
+// Hero: leve parallax que acompanha o mouse (só em telas com mouse e sem "reduzir movimento")
+(() => {
+  const hero = document.querySelector('.hero');
+  if (!hero || reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  hero.addEventListener('mousemove', (e) => {
+    const r = hero.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width - 0.5;
+    ty = (e.clientY - r.top) / r.height - 0.5;
+  });
+  hero.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
+  const loop = () => {
+    if (window.scrollY < window.innerHeight * 1.2) {
+      cx += (tx - cx) * 0.07;
+      cy += (ty - cy) * 0.07;
+      hero.style.setProperty('--mx', cx.toFixed(3));
+      hero.style.setProperty('--my', cy.toFixed(3));
+    }
+    requestAnimationFrame(loop);
+  };
+  loop();
+})();

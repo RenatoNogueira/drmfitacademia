@@ -5,6 +5,12 @@ const heroVideo = video('hero');
 const heroImg = img('hero');
 %>
 <section class="hero" id="inicio">
+  <div class="hero-marquee" aria-hidden="true">
+    <div class="track">
+      <% for (let i = 0; i < 2; i++) { %><span>DRMFIT <i>•</i> Treine forte <i>•</i> Sem limites <i>•</i> Supere mais <i>•</i> </span><% } %>
+    </div>
+  </div>
+  <div class="hero-sweep" aria-hidden="true"></div>
   <div class="hero-bg" aria-hidden="true">
     <% if (heroVideo) { %>
       <video autoplay muted loop playsinline <% if (heroImg) { %>poster="<%= heroImg %>"<% } %>><source src="<%= heroVideo %>"></video>
@@ -15,7 +21,11 @@ const heroImg = img('hero');
   <div class="container hero-inner">
     <div class="hero-text">
       <span class="eyebrow line">Academia completa</span>
-      <h1>Supere mais<br>a cada <span class="outline">treino!</span></h1>
+      <h1 aria-label="Supere mais a cada treino!">
+        <span class="ln" aria-hidden="true"><span>Supere mais</span></span>
+        <span class="ln" aria-hidden="true"><span>a cada</span></span>
+        <span class="ln" aria-hidden="true"><span class="outline">treino!</span></span>
+      </h1>
       <p>Musculação, aulas coletivas, personal e avaliação física em um só lugar. Comece hoje com uma aula experimental gratuita.</p>
       <div class="hero-actions">
         <a href="/#contato" class="btn">Agendar treino</a>
@@ -28,6 +38,19 @@ const heroImg = img('hero');
       </div>
     </div>
   </div>
+
+  <div class="hero-chips" aria-hidden="true">
+    <div class="chip chip-a">
+      <strong><%= site.stats[0].value.toLocaleString('pt-BR') %><%= site.stats[0].suffix %></strong>
+      <span><%= site.stats[0].label %></span>
+    </div>
+    <div class="chip chip-b">
+      <%- include('partials/icon', { name: 'heart' }) %>
+      <div><strong>Aula experimental</strong><span>100% gratuita</span></div>
+    </div>
+  </div>
+
+  <a class="scroll-cue" href="/#sobre" aria-label="Rolar para a próxima seção"><span class="mouse"><i></i></span><span class="txt">Role</span></a>
 </section>
 
 <section class="stats">

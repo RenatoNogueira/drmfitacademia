@@ -452,3 +452,76 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* WhatsApp flutuante recolhe quando a área de contato está visível */
 .wa-float { transition: opacity .3s, transform .3s; }
 .wa-float.wa-hidden { opacity: 0; transform: scale(.6); pointer-events: none; }
+
+/* ===== Hero: apresentação moderna ===== */
+.hero { isolation: isolate; }
+
+/* 1) Título: cada linha sobe de dentro de uma máscara */
+.hero-text > h1 { animation: none; }
+.hero h1 .ln { display: block; overflow: hidden; padding: .02em 0 .1em; }
+.hero h1 .ln > span { display: inline-block; transform: translateY(115%); animation: line-up 1s cubic-bezier(.2, .8, .2, 1) forwards; }
+.hero h1 .ln:nth-child(1) > span { animation-delay: .55s; }
+.hero h1 .ln:nth-child(2) > span { animation-delay: .7s; }
+.hero h1 .ln:nth-child(3) > span { animation-delay: .85s; }
+@keyframes line-up { to { transform: none; } }
+/* brilho que preenche a palavra em contorno */
+.hero h1 .outline { background: linear-gradient(var(--accent), var(--accent)) no-repeat 0 0 / 0% 100%; -webkit-background-clip: text; background-clip: text; animation: line-up 1s .85s cubic-bezier(.2, .8, .2, 1) forwards, fill-sweep 1.6s 1.7s ease-in-out forwards; }
+@keyframes fill-sweep { 0% { background-size: 0% 100%; background-position: 0 0; } 40%, 55% { background-size: 100% 100%; background-position: 0 0; } 100% { background-size: 0% 100%; background-position: 100% 0; } }
+.hero-text > :nth-child(1) { animation-delay: .35s; }
+.hero-text > :nth-child(3) { animation-delay: 1.05s; }
+.hero-text > :nth-child(4) { animation-delay: 1.2s; }
+.hero-text > :nth-child(5) { animation-delay: 1.35s; }
+.eyebrow.line::after { transform-origin: left; animation: grow-line .9s .6s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes grow-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* 2) Foto: sobe revelada por uma "cortina" + parallax do mouse */
+.hero-bg { animation: photo-rise 1.3s .35s cubic-bezier(.7, 0, .2, 1) both; transform: translate3d(calc(var(--mx, 0) * -16px), calc(var(--my, 0) * -10px), 0) scale(1.04); }
+@keyframes photo-rise { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* 3) Faixa laranja que varre a tela na abertura */
+.hero-sweep { position: absolute; inset: 0 -20% 0 -20%; z-index: 4; pointer-events: none; background: linear-gradient(100deg, var(--accent) 0 70%, var(--accent-dark) 70% 100%); transform: translateX(-110%) skewX(-14deg); animation: sweep 1.25s .1s cubic-bezier(.7, 0, .2, 1) forwards; }
+@keyframes sweep { 0% { transform: translateX(-110%) skewX(-14deg); } 50% { transform: translateX(0) skewX(-14deg); } 100% { transform: translateX(110%) skewX(-14deg); visibility: hidden; } }
+
+/* 4) Texto gigante rolando ao fundo */
+.hero-marquee { position: absolute; left: 0; right: 0; bottom: 6%; z-index: 0; overflow: hidden; pointer-events: none; opacity: .9; }
+.hero-marquee .track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
+.hero-marquee span { font-family: var(--font-head); text-transform: uppercase; font-size: clamp(5rem, 13vw, 11rem); line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .09); }
+.hero-marquee i { font-style: normal; color: var(--accent); -webkit-text-stroke: 0; opacity: .35; padding: 0 .25em; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* 5) Cartões de vidro flutuando sobre a foto */
+.hero-chips { position: absolute; inset: 0; z-index: 3; pointer-events: none; transform: translate3d(calc(var(--mx, 0) * 26px), calc(var(--my, 0) * 18px), 0); }
+.chip { position: absolute; display: flex; align-items: center; gap: .8rem; padding: .85rem 1.2rem; border-radius: 16px; background: rgba(18, 18, 18, .55); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 12px 40px rgba(0, 0, 0, .45); opacity: 0; animation: chip-in .9s cubic-bezier(.2, .8, .2, 1) forwards, float 6s ease-in-out infinite; }
+.chip strong { display: block; font-family: var(--font-head); font-weight: 400; line-height: 1.1; }
+.chip span { font-size: .78rem; color: var(--muted); }
+.chip .icon { color: var(--accent); width: 28px; height: 28px; }
+.chip-a { right: 5%; top: 34%; flex-direction: column; align-items: flex-start; gap: .1rem; animation-delay: 1.6s, 2.5s; }
+.chip-a strong { font-size: 2rem; color: var(--accent); }
+.chip-b { right: 34%; bottom: 17%; animation-delay: 1.8s, 2.8s; }
+.chip-b strong { font-size: .95rem; text-transform: uppercase; }
+@keyframes chip-in { from { opacity: 0; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
+@keyframes float { 0%, 100% { margin-top: 0; } 50% { margin-top: -10px; } }
+
+/* 6) Indicador de rolagem */
+.scroll-cue { position: absolute; left: 50%; bottom: 1.6rem; z-index: 3; translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: .4rem; font-size: .7rem; letter-spacing: .25em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: fade-in .8s 2.2s forwards; }
+.scroll-cue .mouse { width: 22px; height: 36px; border: 2px solid rgba(255, 255, 255, .45); border-radius: 12px; display: block; position: relative; }
+.scroll-cue .mouse i { position: absolute; left: 50%; top: 7px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: var(--accent); animation: wheel 1.6s ease-in-out infinite; }
+@keyframes wheel { 0% { opacity: 1; transform: translateY(0); } 70% { opacity: 0; transform: translateY(12px); } 100% { opacity: 0; } }
+
+@media (max-width: 960px) {
+  .hero-chips { display: none; }
+  .hero-marquee { bottom: 12%; }
+  .scroll-cue { display: none; }
+}
+@media (max-height: 640px) { .scroll-cue { display: none; } }
+
+/* Sem animação: tudo já aparece pronto */
+@media (prefers-reduced-motion: reduce) {
+  .hero h1 .ln > span { transform: none !important; }
+  .hero-sweep, .scroll-cue .mouse i { display: none !important; }
+  .chip, .scroll-cue { opacity: 1 !important; }
+  .hero-bg { clip-path: none !important; transform: none !important; }
+  .hero-chips { transform: none !important; }
+}
+.hero-marquee i { font-size: .35em; vertical-align: middle; opacity: .5; }
+.chip-b { right: 3%; bottom: 24%; }
