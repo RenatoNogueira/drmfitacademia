@@ -443,3 +443,4 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .js .g-item.brush.painted { -webkit-mask-position: 0 0; mask-position: 0 0; transition: -webkit-mask-position 1.2s cubic-bezier(.45,.05,.2,1), mask-position 1.2s cubic-bezier(.45,.05,.2,1); }
 .js .g-item.brush.painted.done { -webkit-mask-image: none; mask-image: none; }
 @media (prefers-reduced-motion: reduce) { .js .g-item.brush { -webkit-mask-image: none; mask-image: none; } }
+.nav-cta.active { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
