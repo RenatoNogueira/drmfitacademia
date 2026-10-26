@@ -188,6 +188,18 @@ if ('IntersectionObserver' in window && !reduceMotion) {
   brushItems.forEach((el) => el.classList.add('painted', 'done'));
 }
 
+// O botão flutuante de WhatsApp some enquanto a área de contato (que já tem WhatsApp) está na tela
+const waFloat = document.querySelector('.wa-float');
+const waZones = document.querySelectorAll('#contato, .cta-band');
+if (waFloat && waZones.length && 'IntersectionObserver' in window) {
+  const visible = new Set();
+  const wo = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target); });
+    waFloat.classList.toggle('wa-hidden', visible.size > 0);
+  }, { threshold: 0.05 });
+  waZones.forEach((z) => wo.observe(z));
+}
+
 // Contadores: começam quando aparecem na tela
 const runCounter = (el) => {
   const target = Number(el.dataset.count);

@@ -444,3 +444,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .js .g-item.brush.painted.done { -webkit-mask-image: none; mask-image: none; }
 @media (prefers-reduced-motion: reduce) { .js .g-item.brush { -webkit-mask-image: none; mask-image: none; } }
 .nav-cta.active { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; }
+
+/* Botão "Contato" do menu: texto sempre legível quando ativo */
+.main-nav a.nav-cta.active, .main-nav a.nav-cta.active:hover { color: #fff; background: var(--accent-dark); border-color: var(--accent-dark); }
+.main-nav a.nav-cta:hover { color: var(--accent); }
+
+/* WhatsApp flutuante recolhe quando a área de contato está visível */
+.wa-float { transition: opacity .3s, transform .3s; }
+.wa-float.wa-hidden { opacity: 0; transform: scale(.6); pointer-events: none; }
