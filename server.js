@@ -30,12 +30,16 @@ const listGallery = () => {
     .map((f) => `/media/galeria/${f}`);
 };
 
+// Versão dos arquivos css/js na URL: evita que o navegador/CDN use uma cópia antiga após cada deploy
+const ASSET_VERSION = (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || String(Date.now());
+
 // Variáveis disponíveis em todas as views
 app.use((req, res, next) => {
   res.locals.img = (name) => findMedia(name, IMG_EXT);
   res.locals.video = (name) => findMedia(name, VIDEO_EXT);
   res.locals.galleryImages = listGallery;
   res.locals.site = site;
+  res.locals.assetVersion = ASSET_VERSION;
   res.locals.status = null;
   res.locals.errors = {};
   res.locals.values = {};
