@@ -10,6 +10,8 @@ const agendaLib = require('../lib/agenda');
 const { slots, slotKeys } = require('../lib/slots');
 const siteContent = require('../lib/siteContent');
 const { fmtPhone } = require('../lib/format');
+const pix = require('../lib/pix');
+const pay = require('../lib/payments');
 const schema = require('../lib/siteSchema');
 const { getAgenda } = require('./api');
 
@@ -82,8 +84,10 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 // Contador de mensagens novas para o menu (se a tabela ainda não existir, mostra 0)
 router.use(async (req, res, next) => {
   res.locals.unreadMessages = 0;
+  res.locals.pendingPayments = 0;
   if (!req.path.startsWith('/api/')) {
     try { res.locals.unreadMessages = await store.countUnreadMessages(); } catch { /* sem tabela ainda */ }
+    try { res.locals.pendingPayments = await store.countPendingPayments(); } catch { /* sem tabela ainda */ }
   }
   next();
 });
@@ -218,6 +222,77 @@ router.post('/api/mensagens/:id/lida', wrap(async (req, res) => {
 router.delete('/api/mensagens/:id', wrap(async (req, res) => {
   const ok = await store.deleteMessage(req.params.id);
   res.status(ok ? 200 : 404).json(ok ? { ok: true } : { error: 'Mensagem não encontrada.' });
+}));
+
+// ---------- pagamentos por PIX (assinaturas de planos) ----------
+const PAY_FILTERS = ['analise', 'aguardando', 'confirmados', 'recusados', 'todos'];
+
+router.get('/pagamentos', wrap(async (req, res) => {
+  const all = await store.listSubscriptions();
+  const filter = PAY_FILTERS.includes(req.query.f) ? req.query.f : 'analise';
+  const by = (st) => all.filter((s) => s.status === st);
+  const counts = { analise: by('em_analise').length, aguardando: by('aguardando_pagamento').length, confirmados: by('confirmado').length, recusados: by('recusado').length, todos: all.length };
+  const received = by('confirmado').reduce((sum, s) => sum + (s.amount_cents || 0), 0);
+  const list = filter === 'todos' ? all : all.filter((s) => s.status === ({ analise: 'em_analise', aguardando: 'aguardando_pagamento', confirmados: 'confirmado', recusados: 'recusado' })[filter]);
+  const site = res.locals.site;
+  const rows = list.map((s) => ({
+    ...s,
+    amountLabel: s.amount_cents ? pix.fmtBRL(s.amount_cents) : 'valor livre',
+    statusLabel: pay.STATUS[s.status] || s.status,
+    phoneFmt: fmtPhone(s.phone),
+    createdLabel: fmtDateTime(s.created_at),
+    receiptLabel: s.receipt_at ? fmtDateTime(s.receipt_at) : '',
+    isPdf: s.receipt_type === 'application/pdf',
+    wa: waLink(s.phone, s.status === 'confirmado'
+      ? `Olá, ${String(s.name).split(' ')[0]}! Aqui é da ${site.brand.name}. Seu pagamento do plano ${s.plan} (protocolo ${s.protocol}) foi confirmado. Bem-vindo(a)! Vamos combinar o início?`
+      : s.status === 'recusado'
+        ? `Olá, ${String(s.name).split(' ')[0]}! Aqui é da ${site.brand.name}. Não conseguimos confirmar o comprovante do plano ${s.plan} (protocolo ${s.protocol})${s.reject_reason ? `: ${s.reject_reason}` : ''}. Pode enviar novamente?`
+        : `Olá, ${String(s.name).split(' ')[0]}! Aqui é da ${site.brand.name}. Recebemos seu pedido do plano ${s.plan} (protocolo ${s.protocol}).`)
+  }));
+  res.render('admin/payments', { title: 'Pagamentos | Admin DRMFIT', rows, filter, counts, received: pix.fmtBRL(received), site });
+}));
+
+router.post('/api/pagamentos/:id/confirmar', wrap(async (req, res) => {
+  const s = await store.updateSubscription(req.params.id, { status: 'confirmado', reject_reason: null, decided_at: new Date().toISOString() });
+  res.status(s ? 200 : 404).json(s ? { ok: true } : { error: 'Pagamento não encontrado.' });
+}));
+
+router.post('/api/pagamentos/:id/recusar', wrap(async (req, res) => {
+  const reason = agendaLib.cleanText(req.body?.reason, 200);
+  if (reason.length < 3) return res.status(400).json({ error: 'Explique o motivo para o aluno (mín. 3 letras).' });
+  const s = await store.updateSubscription(req.params.id, { status: 'recusado', reject_reason: reason, decided_at: new Date().toISOString() });
+  res.status(s ? 200 : 404).json(s ? { ok: true } : { error: 'Pagamento não encontrado.' });
+}));
+
+router.post('/api/pagamentos/:id/reabrir', wrap(async (req, res) => {
+  const cur = await store.getSubscription(req.params.id);
+  if (!cur) return res.status(404).json({ error: 'Pagamento não encontrado.' });
+  await store.updateSubscription(cur.id, { status: cur.receipt_path ? 'em_analise' : 'aguardando_pagamento', decided_at: null });
+  res.json({ ok: true });
+}));
+
+router.delete('/api/pagamentos/:id', wrap(async (req, res) => {
+  const out = await store.deleteSubscription(req.params.id);
+  if (!out) return res.status(404).json({ error: 'Pagamento não encontrado.' });
+  if (out.receipt_path) await store.removePrivate(out.receipt_path);
+  res.json({ ok: true });
+}));
+
+// Comprovante: só com login de administrador; o tipo vem do conteúdo conferido no envio
+router.get('/comprovantes/:id', wrap(async (req, res) => {
+  const s = await store.getSubscription(req.params.id);
+  const type = s && s.receipt_type;
+  if (!s || !s.receipt_path || !['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(type)) return res.status(404).send('Comprovante não encontrado.');
+  const buf = await store.readPrivate(s.receipt_path);
+  if (!buf) return res.status(404).send('Arquivo não encontrado.');
+  const ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' }[type];
+  res.set({
+    'Content-Type': type,
+    'Content-Disposition': `inline; filename="comprovante-${s.protocol}.${ext}"`,
+    'Content-Security-Policy': "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
+    'Cache-Control': 'private, no-store'
+  });
+  res.send(buf);
 }));
 
 // ---------- horários de avaliação ----------
@@ -405,7 +480,23 @@ router.get('/conteudo', wrap(async (req, res) => {
   const current = await siteContent.get();
   const overrides = await siteContent.getOverrides();
   const edited = new Set(schema.groups.filter((g) => schema.flat(g).some((f) => f.path in overrides)).map((g) => g.id));
-  res.render('admin/content', { title: 'Conteúdo | Admin DRMFIT', groups: schema.groups, group, current, S: schema, edited });
+  let pixPreview = null;
+  if (group.id === 'pagamento') {
+    const c = current.pix;
+    const amountCents = pix.parseAmountCents(current.plans[0]?.price);
+    pixPreview = { enabled: c.enabled, mode: c.qrMode, plan: current.plans[0]?.name || '' };
+    try {
+      if (c.qrMode === 'image') {
+        const imageUrl = (await media.helpers()).img('pix-qr');
+        if (!imageUrl) pixPreview.error = 'Nenhuma imagem de QR Code enviada ainda. Envie em Imagens → Pagamento.';
+        else Object.assign(pixPreview, { imageUrl, copyPaste: c.copyPaste });
+      } else {
+        const info = await pay.pixInfo(current, { amountCents, imageUrl: null });
+        Object.assign(pixPreview, { svg: info.svg, copyPaste: info.copyPaste, amountLabel: info.amountLabel, receiver: info.receiver, city: info.city });
+      }
+    } catch (err) { pixPreview.error = err.message; }
+  }
+  res.render('admin/content', { title: 'Conteúdo | Admin DRMFIT', groups: schema.groups, group, current, S: schema, edited, pixPreview });
 }));
 
 router.post('/api/conteudo/:group', wrap(async (req, res) => {

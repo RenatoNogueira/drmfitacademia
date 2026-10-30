@@ -1,0 +1,31 @@
+/* Aba Pagamentos (reaproveita os cartões da tela de agendamentos) */
+.p-money { font-size: 1.15rem !important; line-height: 1.3 !important; }
+.p-card { grid-template-columns: 120px 1fr; }
+.p-card.st-aguardando_pagamento { border-left-color: #d6a21f; }
+.p-card.st-em_analise { border-left-color: #5aa9ff; }
+.p-card.st-confirmado { border-left-color: #25d366; }
+.p-card.st-recusado { border-left-color: #8a3a3a; opacity: .85; }
+.p-amount { font-size: 1.1rem; padding-top: .25rem; word-break: break-word; }
+.p-pill.st-aguardando_pagamento { color: #f3d98b; border-color: #7a5b14; background: #2a2110; }
+.p-pill.st-em_analise { color: #9bc9ff; border-color: #2a5b99; background: #12202f; }
+.p-pill.st-confirmado { color: #6ff2a0; border-color: #1d6b3d; background: #12281b; }
+.p-pill.st-recusado { color: #ff9c9c; border-color: #6b2a2a; background: #2a1414; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .04em; }
+.p-dates { margin: 0; color: var(--muted); font-size: .82rem; }
+.p-noreceipt { margin: 0; color: var(--muted); font-size: .88rem; font-style: italic; }
+.p-receipt { display: flex; align-items: center; gap: .8rem; width: fit-content; max-width: 100%; padding: .5rem .8rem .5rem .5rem; border: 1px solid var(--line); border-radius: 12px; background: #131313; color: var(--accent); text-decoration: none; font-size: .9rem; }
+.p-receipt:hover { border-color: var(--accent); }
+.p-receipt img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; background: #000; }
+.p-pdf { width: 72px; height: 72px; border-radius: 8px; display: grid; place-items: center; background: #2a1d1d; color: #ff9c9c; font-weight: 700; }
+.a-pix-preview { display: grid; grid-template-columns: 220px 1fr; gap: 1.2rem; align-items: center; padding: 1rem; border: 1px dashed var(--line); border-radius: 14px; background: #131313; }
+.a-pix-preview h3 { margin: 0 0 .4rem; font-size: 1rem; }
+.a-pix-qr { width: 220px; height: 220px; background: #fff; border-radius: 12px; padding: 8px; }
+.a-pix-qr svg, .a-pix-qr img { width: 100%; height: 100%; display: block; }
+.a-pix-code { margin: .5rem 0 0; padding: .6rem .7rem; background: #0e0e0e; border: 1px solid var(--line); border-radius: 10px; font: .75rem/1.4 ui-monospace, Menlo, monospace; word-break: break-all; color: var(--muted); max-height: 7.5rem; overflow: auto; }
+.a-pix-error { color: #ff9c9c; }
+@media (max-width: 720px) {
+  .p-card { grid-template-columns: 1fr; }
+  .p-amount { text-align: left; }
+  .p-receipt { width: 100%; }
+  .a-pix-preview { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+}

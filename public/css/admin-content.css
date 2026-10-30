@@ -44,3 +44,5 @@
   .a-grid-4 { grid-template-columns: 1fr 1fr; }
   .a-listrow-grid { grid-template-columns: 1fr; }
 }
+
+.a-select { width: 100%; padding: .7rem .9rem; background: #0e0e0e; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; }

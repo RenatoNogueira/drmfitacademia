@@ -9,6 +9,8 @@ const content = require('./lib/content');
 const store = require('./lib/store');
 const { cleanText } = require('./lib/agenda');
 const apiRoutes = require('./routes/api');
+const payRoutes = require('./routes/pay');
+const payLib = require('./lib/payments');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
@@ -44,6 +46,8 @@ app.use(async (req, res, next) => {
   try {
     Object.assign(res.locals, await media.helpers()); // img(), video(), galleryImages()
     res.locals.testimonials = await content.testimonials();
+    // Botão "Assinar" abre o pagamento por PIX só quando está ativado e configurado
+    res.locals.payEnabled = payLib.isReady(res.locals.site, { storeReady: store.ready, hasImage: Boolean(res.locals.img('pix-qr')) });
   } catch (err) {
     next(err);
     return;
@@ -52,6 +56,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use('/api', apiRoutes);
+app.use('/api', payRoutes);
 app.use('/admin', adminRoutes);
 
 const page = (view, title) => (req, res) => res.render(view, { title });

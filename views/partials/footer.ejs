@@ -80,8 +80,10 @@ const extLink = (h) => /^https?:/i.test(h);
 </div>
 
 <%- include('sections/booking') %>
+<% if (typeof payEnabled !== 'undefined' && payEnabled) { %><%- include('sections/payment') %><% } %>
 
 <script src="/js/main.js?v=<%= assetVersion %>" defer></script>
 <script src="/js/booking.js?v=<%= assetVersion %>" defer></script>
+<% if (typeof payEnabled !== 'undefined' && payEnabled) { %><script src="/js/payment.js?v=<%= assetVersion %>" defer></script><% } %>
 </body>
 </html>

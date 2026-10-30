@@ -160,3 +160,7 @@ html.a-dialog-open { overflow: hidden; }
 
 .a-media.is-removed .a-thumb { background: repeating-linear-gradient(45deg, #151515, #151515 12px, #1a1a1a 12px, #1a1a1a 24px); }
 .a-badge-off { background: #4a2a2a; color: #ff9c9c; }
+
+.a-dialog-field { display: grid; gap: .4rem; margin: 0 0 1.1rem; font-size: .85rem; color: var(--muted); }
+.a-dialog-field textarea { width: 100%; padding: .7rem .8rem; background: #0e0e0e; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; resize: vertical; }
+.a-dialog-field textarea.is-bad { border-color: #ff6b6b; }

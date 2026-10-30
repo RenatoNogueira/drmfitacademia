@@ -15,10 +15,12 @@
   <link rel="stylesheet" href="/css/admin-content.css?v=<%= assetVersion %>">
   <link rel="stylesheet" href="/css/admin-bookings.css?v=<%= assetVersion %>">
   <link rel="stylesheet" href="/css/admin-schedule.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-payments.css?v=<%= assetVersion %>">
 </head>
 <body class="admin">
 <% const tabs = [
   { href: '/admin/conteudo', label: 'Conteúdo', match: '/conteudo' },
+  { href: '/admin/pagamentos', label: 'Pagamentos', match: '/pagamentos', badge: typeof pendingPayments !== 'undefined' ? pendingPayments : 0 },
   { href: '/admin/agendamentos', label: 'Agendamentos', match: '/agendamentos' },
   { href: '/admin/mensagens', label: 'Mensagens', match: '/mensagens', badge: typeof unreadMessages !== 'undefined' ? unreadMessages : 0 },
   { href: '/admin/depoimentos', label: 'Depoimentos', match: '/depoimentos' },

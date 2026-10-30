@@ -116,6 +116,65 @@ if (bookingList) {
   } catch { /* ignora */ }
 }
 
+// ---- pagamentos (PIX) ----
+const payList = document.getElementById('p-list');
+if (payList) {
+  payList.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-pay-act]');
+    if (!btn) return;
+    const card = btn.closest('.p-card');
+    const { id, name, protocol, plan, amount, status } = card.dataset;
+    const act = btn.dataset.payAct;
+    const who = `${name} — ${plan} · ${amount}`;
+    const semComprovante = !card.querySelector('.p-receipt');
+    let call; let done;
+    if (act === 'confirmar') {
+      const yes = await ask({
+        tone: 'info', title: 'Confirmar este pagamento?', text: who,
+        details: [
+          `Confira no extrato do banco se ${amount} chegou, de quem pagou e o horário.`,
+          semComprovante ? 'Atenção: este pedido ainda não tem comprovante enviado.' : 'O comprovante enviado é só uma imagem: o extrato é a prova real.',
+          'O aluno passa a ver "Pagamento confirmado". Depois, avise-o pelo WhatsApp.'
+        ],
+        confirmText: 'Sim, confirmar pagamento', cancelText: 'Ainda não'
+      });
+      if (!yes) return;
+      call = () => api('POST', `/admin/api/pagamentos/${id}/confirmar`);
+      done = { type: 'success', title: 'Pagamento confirmado', text: `${who}. Avise o aluno pelo botão "Avisar aluno".` };
+    } else if (act === 'recusar') {
+      const reason = await ask({
+        tone: 'warn', title: 'Recusar este comprovante?', text: who,
+        details: ['O aluno vai ver o motivo e poderá enviar outro comprovante.'],
+        input: { label: 'Motivo (o aluno vai ler)', placeholder: 'Ex.: o valor não confere com o plano', required: true, maxLength: 200 },
+        confirmText: 'Recusar comprovante', cancelText: 'Voltar'
+      });
+      if (!reason) return;
+      call = () => api('POST', `/admin/api/pagamentos/${id}/recusar`, { reason });
+      done = { type: 'warn', title: 'Comprovante recusado', text: `${who}. Motivo enviado ao aluno.` };
+    } else if (act === 'reabrir') {
+      const yes = await ask({
+        tone: 'warn', title: 'Desfazer a confirmação?', text: who,
+        details: ['O pedido volta para "para conferir" e o aluno deixa de ver o pagamento como confirmado.'],
+        confirmText: 'Desfazer confirmação', cancelText: 'Manter confirmado'
+      });
+      if (!yes) return;
+      call = () => api('POST', `/admin/api/pagamentos/${id}/reabrir`);
+      done = { type: 'info', title: 'Confirmação desfeita', text: `${who} voltou para conferência.` };
+    } else if (act === 'excluir') {
+      const yes = await ask({
+        tone: 'danger', title: 'Excluir este pedido?', text: `${who} (${protocol})`,
+        details: ['Os dados do aluno e o comprovante enviado serão apagados.', 'Esta ação não pode ser desfeita.', status === 'confirmado' ? 'Este pagamento está CONFIRMADO: guarde o registro se precisar para a contabilidade.' : 'Se só quer encerrar, use "Recusar".'],
+        confirmText: 'Excluir definitivamente', cancelText: 'Manter'
+      });
+      if (!yes) return;
+      call = () => api('DELETE', `/admin/api/pagamentos/${id}`);
+      done = { type: 'danger', title: 'Pedido excluído', text: `${who}. Dados e comprovante apagados.` };
+    } else return;
+    busy(card, true);
+    try { await call(); flash(done); location.reload(); } catch (err) { notify({ type: 'error', title: 'Não foi possível concluir', text: err.message }); busy(card, false); }
+  });
+}
+
 // Altura do cabeçalho fixo (para barras que ficam coladas logo abaixo dele)
 const adminHeader = document.querySelector('.a-header');
 const setHeaderH = () => document.documentElement.style.setProperty('--a-header-h', `${adminHeader ? adminHeader.offsetHeight : 0}px`);
@@ -134,7 +193,8 @@ document.querySelectorAll('.a-media[data-key]').forEach((card) => {
     if (!file) return;
     busy(card, true);
     try {
-      const small = await shrink(file, key === 'logo' ? 1200 : MAX_SIDE, key === 'logo'); // logo mantém a transparência (PNG)
+      const keepPng = key === 'logo' || key === 'pix-qr'; // logo e QR Code ficam em PNG (transparência e nitidez)
+      const small = await shrink(file, keepPng ? 1200 : MAX_SIDE, keepPng);
       const fd = new FormData();
       fd.append('file', small);
       await api('POST', `/admin/api/media/${key}`, fd);

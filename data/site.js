@@ -22,6 +22,26 @@ module.exports = {
     return `https://wa.me/${this.brand.whatsappNumber}?text=${encodeURIComponent(message)}`;
   },
 
+  // Pagamento por PIX nos planos (configurado em Conteúdo → Pagamento)
+  pix: {
+    enabled: false,
+    keyType: 'cpf', // cpf | cnpj | phone | email | random
+    key: '',
+    receiverName: 'DRMFIT ACADEMIA',
+    city: 'SAO LUIS',
+    includeAmount: true,
+    qrMode: 'generated', // generated = o site gera o QR; image = usa a imagem enviada em Imagens
+    copyPaste: '',
+    title: 'Pague com PIX',
+    instructions: [
+      'Abra o app do seu banco e escolha pagar com PIX.',
+      'Escaneie o QR Code ou use o botão "Copiar código PIX".',
+      'Confira o valor e o nome do recebedor e confirme o pagamento.',
+      'Volte aqui e envie o comprovante para a gente confirmar.'
+    ],
+    successText: 'Recebemos o seu comprovante! Nossa equipe confirma o pagamento em breve e avisa você pelo WhatsApp.'
+  },
+
   // Quais seções aparecem no site (o painel pode esconder qualquer uma)
   sections: { stats: true, about: true, features: true, services: true, classes: true, promo: true, plans: true, gallery: true, trainers: true, testimonials: true, faq: true, contact: true },
 

@@ -43,6 +43,13 @@
     <textarea name="<%= f.path %>" rows="<%= f.type === 'textarea' ? 3 : (f.type === 'table' ? 6 : 4) %>" maxlength="<%= f.max || 4000 %>"><%= S.display(f, val) %></textarea>
     <% if (f.hint) { %><small class="a-muted"><%= f.hint %></small><% } %>
   </label>
+<% } else if (f.type === 'select') { %>
+  <label class="a-field"><%= f.label %>
+    <select name="<%= f.path %>" class="a-select">
+      <% f.options.forEach(([v, l]) => { %><option value="<%= v %>" <%= String(val) === v ? 'selected' : '' %>><%= l %></option><% }) %>
+    </select>
+    <% if (f.hint) { %><small class="a-muted"><%= f.hint %></small><% } %>
+  </label>
 <% } else if (f.type === 'color') { %>
   <label class="a-field a-color"><%= f.label %>
     <span><input type="color" name="<%= f.path %>" value="<%= val %>"><code><%= val %></code></span>

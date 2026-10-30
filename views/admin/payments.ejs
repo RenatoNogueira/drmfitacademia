@@ -1,0 +1,82 @@
+<%- include('_top') %>
+<div class="a-title">
+  <div>
+    <h1>Pagamentos dos planos</h1>
+    <p class="a-muted a-sub">Alunos que assinaram pelo PIX. Confira o comprovante e confirme o pagamento.</p>
+  </div>
+  <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/conteudo?g=pagamento">Configurar PIX</a>
+</div>
+
+<% if (!site.pix.enabled) { %>
+  <div class="a-note">O pagamento por PIX está <strong>desativado</strong> no site. Ative em <a class="a-inline" href="/admin/conteudo?g=pagamento">Conteúdo → Pagamento (PIX)</a>.</div>
+<% } %>
+
+<section class="b-stats" aria-label="Resumo">
+  <a class="b-stat <%= counts.analise ? 'warn' : '' %>" href="/admin/pagamentos?f=analise"><strong><%= counts.analise %></strong><span>Para conferir</span></a>
+  <a class="b-stat" href="/admin/pagamentos?f=aguardando"><strong><%= counts.aguardando %></strong><span>Aguardando pgto.</span></a>
+  <a class="b-stat" href="/admin/pagamentos?f=confirmados"><strong><%= counts.confirmados %></strong><span>Confirmados</span></a>
+  <div class="b-stat"><strong class="p-money"><%= received %></strong><span>Confirmado em R$</span></div>
+</section>
+
+<div class="b-toolbar">
+  <nav class="b-filters" aria-label="Filtrar pagamentos">
+    <% [['analise','Para conferir'],['aguardando','Aguardando'],['confirmados','Confirmados'],['recusados','Recusados'],['todos','Todos']].forEach(([k,l]) => { %>
+      <a href="/admin/pagamentos?f=<%= k %>" class="<%= filter === k ? 'on' : '' %>" <%= filter === k ? 'aria-current="page"' : '' %>><%= l %><span><%= counts[k] %></span></a>
+    <% }) %>
+  </nav>
+</div>
+
+<% if (!rows.length) { %>
+  <div class="a-card a-empty b-empty">
+    <strong>Nenhum pagamento aqui.</strong>
+    <p class="a-muted"><%= filter === 'analise' ? 'Nenhum comprovante esperando conferência.' : 'Quando alguém assinar um plano pelo site, aparece aqui.' %></p>
+    <% if (filter !== 'todos') { %><a class="a-btn a-btn-ghost a-btn-sm" href="/admin/pagamentos?f=todos">Ver todos</a><% } %>
+  </div>
+<% } else { %>
+  <div class="b-list" id="p-list">
+    <% rows.forEach(s => { %>
+      <article class="b-card p-card st-<%= s.status %>" data-id="<%= s.id %>" data-status="<%= s.status %>" data-name="<%= s.name %>" data-protocol="<%= s.protocol %>" data-plan="<%= s.plan %>" data-amount="<%= s.amountLabel %>">
+        <div class="b-time p-amount"><%= s.amountLabel %></div>
+        <div class="b-main">
+          <div class="b-top">
+            <h3><%= s.name %></h3>
+            <span class="b-pill p-pill st-<%= s.status %>"><%= s.statusLabel %></span>
+          </div>
+          <div class="b-meta">
+            <span class="b-tag"><%= s.plan %></span>
+            <span class="b-tag mono"><%= s.protocol %></span>
+            <a href="tel:+<%= s.phone.length <= 11 ? '55' + s.phone : s.phone %>"><%= s.phoneFmt %></a>
+            <% if (s.email) { %><a href="mailto:<%= s.email %>"><%= s.email %></a><% } %>
+          </div>
+          <p class="p-dates">Pedido em <%= s.createdLabel %><% if (s.receiptLabel) { %> · comprovante enviado em <%= s.receiptLabel %><% } %></p>
+
+          <% if (s.receipt_path) { %>
+            <a class="p-receipt" href="/admin/comprovantes/<%= s.id %>" target="_blank" rel="noopener" title="Abrir o comprovante em tamanho real">
+              <% if (s.isPdf) { %><span class="p-pdf">PDF</span><% } else { %><img src="/admin/comprovantes/<%= s.id %>" alt="Comprovante de <%= s.name %>" loading="lazy"><% } %>
+              <span>Ver comprovante <%= s.isPdf ? '(PDF)' : 'em tamanho real' %> ↗</span>
+            </a>
+          <% } else { %>
+            <p class="p-noreceipt">Ainda sem comprovante.</p>
+          <% } %>
+          <% if (s.status === 'recusado' && s.reject_reason) { %><p class="b-notes">Motivo da recusa: <%= s.reject_reason %></p><% } %>
+
+          <div class="b-actions">
+            <% if (s.status === 'em_analise' || s.status === 'aguardando_pagamento' || s.status === 'recusado') { %>
+              <button class="a-btn a-btn-sm b-ok" type="button" data-pay-act="confirmar"><%= s.status === 'recusado' ? 'Confirmar mesmo assim' : 'Confirmar pagamento' %></button>
+            <% } %>
+            <% if (s.status === 'em_analise' || s.status === 'aguardando_pagamento') { %>
+              <button class="a-btn a-btn-sm a-btn-ghost b-cancel" type="button" data-pay-act="recusar">Recusar</button>
+            <% } %>
+            <% if (s.status === 'confirmado') { %>
+              <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-pay-act="reabrir">Desfazer confirmação</button>
+            <% } %>
+            <a class="a-btn a-btn-sm a-btn-wa" href="<%= s.wa %>" target="_blank" rel="noopener"><%= s.status === 'confirmado' ? 'Avisar aluno' : 'WhatsApp' %></a>
+            <button class="a-btn a-btn-sm a-btn-danger" type="button" data-pay-act="excluir" aria-label="Excluir pedido de <%= s.name %>">Excluir</button>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+<% } %>
+<p class="a-muted a-small">O comprovante é privado: só quem entra no painel consegue abrir. Compare o valor e o recebedor com o extrato do seu banco antes de confirmar. Exclua os registros quando não forem mais necessários (LGPD).</p>
+<%- include('_bottom') %>

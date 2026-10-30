@@ -62,6 +62,26 @@ create table if not exists public.testimonials (
   created_at  timestamptz not null default now()
 );
 
+-- Assinaturas de planos pagas por PIX (comprovante enviado pelo aluno e confirmado no painel)
+create table if not exists public.subscriptions (
+  id             uuid primary key default gen_random_uuid(),
+  protocol       text not null unique,
+  plan           text not null,
+  amount_cents   integer,
+  name           text not null,
+  phone          text not null,
+  email          text,
+  status         text not null default 'aguardando_pagamento'
+                 check (status in ('aguardando_pagamento', 'em_analise', 'confirmado', 'recusado')),
+  upload_token   text not null,
+  receipt_path   text,
+  receipt_type   text,
+  receipt_at     timestamptz,
+  reject_reason  text,
+  decided_at     timestamptz,
+  created_at     timestamptz not null default now()
+);
+
 -- Impede dois alunos no mesmo horário (cancelados liberam o horário)
 create unique index if not exists bookings_slot_unique
   on public.bookings (date, time) where status <> 'cancelado';
@@ -73,10 +93,16 @@ alter table public.settings enable row level security;
 alter table public.bookings enable row level security;
 alter table public.messages enable row level security;
 alter table public.testimonials enable row level security;
+alter table public.subscriptions enable row level security;
 
 -- Bucket público para as imagens enviadas pelo painel
 insert into storage.buckets (id, name, public)
 values ('media', 'media', true)
+on conflict (id) do nothing;
+
+-- Bucket PRIVADO para os comprovantes de pagamento (só o servidor acessa)
+insert into storage.buckets (id, name, public)
+values ('receipts', 'receipts', false)
 on conflict (id) do nothing;
 
 -- Atualiza o cache do Supabase para enxergar as tabelas novas imediatamente

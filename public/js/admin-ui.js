@@ -63,7 +63,8 @@
 
   // ---------- janela de confirmação ----------
   // ask({ title, text, details: [...], image, tone: 'danger'|'warn'|'info', confirmText, cancelText }) -> Promise<boolean>
-  const ask = ({ title, text = '', details = [], image = '', tone = 'danger', confirmText = 'Confirmar', cancelText = 'Cancelar' } = {}) => new Promise((resolve) => {
+  // Com `input: { label, placeholder, required, maxLength }` mostra um campo de texto e devolve o texto digitado (ou null se cancelar).
+  const ask = ({ title, text = '', details = [], image = '', input = null, tone = 'danger', confirmText = 'Confirmar', cancelText = 'Cancelar' } = {}) => new Promise((resolve) => {
     const opener = document.activeElement;
     const root = el('div', 'a-dialog');
     const backdrop = el('div', 'a-dialog-backdrop');
@@ -82,6 +83,14 @@
     if (image) { const im = el('img', 'a-dialog-img'); im.src = image; im.alt = ''; desc.append(im); }
     if (details.length) { const ul = el('ul', 'a-dialog-list'); details.forEach((d) => ul.append(el('li', '', d))); desc.append(ul); }
 
+    let field = null;
+    if (input) {
+      const wrap = el('label', 'a-dialog-field', input.label || '');
+      field = el('textarea');
+      field.rows = 3; field.maxLength = input.maxLength || 200; field.placeholder = input.placeholder || '';
+      wrap.append(field);
+      desc.append(wrap);
+    }
     const actions = el('div', 'a-dialog-actions');
     const cancel = el('button', 'a-btn a-btn-ghost', cancelText); cancel.type = 'button';
     const ok = el('button', `a-btn ${tone === 'danger' ? 'a-btn-solid-danger' : ''}`, confirmText); ok.type = 'button';
@@ -92,9 +101,10 @@
     document.documentElement.classList.add('a-dialog-open');
     requestAnimationFrame(() => root.classList.add('in'));
     // Em ações destrutivas o foco começa no "Cancelar" (evita confirmar sem querer com Enter)
-    (tone === 'danger' ? cancel : ok).focus();
+    (field || (tone === 'danger' ? cancel : ok)).focus();
 
     const done = (value) => {
+      if (field && value === false) value = null;
       document.removeEventListener('keydown', onKey, true);
       root.classList.remove('in');
       document.documentElement.classList.remove('a-dialog-open');
@@ -105,7 +115,7 @@
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); return; }
       if (e.key === 'Tab') {
-        const items = [cancel, ok];
+        const items = field ? [field, cancel, ok] : [cancel, ok];
         const i = items.indexOf(document.activeElement);
         e.preventDefault();
         items[(i + (e.shiftKey ? -1 : 1) + items.length) % items.length].focus();
@@ -114,7 +124,12 @@
     document.addEventListener('keydown', onKey, true);
     backdrop.addEventListener('click', () => done(false));
     cancel.addEventListener('click', () => done(false));
-    ok.addEventListener('click', () => done(true));
+    ok.addEventListener('click', () => {
+      if (!field) return done(true);
+      const v = field.value.trim();
+      if (input.required && v.length < 3) { field.classList.add('is-bad'); field.focus(); return; }
+      done(v);
+    });
   });
 
   Object.assign(window, { notify, toast, flash, ask });

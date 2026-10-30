@@ -15,6 +15,7 @@ npm start        # http://localhost:3000
 ## Painel admin (`/admin`)
 Área protegida por senha para:
 - **Conteúdo**: editar textos do site (topo, sobre, serviços, aulas, planos e preços, FAQ, rodapé...), contato/WhatsApp/redes, horários de funcionamento, cores e o logo (em Imagens). O que não for editado usa o texto padrão de `data/site.js`;
+- **Pagamentos (PIX)**: o aluno clica em "Assinar" no plano, vê o QR Code PIX, paga e envia o comprovante pelo site; você confere o comprovante e confirma ou recusa. Configure em **Conteúdo → Pagamento (PIX)** (chave, nome, cidade, passo a passo; ou use a sua própria imagem de QR Code). O QR gerado é estático (o mesmo para todos, com o valor do plano). Os comprovantes ficam em um bucket **privado** (`receipts`), só visíveis no painel; precisa do Supabase e do SQL atualizado (`supabase/schema.sql`);
 - **Agendamentos**: ver as avaliações marcadas, confirmar/cancelar, chamar o aluno no WhatsApp e baixar planilha (CSV);
 - **Mensagens**: ler as mensagens enviadas em "Envie uma mensagem" (Contato), marcar como lida/não lida, responder por WhatsApp ou e-mail e excluir;
 - **Horários**: definir os horários livres de cada dia, antecedência, janela de dias e datas sem atendimento;

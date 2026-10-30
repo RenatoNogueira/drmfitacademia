@@ -21,6 +21,21 @@
       <%- include('_field', { f, current, S }) %>
     <% }) %>
 
+    <% if (typeof pixPreview !== 'undefined' && pixPreview) { %>
+      <section class="a-pix-preview" aria-label="Prévia do QR Code">
+        <% if (pixPreview.error) { %>
+          <div><h3>Prévia do QR Code</h3><p class="a-pix-error"><%= pixPreview.error %></p><p class="a-muted a-small">Preencha os campos acima e salve para ver o QR Code aqui.</p></div>
+        <% } else { %>
+          <div class="a-pix-qr"><% if (pixPreview.mode === 'image') { %><img src="<%= pixPreview.imageUrl %>" alt="QR Code PIX enviado por você"><% } else { %><%- pixPreview.svg %><% } %></div>
+          <div>
+            <h3>Prévia do QR Code <%= pixPreview.enabled ? '' : '(pagamento desativado)' %></h3>
+            <% if (pixPreview.mode === 'generated') { %><p class="a-muted a-small">Exemplo com o valor do plano <strong><%= pixPreview.plan %></strong>: <strong><%= pixPreview.amountLabel %></strong> para <strong><%= pixPreview.receiver %></strong> (<%= pixPreview.city %>). Mostra as configurações já salvas.</p><% } else { %><p class="a-muted a-small">Esta é a imagem que o aluno vai ver.</p><% } %>
+            <% if (pixPreview.copyPaste) { %><div class="a-pix-code"><%= pixPreview.copyPaste %></div><% } %>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
+
     <div class="a-row a-row-center a-sticky-actions">
       <button class="a-btn" type="submit">Salvar alterações</button>
       <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener">Ver site ↗</a>

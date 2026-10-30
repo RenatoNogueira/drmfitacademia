@@ -1,0 +1,101 @@
+<%# Assinatura de plano com PIX: abre ao clicar em "Assinar" (links com data-subscribe) %>
+<div class="modal" id="pay-modal" hidden>
+  <div class="modal-backdrop" data-pay-close></div>
+  <div class="modal-panel pay-panel" role="dialog" aria-modal="true" aria-labelledby="pay-title" tabindex="-1" data-pay data-wa="<%= site.whatsappLink('') %>" data-success="<%= site.pix.successText %>">
+    <button class="modal-close" type="button" data-pay-close aria-label="Fechar"><%- include('../icon', { name: 'x' }) %></button>
+
+    <header class="modal-head">
+      <span class="eyebrow">Assinatura</span>
+      <h2 id="pay-title"><%= site.pix.title %></h2>
+      <div class="pay-plan" data-pay-plan></div>
+    </header>
+
+    <ol class="pay-steps" data-pay-steps aria-label="Etapas">
+      <li class="on"><span>1</span> Seus dados</li>
+      <li><span>2</span> Pagar</li>
+      <li><span>3</span> Comprovante</li>
+    </ol>
+
+    <!-- Etapa 1: dados do aluno -->
+    <section data-pay-step="1">
+      <p class="pay-resume" data-pay-resume hidden>
+        Você já tem um pedido em andamento para este plano.
+        <button type="button" class="link-btn" data-pay-continue>Continuar de onde parei</button>
+      </p>
+      <form class="b-form" data-pay-form novalidate>
+        <div class="form-row">
+          <label>Nome completo
+            <input type="text" name="name" maxlength="80" required autocomplete="name">
+            <small class="error" data-error="name"></small>
+          </label>
+          <label>WhatsApp
+            <input type="tel" name="phone" maxlength="20" placeholder="(98) 99999-9999" required autocomplete="tel" inputmode="tel">
+            <small class="error" data-error="phone"></small>
+          </label>
+        </div>
+        <label><span>E-mail <em>(opcional)</em></span>
+          <input type="email" name="email" maxlength="120" autocomplete="email">
+          <small class="error" data-error="email"></small>
+        </label>
+        <input class="b-trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="b-consent">
+          <input type="checkbox" name="consent">
+          <span>Concordo que a <%= site.brand.name %> use meus dados apenas para confirmar meu pagamento e entrar em contato.</span>
+        </label>
+        <small class="error" data-error="consent"></small>
+        <small class="error" data-error="form" data-pay-error></small>
+        <button class="btn btn-block" type="submit">Gerar QR Code PIX</button>
+      </form>
+    </section>
+
+    <!-- Etapa 2: QR Code -->
+    <section data-pay-step="2" hidden>
+      <div class="pay-qr-wrap">
+        <div class="pay-qr" data-pay-qr aria-label="QR Code PIX"></div>
+        <div class="pay-qr-info">
+          <p class="pay-amount" data-pay-amount></p>
+          <p class="pay-receiver" data-pay-receiver></p>
+          <button class="btn btn-block" type="button" data-pay-copy>Copiar código PIX</button>
+          <p class="pay-protocol">Protocolo: <strong data-pay-protocol></strong></p>
+        </div>
+      </div>
+      <ol class="pay-how">
+        <% (site.pix.instructions || []).forEach((i) => { %><li><%= i %></li><% }) %>
+      </ol>
+      <button class="btn btn-block" type="button" data-pay-paid>Já paguei, enviar comprovante</button>
+    </section>
+
+    <!-- Etapa 3: comprovante -->
+    <section data-pay-step="3" hidden>
+      <p class="pay-lead">Envie a foto ou o PDF do comprovante do pagamento (até 4 MB).</p>
+      <label class="pay-drop" data-pay-drop>
+        <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-pay-file hidden>
+        <span class="pay-drop-icon"><%- include('../icon', { name: 'camera' }) %></span>
+        <strong>Toque para escolher o comprovante</strong>
+        <small>JPG, PNG, WebP ou PDF</small>
+      </label>
+      <div class="pay-preview" data-pay-preview hidden>
+        <img alt="Prévia do comprovante" data-pay-thumb hidden>
+        <span class="pay-pdf" data-pay-pdf hidden>PDF</span>
+        <div><strong data-pay-filename></strong><small data-pay-filesize></small></div>
+        <button type="button" class="link-btn" data-pay-clear>Trocar</button>
+      </div>
+      <small class="error" data-pay-file-error></small>
+      <button class="btn btn-block" type="button" data-pay-send disabled>Enviar comprovante</button>
+      <button class="btn btn-outline btn-block" type="button" data-pay-back>Voltar ao QR Code</button>
+    </section>
+
+    <!-- Etapa 4: andamento -->
+    <section class="pay-result" data-pay-step="4" hidden>
+      <div class="b-check" data-pay-icon></div>
+      <h3 data-pay-result-title></h3>
+      <p data-pay-result-text></p>
+      <p class="pay-protocol">Protocolo: <strong data-pay-result-protocol></strong></p>
+      <div class="pay-result-actions">
+        <a class="btn btn-whatsapp" target="_blank" rel="noopener" data-pay-wa href="#"><%- include('../icon', { name: 'whatsapp' }) %> Falar no WhatsApp</a>
+        <button class="btn btn-outline" type="button" data-pay-retry hidden>Enviar outro comprovante</button>
+        <button class="btn btn-outline" type="button" data-pay-close>Fechar</button>
+      </div>
+    </section>
+  </div>
+</div>
