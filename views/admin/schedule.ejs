@@ -1,30 +1,116 @@
 <%- include('_top') %>
-<div class="a-title"><h1>Horários de avaliação</h1></div>
+<% const order = [1, 2, 3, 4, 5, 6, 0]; // semana começando na segunda %>
+<div class="a-title">
+  <div>
+    <h1>Horários de avaliação</h1>
+    <p class="a-muted a-sub">Defina quando os alunos podem agendar. Cada horário comporta um aluno.</p>
+  </div>
+</div>
 
-<% if (saved) { %><div class="a-alert a-ok" role="status">Horários salvos.</div><% } %>
+<% if (saved) { %><div data-notify='{"type":"success","title":"Horários salvos","text":"O agendamento do site já usa a nova agenda."}' hidden></div><% } %>
 <% if (error) { %><div class="a-alert a-bad" role="alert"><%= error %></div><% } %>
 
-<form class="a-card a-form" method="post" action="/admin/horarios">
-  <p class="a-muted">Liste os horários livres de cada dia separados por vírgula (ex.: <code>08:00, 09:00, 17:30</code>). Deixe em branco os dias sem atendimento. Cada horário comporta um aluno.</p>
-  <div class="a-grid-days">
-    <% weekdays.forEach((name, d) => { %>
-      <label><%= name %>
-        <input type="text" name="slots_<%= d %>" value="<%= (agenda.slots[d] || []).join(', ') %>" placeholder="sem atendimento" inputmode="numeric">
-      </label>
+<form class="h-form" method="post" action="/admin/horarios" id="h-form" novalidate>
+  <script type="application/json" id="h-data"><%- JSON.stringify({ slots: agenda.slots, blocked: agenda.blocked }).replace(/</g, '\\u003c') %></script>
+
+  <div class="h-summary a-card" id="h-summary" aria-live="polite">
+    <div><strong id="h-total">0</strong><span>horários por semana</span></div>
+    <div><strong id="h-days">0</strong><span>dias com atendimento</span></div>
+    <div><strong id="h-blocked">0</strong><span>datas bloqueadas</span></div>
+  </div>
+
+  <section class="h-days" aria-label="Horários por dia da semana">
+    <% order.forEach(d => { %>
+      <article class="a-card h-day" data-day="<%= d %>">
+        <header class="h-day-head">
+          <h2><%= weekdays[d] %></h2>
+          <span class="h-count" data-count></span>
+          <button class="h-icon" type="button" data-toggle-tools aria-expanded="false" aria-label="Mais opções de <%= weekdays[d] %>" title="Gerar, copiar ou limpar">⋯</button>
+        </header>
+
+        <div class="h-chips" data-chips aria-label="Horários de <%= weekdays[d] %>"></div>
+        <p class="h-empty" data-empty>Sem atendimento neste dia.</p>
+
+        <div class="h-add">
+          <input type="time" step="900" value="08:00" aria-label="Novo horário de <%= weekdays[d] %>" data-new-time>
+          <button class="a-btn a-btn-sm" type="button" data-add-time>+ Adicionar</button>
+        </div>
+
+        <div class="h-tools" data-tools hidden>
+          <fieldset class="h-gen">
+            <legend>Gerar vários horários</legend>
+            <label>Primeiro<input type="time" value="07:00" data-gen-from></label>
+            <label>Último<input type="time" value="10:00" data-gen-to></label>
+            <label>A cada
+              <select data-gen-step>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60" selected>1 hora</option>
+                <option value="90">1h30</option>
+                <option value="120">2 horas</option>
+              </select>
+            </label>
+            <button class="a-btn a-btn-sm" type="button" data-generate>Gerar</button>
+          </fieldset>
+          <fieldset class="h-copy">
+            <legend>Copiar estes horários para…</legend>
+            <div class="h-copy-days">
+              <% order.filter(o => o !== d).forEach(o => { %>
+                <label class="a-check"><input type="checkbox" value="<%= o %>" data-copy-target> <%= weekdays[o].slice(0, 3) %></label>
+              <% }) %>
+            </div>
+            <div class="h-copy-quick">
+              <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-copy-preset="weekdays">Dias úteis</button>
+              <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-copy-preset="all">Todos os dias</button>
+              <button class="a-btn a-btn-sm" type="button" data-copy>Copiar</button>
+            </div>
+          </fieldset>
+          <button class="a-btn a-btn-sm a-btn-danger" type="button" data-clear>Limpar este dia</button>
+        </div>
+
+        <input type="hidden" name="slots_<%= d %>" data-slots-input>
+      </article>
     <% }) %>
+  </section>
+
+  <section class="a-card h-rules" aria-label="Regras">
+    <h2 class="a-h3">Regras do agendamento</h2>
+    <div class="h-rule-grid">
+      <label class="a-field">Até quantos dias à frente o aluno pode agendar
+        <span class="h-stepper">
+          <button type="button" data-step="-1" data-for="daysAhead" aria-label="Diminuir">−</button>
+          <input type="number" name="daysAhead" id="daysAhead" min="1" max="90" value="<%= agenda.daysAhead %>" inputmode="numeric">
+          <button type="button" data-step="1" data-for="daysAhead" aria-label="Aumentar">+</button>
+          <em>dias</em>
+        </span>
+      </label>
+      <label class="a-field">Antecedência mínima para marcar
+        <span class="h-stepper">
+          <button type="button" data-step="-1" data-for="minNoticeHours" aria-label="Diminuir">−</button>
+          <input type="number" name="minNoticeHours" id="minNoticeHours" min="0" max="72" value="<%= agenda.minNoticeHours %>" inputmode="numeric">
+          <button type="button" data-step="1" data-for="minNoticeHours" aria-label="Aumentar">+</button>
+          <em>horas</em>
+        </span>
+      </label>
+    </div>
+
+    <div class="h-block">
+      <h3>Datas sem atendimento <small class="a-muted">(feriados, folgas)</small></h3>
+      <div class="h-add">
+        <input type="date" id="h-block-date" aria-label="Data sem atendimento">
+        <button class="a-btn a-btn-sm" type="button" id="h-block-add">+ Bloquear data</button>
+      </div>
+      <div class="h-chips" id="h-block-chips"></div>
+      <p class="h-empty" id="h-block-empty">Nenhuma data bloqueada.</p>
+      <input type="hidden" name="blocked" id="h-blocked-input">
+    </div>
+  </section>
+
+  <div class="h-save">
+    <span class="a-muted a-small" id="h-dirty" hidden>Alterações ainda não salvas</span>
+    <button class="a-btn" type="submit">Salvar horários</button>
   </div>
-  <div class="a-grid-2">
-    <label>Dias à frente que o aluno pode agendar
-      <input type="number" name="daysAhead" min="1" max="90" value="<%= agenda.daysAhead %>">
-    </label>
-    <label>Antecedência mínima (horas)
-      <input type="number" name="minNoticeHours" min="0" max="72" value="<%= agenda.minNoticeHours %>">
-    </label>
-  </div>
-  <label>Datas sem atendimento (feriados, folgas)
-    <textarea name="blocked" rows="2" placeholder="2026-12-25, 2027-01-01"><%= agenda.blocked.join(', ') %></textarea>
-    <small class="a-muted">Formato ano-mês-dia, separadas por vírgula.</small>
-  </label>
-  <button class="a-btn" type="submit">Salvar horários</button>
 </form>
+
+<script src="/js/admin-schedule.js?v=<%= assetVersion %>" defer></script>
 <%- include('_bottom') %>

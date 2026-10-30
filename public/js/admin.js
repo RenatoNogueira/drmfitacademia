@@ -1,14 +1,5 @@
 // Painel admin: ações dos agendamentos, imagens e galeria.
-const toastEl = document.getElementById('toast');
-let toastTimer;
-const toast = (msg, bad = false) => {
-  if (!toastEl) return;
-  toastEl.textContent = msg;
-  toastEl.className = `a-toast${bad ? ' bad' : ''}`;
-  toastEl.hidden = false;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { toastEl.hidden = true; }, 3500);
-};
+// Alertas (toast, notify, ask, flash) vêm de admin-ui.js
 
 const api = async (method, url, body) => {
   const opts = { method, headers: { 'X-Requested-With': 'fetch' } };
@@ -57,24 +48,43 @@ if (bookingList) {
     if (!card) return;
     const statusBtn = e.target.closest('[data-set-status]');
     const delBtn = e.target.closest('[data-delete-booking]');
+    const name = card.querySelector('h3').textContent.trim();
+    const dayHead = card.closest('[data-day]').querySelector('.b-day-head');
+    const when = `${dayHead.querySelector('strong').textContent} (${dayHead.querySelector('span').textContent}) às ${card.querySelector('.b-time').textContent.trim()}`;
     if (statusBtn) {
       const status = statusBtn.dataset.setStatus;
-      if (status === 'cancelado' && !confirm(`Cancelar o agendamento de ${card.querySelector('h3').textContent}? O horário volta a ficar livre no site.`)) return;
+      if (status === 'cancelado') {
+        const yes = await ask({
+          tone: 'warn', title: 'Cancelar este agendamento?', text: `${name} — ${when}`,
+          details: ['O horário volta a ficar livre para novos agendamentos no site.', 'O aluno não é avisado automaticamente: avise pelo WhatsApp se precisar.'],
+          confirmText: 'Sim, cancelar', cancelText: 'Voltar'
+        });
+        if (!yes) return;
+      }
       busy(card, true);
       try {
         await api('POST', `/admin/api/agendamentos/${card.dataset.id}/status`, { status });
-        toast(status === 'confirmado' ? 'Agendamento confirmado.' : status === 'cancelado' ? 'Agendamento cancelado.' : 'Status atualizado.');
-        setTimeout(reloadKeepingState, 450);
-      } catch (err) { toast(err.message, true); busy(card, false); }
+        flash(status === 'confirmado'
+          ? { type: 'success', title: 'Agendamento confirmado', text: `${name} — ${when}. Avise o aluno pelo WhatsApp.` }
+          : status === 'cancelado'
+            ? { type: 'warn', title: 'Agendamento cancelado', text: `${name} — ${when}. O horário está livre de novo.` }
+            : { type: 'info', title: 'Status atualizado', text: `${name} voltou para "pendente".` });
+        reloadKeepingState();
+      } catch (err) { notify({ type: 'error', title: 'Não foi possível alterar', text: err.message }); busy(card, false); }
     } else if (delBtn) {
-      if (!confirm('Excluir este agendamento? Os dados do aluno serão apagados e isso não pode ser desfeito.')) return;
+      const yes = await ask({
+        tone: 'danger', title: 'Excluir este agendamento?', text: `${name} — ${when}`,
+        details: ['Nome, telefone e e-mail do aluno serão apagados.', 'Esta ação não pode ser desfeita.', 'Se só quer liberar o horário, use "Cancelar".'],
+        confirmText: 'Excluir definitivamente', cancelText: 'Manter'
+      });
+      if (!yes) return;
       busy(card, true);
       try {
         await api('DELETE', `/admin/api/agendamentos/${card.dataset.id}`);
         card.classList.add('is-leaving');
-        toast('Agendamento excluído.');
-        setTimeout(reloadKeepingState, 350);
-      } catch (err) { toast(err.message, true); busy(card, false); }
+        flash({ type: 'danger', title: 'Agendamento excluído', text: `${name} — ${when}. Os dados foram apagados.` });
+        setTimeout(reloadKeepingState, 300);
+      } catch (err) { notify({ type: 'error', title: 'Não foi possível excluir', text: err.message }); busy(card, false); }
     }
   });
 
@@ -133,9 +143,20 @@ document.querySelectorAll('.a-media[data-key]').forEach((card) => {
     } catch (err) { toast(err.message, true); busy(card, false); }
   });
   card.querySelector('[data-reset]')?.addEventListener('click', async () => {
-    if (!confirm('Voltar para a foto padrão do site?')) return;
+    const label = card.querySelector('h3').textContent.trim();
+    const yes = await ask({
+      tone: 'warn', title: 'Voltar para a foto padrão?', text: label,
+      image: card.querySelector('.a-thumb img')?.src || '',
+      details: ['A foto que você enviou será removida do site e do armazenamento.', 'A foto original do site volta a aparecer no lugar.'],
+      confirmText: 'Remover minha foto', cancelText: 'Manter'
+    });
+    if (!yes) return;
     busy(card, true);
-    try { await api('DELETE', `/admin/api/media/${key}`); location.reload(); } catch (err) { toast(err.message, true); busy(card, false); }
+    try {
+      await api('DELETE', `/admin/api/media/${key}`);
+      flash({ type: 'danger', title: 'Foto removida', text: `${label}: voltou a foto padrão do site.` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível remover', text: err.message }); busy(card, false); }
   });
 });
 
@@ -169,14 +190,20 @@ document.querySelectorAll('.a-msg[data-id]').forEach((box) => {
     try { await setRead(box.dataset.read === '0'); } catch (err) { toast(err.message, true); }
   });
   box.querySelector('[data-delete-message]')?.addEventListener('click', async () => {
-    if (!confirm('Excluir esta mensagem? Os dados serão apagados.')) return;
+    const who = box.querySelector('summary strong').childNodes[0].textContent.trim();
+    const yes = await ask({
+      tone: 'danger', title: 'Excluir esta mensagem?', text: `Mensagem de ${who}`,
+      details: ['O texto e os dados de contato serão apagados.', 'Esta ação não pode ser desfeita.', 'Se quer só tirar de "Novas", use "Marcar como lida".'],
+      confirmText: 'Excluir definitivamente', cancelText: 'Manter'
+    });
+    if (!yes) return;
     try {
       const wasUnread = box.dataset.read === '0';
       await api('DELETE', `/admin/api/mensagens/${id}`);
       if (wasUnread) adjustDot(-1);
       box.remove();
-      toast('Mensagem excluída.');
-    } catch (err) { toast(err.message, true); }
+      notify({ type: 'danger', title: 'Mensagem excluída', text: `A mensagem de ${who} foi apagada.` });
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível excluir', text: err.message }); }
   });
 });
 
@@ -216,8 +243,19 @@ document.querySelectorAll('form[data-testimonial][data-id]').forEach((form) => {
     try { await api('POST', `/admin/api/depoimentos/${id}/mover`, { dir: b.dataset.move }); location.reload(); } catch (err) { toast(err.message, true); }
   }));
   form.querySelector('[data-delete-testimonial]')?.addEventListener('click', async () => {
-    if (!confirm('Excluir este depoimento?')) return;
-    try { await api('DELETE', `/admin/api/depoimentos/${id}`); location.reload(); } catch (err) { toast(err.message, true); }
+    const who = form.querySelector('[name="name"]').value || form.querySelector('.a-t-head strong').textContent;
+    const yes = await ask({
+      tone: 'danger', title: 'Excluir este depoimento?', text: who,
+      image: form.querySelector('.a-avatar img')?.src || '',
+      details: ['O depoimento sai do site agora mesmo.', 'A foto do aluno, se houver, também será apagada.', 'Para só tirar do ar, use "Mostrar no site" desmarcado.'],
+      confirmText: 'Excluir depoimento', cancelText: 'Manter'
+    });
+    if (!yes) return;
+    try {
+      await api('DELETE', `/admin/api/depoimentos/${id}`);
+      flash({ type: 'danger', title: 'Depoimento excluído', text: `${who} não aparece mais no site.` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível excluir', text: err.message }); }
   });
 });
 
@@ -248,6 +286,11 @@ document.querySelectorAll('input[data-mask]').forEach((input) => {
 // ---- conteúdo do site ----
 const contentForm = document.querySelector('[data-content-form]');
 if (contentForm) {
+  let dirty = false;
+  const removedLabels = []; // nomes dos itens excluídos nesta edição (aparecem no aviso ao salvar)
+  const markDirty = () => { dirty = true; };
+  contentForm.addEventListener('input', markDirty);
+  contentForm.addEventListener('change', markDirty);
   // Reordena os índices dos itens conforme a ordem na tela (o servidor lê pelo número do índice)
   const renumber = () => {
     contentForm.querySelectorAll('[data-list]').forEach((list) => {
@@ -274,7 +317,7 @@ if (contentForm) {
   contentForm.querySelectorAll('[data-list]').forEach((list) => {
     let counter = list.querySelectorAll('[data-row]').length + 100;
     updateMoveButtons(list);
-    list.addEventListener('click', (e) => {
+    list.addEventListener('click', async (e) => {
       const t = e.target.closest('button');
       if (!t) return;
       const rows = list.querySelector('[data-rows]');
@@ -289,12 +332,36 @@ if (contentForm) {
         t.hidden = true;
       } else if (t.matches('[data-remove-row]')) {
         const row = t.closest('[data-row]');
-        const label = row.querySelector('[data-row-title]')?.textContent || 'este item';
-        if (confirm(`Excluir "${label}"? Para desfazer, use "Voltar" ou "Restaurar" antes de sair.`)) {
-          const rid = row.querySelector('input[name$="[_id]"]')?.value;
-          row.remove();
-          if (rid) { const back = list.querySelector(`[data-restore="${CSS.escape(rid)}"]`); if (back) { back.hidden = false; list.querySelector('[data-restore-box]').hidden = false; } }
-        }
+        const label = row.querySelector('[data-row-title]')?.textContent.trim() || 'este item';
+        const listName = list.querySelector('legend')?.textContent.trim() || 'a lista';
+        const yes = await ask({
+          tone: 'danger', title: `Excluir "${label}"?`, text: `Item de ${listName}`,
+          details: ['O item some do site assim que você clicar em "Salvar alterações".', 'Até lá dá para desfazer: use o botão "Desfazer" do aviso ou "Voltar".'],
+          confirmText: 'Excluir item', cancelText: 'Manter'
+        });
+        if (!yes) return;
+        const rid = row.querySelector('input[name$="[_id]"]')?.value;
+        const parent = row.parentElement;
+        const next = row.nextElementSibling;
+        row.remove();
+        removedLabels.push(label);
+        markDirty();
+        if (rid) { const back = list.querySelector(`[data-restore="${CSS.escape(rid)}"]`); if (back) { back.hidden = false; list.querySelector('[data-restore-box]').hidden = false; } }
+        updateMoveButtons(list);
+        notify({
+          type: 'danger', title: `"${label}" excluído da lista`, text: 'Ainda não saiu do site: clique em "Salvar alterações" para publicar.', duration: 9000,
+          action: {
+            label: 'Desfazer',
+            onClick: () => {
+              parent.insertBefore(row, next && parent.contains(next) ? next : null);
+              const i = removedLabels.lastIndexOf(label); if (i >= 0) removedLabels.splice(i, 1);
+              if (rid) list.querySelector(`[data-restore="${CSS.escape(rid)}"]`)?.setAttribute('hidden', '');
+              updateMoveButtons(list);
+              notify({ type: 'info', title: `"${label}" voltou para a lista` });
+            }
+          }
+        });
+        return;
       } else if (t.matches('[data-row-move]')) {
         const row = t.closest('[data-row]');
         if (t.dataset.rowMove === 'up' && row.previousElementSibling) row.previousElementSibling.before(row);
@@ -319,14 +386,30 @@ if (contentForm) {
     btn.disabled = true;
     try {
       await api('POST', `/admin/api/conteudo/${contentForm.dataset.group}`, new URLSearchParams(new FormData(contentForm)));
-      toast('Alterações salvas. Já estão no site.');
-      setTimeout(() => location.reload(), 700);
-    } catch (err) { toast(err.message, true); btn.disabled = false; }
+      dirty = false;
+      flash(removedLabels.length
+        ? { type: 'success', title: 'Alterações publicadas', text: `Excluídos do site: ${removedLabels.join(', ')}. Pode levar até 15 segundos para aparecer.`, duration: 8000 }
+        : { type: 'success', title: 'Alterações publicadas', text: 'Já estão no site (pode levar até 15 segundos).' });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível salvar', text: err.message }); btn.disabled = false; }
   });
   contentForm.querySelector('[data-reset-group]')?.addEventListener('click', async () => {
-    if (!confirm('Voltar os textos desta seção para o padrão? As suas edições serão perdidas.')) return;
-    try { await api('DELETE', `/admin/api/conteudo/${contentForm.dataset.group}`); location.reload(); } catch (err) { toast(err.message, true); }
+    const title = contentForm.querySelector('.a-content-head h2').textContent.trim();
+    const yes = await ask({
+      tone: 'warn', title: 'Restaurar os textos padrão?', text: `Seção: ${title}`,
+      details: ['Tudo o que você editou nesta seção volta ao original.', 'Itens excluídos voltam para a lista.', 'Esta ação já vale no site, sem precisar salvar.'],
+      confirmText: 'Restaurar padrão', cancelText: 'Manter minhas edições'
+    });
+    if (!yes) return;
+    try {
+      await api('DELETE', `/admin/api/conteudo/${contentForm.dataset.group}`);
+      dirty = false;
+      flash({ type: 'info', title: 'Textos restaurados', text: `A seção "${title}" voltou ao padrão.` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível restaurar', text: err.message }); }
   });
+  // Avisa antes de sair da página com alterações ainda não salvas
+  window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 }
 
 // ---- galeria ----
@@ -359,7 +442,18 @@ document.querySelectorAll('.a-gallery .a-media').forEach((card) => {
     try { await api('POST', `/admin/api/galeria/${id}/mover`, { dir: b.dataset.move }); location.reload(); } catch (err) { toast(err.message, true); }
   }));
   card.querySelector('[data-delete-photo]')?.addEventListener('click', async () => {
-    if (!confirm('Excluir esta foto da galeria?')) return;
-    try { await api('DELETE', `/admin/api/galeria/${id}`); location.reload(); } catch (err) { toast(err.message, true); }
+    const n = card.querySelector('.a-badge')?.textContent.trim();
+    const yes = await ask({
+      tone: 'danger', title: 'Excluir esta foto da galeria?', text: n ? `Foto ${n}` : '',
+      image: card.querySelector('.a-thumb img')?.src || '',
+      details: ['A foto sai da galeria do site agora mesmo.', 'O arquivo enviado também é apagado.'],
+      confirmText: 'Excluir foto', cancelText: 'Manter'
+    });
+    if (!yes) return;
+    try {
+      await api('DELETE', `/admin/api/galeria/${id}`);
+      flash({ type: 'danger', title: 'Foto excluída', text: 'A foto saiu da galeria.' });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível excluir', text: err.message }); }
   });
 });
