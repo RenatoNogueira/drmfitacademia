@@ -157,3 +157,6 @@ html.a-dialog-open { overflow: hidden; }
   .a-toasts { bottom: calc(5.2rem + env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-motion: reduce) { .a-toast2, .a-dialog-panel, .a-dialog-backdrop { transition: none; } .a-toast2-bar { animation: none; } }
+
+.a-media.is-removed .a-thumb { background: repeating-linear-gradient(45deg, #151515, #151515 12px, #1a1a1a 12px, #1a1a1a 24px); }
+.a-badge-off { background: #4a2a2a; color: #ff9c9c; }

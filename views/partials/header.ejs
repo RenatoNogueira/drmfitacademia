@@ -29,7 +29,7 @@ const nav = [
 <header class="site-header" id="top">
   <div class="scroll-progress" id="scroll-progress"></div>
   <div class="container header-inner">
-    <a href="/" class="logo" aria-label="DRMFIT - página inicial"><img src="<%= img('logo') || '/img/logo-transparent.png' %>" alt="<%= site.brand.name %> Academia" width="133" height="52"></a>
+    <a href="/" class="logo" aria-label="DRMFIT - página inicial"><% if (mediaHidden('logo')) { %><span class="logo-text"><span class="lime"><%= site.brand.name.slice(0, 3) %></span><%= site.brand.name.slice(3) %></span><% } else { %><img src="<%= img('logo') || '/img/logo-transparent.png' %>" alt="<%= site.brand.name %> Academia" width="133" height="52"><% } %></a>
     <nav class="main-nav" id="main-nav" aria-label="Principal">
       <% nav.forEach((item) => { %>
         <a href="<%= item.href %>" data-spy="<%= item.href.split('#')[1] %>"><%= item.label %></a>

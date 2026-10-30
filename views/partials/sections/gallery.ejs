@@ -1,5 +1,5 @@
-<% if (site.sections.gallery) { %><%# SECTION-FLAG %>
 <% const pics = galleryImages(); %>
+<% if (site.sections.gallery && (pics.length || devHints)) { %><%# SECTION-FLAG %>
 <section class="section gallery-sec">
   <div class="container">
     <div class="section-head split-head">
@@ -19,7 +19,7 @@
       <% }) %>
     <% } else { %>
       <% for (let i = 1; i <= 5; i++) { %>
-        <div class="g-item"><div class="ph"><%- include('../icon', { name: 'camera' }) %><small>Adicione fotos em <code>public/media/galeria/</code></small></div></div>
+        <div class="g-item"><div class="ph"><%- include('../icon', { name: 'camera' }) %><% if (devHints) { %><small>Adicione fotos em <code>public/media/galeria/</code></small><% } %></div></div>
       <% } %>
     <% } %>
   </div>

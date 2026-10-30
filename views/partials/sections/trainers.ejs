@@ -10,7 +10,7 @@
           <div class="photo">
             <% const src = img(t.key || 'equipe-' + (i + 1)); %>
             <% if (src) { %><img src="<%= src %>" alt="<%= t.name %>" loading="lazy">
-            <% } else { %><div class="ph"><span class="initials"><%= t.initials %></span><small><code><%= t.key || 'equipe-' + (i + 1) %>.jpg</code></small></div><% } %>
+            <% } else { %><div class="ph"><span class="initials"><%= t.initials %></span><% if (devHints) { %><small><code><%= t.key || 'equipe-' + (i + 1) %>.jpg</code></small><% } %></div><% } %>
           </div>
           <h3><%= t.name %></h3>
           <p><%= t.role %></p>

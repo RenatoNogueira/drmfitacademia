@@ -1,23 +1,25 @@
 <%- include('_top') %>
 <div class="a-title"><h1>Imagens do site</h1></div>
-<p class="a-muted">Troque as fotos de cada espaço. Imagens grandes são reduzidas automaticamente antes do envio. “Voltar ao padrão” restaura a foto original do site.</p>
+<p class="a-muted">Troque as fotos de cada espaço. Imagens grandes são reduzidas automaticamente antes do envio. “Voltar ao padrão” restaura a foto original do site; “Remover” tira a foto do espaço (o layout se ajusta) e dá para restaurar depois.</p>
 
 <% groups.forEach(g => { %>
   <h2 class="a-h2"><%= g.name %></h2>
   <div class="a-cards">
     <% g.items.forEach(s => { %>
-      <article class="a-card a-media" data-key="<%= s.key %>">
+      <article class="a-card a-media <%= s.removed ? 'is-removed' : '' %>" data-key="<%= s.key %>">
         <div class="a-thumb">
-          <% if (s.current) { %><img src="<%= s.current %>" alt="<%= s.label %>" loading="lazy"><% } else { %><span>Sem foto</span><% } %>
-          <% if (s.custom) { %><em class="a-badge">Personalizada</em><% } %>
+          <% if (s.current) { %><img src="<%= s.current %>" alt="<%= s.label %>" loading="lazy"><% } else { %><span><%= s.removed ? 'Foto removida' : 'Sem foto' %></span><% } %>
+          <% if (s.removed) { %><em class="a-badge a-badge-off">Removida</em><% } else if (s.custom) { %><em class="a-badge">Personalizada</em><% } %>
         </div>
         <h3><%= s.label %></h3>
         <p class="a-muted a-small"><%= s.hint %></p>
         <div class="a-row">
-          <label class="a-btn a-btn-sm">Trocar foto
+          <label class="a-btn a-btn-sm"><%= s.removed ? 'Enviar foto' : 'Trocar foto' %>
             <input type="file" accept="image/jpeg,image/png,image/webp" data-upload hidden>
           </label>
-          <% if (s.custom) { %><button class="a-btn a-btn-sm a-btn-ghost" type="button" data-reset>Voltar ao padrão</button><% } %>
+          <% if (s.removed) { %><button class="a-btn a-btn-sm a-btn-ghost" type="button" data-restore-media>Restaurar padrão</button><% } %>
+          <% if (s.custom && !s.removed) { %><button class="a-btn a-btn-sm a-btn-ghost" type="button" data-reset>Voltar ao padrão</button><% } %>
+          <% if (s.current) { %><button class="a-btn a-btn-sm a-btn-danger" type="button" data-remove-media>Remover</button><% } %>
         </div>
       </article>
     <% }) %>

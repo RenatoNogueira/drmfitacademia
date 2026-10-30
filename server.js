@@ -37,6 +37,7 @@ app.use(async (req, res, next) => {
   res.locals.status = null;
   res.locals.errors = {};
   res.locals.values = {};
+  res.locals.devHints = !process.env.VERCEL && process.env.NODE_ENV !== 'production'; // dicas de arquivo só no seu computador
   res.locals.currentPath = req.path;
   res.locals.year = new Date().getFullYear();
   if (req.path.startsWith('/admin') || req.path.startsWith('/api')) return next();

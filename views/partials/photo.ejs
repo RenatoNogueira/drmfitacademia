@@ -4,6 +4,6 @@
 <% } else { %>
   <div class="ph" role="img" aria-label="<%= alt %>">
     <%- include('icon', { name: 'camera' }) %>
-    <small>Adicione <code>public/media/<%= name %>.jpg</code></small>
+    <% if (typeof devHints !== 'undefined' && devHints) { %><small>Adicione <code>public/media/<%= name %>.jpg</code></small><% } %>
   </div>
 <% } %>

@@ -579,3 +579,5 @@ html.is-locked { overflow-y: scroll; } /* página travada (menu, modal, foto): b
 
 .lightbox { overscroll-behavior: contain; touch-action: none; }
 .lightbox-body video { touch-action: auto; }
+
+.logo-text { font-family: var(--font-head); font-size: 1.9rem; letter-spacing: .02em; text-transform: uppercase; line-height: 1; display: inline-block; }

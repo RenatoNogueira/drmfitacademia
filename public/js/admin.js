@@ -142,6 +142,36 @@ document.querySelectorAll('.a-media[data-key]').forEach((card) => {
       setTimeout(() => location.reload(), 500);
     } catch (err) { toast(err.message, true); busy(card, false); }
   });
+  card.querySelector('[data-remove-media]')?.addEventListener('click', async () => {
+    const label = card.querySelector('h3').textContent.trim();
+    const custom = Boolean(card.querySelector('.a-badge:not(.a-badge-off)'));
+    const yes = await ask({
+      tone: 'danger', title: 'Remover esta foto?', text: label,
+      image: card.querySelector('.a-thumb img')?.src || '',
+      details: [
+        'O espaço fica sem foto no site e o layout se ajusta.',
+        custom ? 'A foto que você enviou será apagada do armazenamento.' : 'A foto padrão do site deixa de aparecer neste espaço.',
+        'Para trazer de volta, use "Restaurar padrão" ou envie uma foto nova.'
+      ],
+      confirmText: 'Remover foto', cancelText: 'Manter'
+    });
+    if (!yes) return;
+    busy(card, true);
+    try {
+      await api('POST', `/admin/api/media/${key}/remover`);
+      flash({ type: 'danger', title: 'Foto removida', text: `${label}: o espaço ficou sem foto no site.` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível remover', text: err.message }); busy(card, false); }
+  });
+  card.querySelector('[data-restore-media]')?.addEventListener('click', async () => {
+    const label = card.querySelector('h3').textContent.trim();
+    busy(card, true);
+    try {
+      await api('POST', `/admin/api/media/${key}/restaurar`);
+      flash({ type: 'success', title: 'Foto restaurada', text: `${label}: a foto padrão voltou ao site.` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível restaurar', text: err.message }); busy(card, false); }
+  });
   card.querySelector('[data-reset]')?.addEventListener('click', async () => {
     const label = card.querySelector('h3').textContent.trim();
     const yes = await ask({

@@ -267,9 +267,22 @@ const storeImage = async (folder, file) => {
 };
 const fail = (res, err) => (err.status ? res.status(err.status).json({ error: err.message }) : null);
 
+// Imagens "removidas": o espaço fica sem foto no site (a lista fica em settings.media_hidden)
+const getHidden = async () => {
+  const v = await store.getSetting('media_hidden');
+  return new Set(Array.isArray(v) ? v : []);
+};
+const saveHidden = async (set) => { await store.setSetting('media_hidden', [...set]); media.invalidate(); };
+
 router.get('/imagens', wrap(async (req, res) => {
   const map = await store.getMedia();
-  const items = slots.map((s) => ({ ...s, custom: Boolean(map[s.key]), current: map[s.key]?.url || media.findLocal(s.key, media.IMG_EXT) || s.fallback || null }));
+  const hidden = await getHidden();
+  const items = slots.map((s) => ({
+    ...s,
+    custom: Boolean(map[s.key]),
+    removed: hidden.has(s.key),
+    current: hidden.has(s.key) ? null : (map[s.key]?.url || media.findLocal(s.key, media.IMG_EXT) || s.fallback || null)
+  }));
   const groups = [...new Set(items.map((i) => i.group))].map((g) => ({ name: g, items: items.filter((i) => i.group === g) }));
   res.render('admin/media', { title: 'Imagens | Admin DRMFIT', groups });
 }));
@@ -281,6 +294,8 @@ router.post('/api/media/:key', uploadErrors(upload.single('file')), wrap(async (
     const saved = await storeImage(`slots/${req.params.key}`, req.file);
     const old = await store.setMedia(req.params.key, saved.url, saved.path);
     if (old) await store.removeFile(old);
+    const hidden = await getHidden();
+    if (hidden.delete(req.params.key)) await saveHidden(hidden); // enviar uma foto nova "devolve" o espaço
     media.invalidate();
     res.json({ ok: true, url: saved.url });
   } catch (err) { if (!fail(res, err)) throw err; }
@@ -290,8 +305,30 @@ router.delete('/api/media/:key', wrap(async (req, res) => {
   if (!slotKeys.has(req.params.key)) return res.status(404).json({ error: 'Espaço de imagem desconhecido.' });
   const old = await store.deleteMedia(req.params.key);
   if (old) await store.removeFile(old);
+  const hidden = await getHidden();
+  if (hidden.delete(req.params.key)) await saveHidden(hidden);
   media.invalidate();
   res.json({ ok: true, fallback: media.findLocal(req.params.key, media.IMG_EXT) });
+}));
+
+// Remover: apaga a foto enviada (se houver) e deixa o espaço sem imagem no site
+router.post('/api/media/:key/remover', wrap(async (req, res) => {
+  if (!slotKeys.has(req.params.key)) return res.status(404).json({ error: 'Espaço de imagem desconhecido.' });
+  const old = await store.deleteMedia(req.params.key);
+  if (old) await store.removeFile(old);
+  const hidden = await getHidden();
+  hidden.add(req.params.key);
+  await saveHidden(hidden);
+  res.json({ ok: true, deletedFile: Boolean(old) });
+}));
+
+// Restaurar: o espaço volta a mostrar a foto padrão do site
+router.post('/api/media/:key/restaurar', wrap(async (req, res) => {
+  if (!slotKeys.has(req.params.key)) return res.status(404).json({ error: 'Espaço de imagem desconhecido.' });
+  const hidden = await getHidden();
+  hidden.delete(req.params.key);
+  await saveHidden(hidden);
+  res.json({ ok: true });
 }));
 
 // ---------- depoimentos ("Alunos que transformaram a rotina") ----------
