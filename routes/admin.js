@@ -253,4 +253,16 @@ router.delete('/api/galeria/:id', wrap(async (req, res) => {
   res.json({ ok: true });
 }));
 
+// Qualquer erro não tratado no painel (inclusive ao montar a página) mostra o motivo, em vez de uma página em branco
+// eslint-disable-next-line no-unused-vars
+router.use((err, req, res, next) => {
+  console.error('admin (erro):', err);
+  if (res.headersSent) return;
+  if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'Erro no servidor. Tente de novo.' });
+  res.status(500).render('admin/setup', { title: 'Erro | Admin DRMFIT', problem: explain(err) }, (e, html) => {
+    if (e) return res.status(500).type('text').send(`Erro no painel: ${err.message}`);
+    res.send(html);
+  });
+});
+
 module.exports = router;

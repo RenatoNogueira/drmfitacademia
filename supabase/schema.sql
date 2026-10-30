@@ -51,3 +51,6 @@ alter table public.bookings enable row level security;
 insert into storage.buckets (id, name, public)
 values ('media', 'media', true)
 on conflict (id) do nothing;
+
+-- Atualiza o cache do Supabase para enxergar as tabelas novas imediatamente
+notify pgrst, 'reload schema';
