@@ -9,6 +9,7 @@ const content = require('../lib/content');
 const agendaLib = require('../lib/agenda');
 const { slots, slotKeys } = require('../lib/slots');
 const siteContent = require('../lib/siteContent');
+const { fmtPhone } = require('../lib/format');
 const schema = require('../lib/siteSchema');
 const { getAgenda } = require('./api');
 
@@ -94,13 +95,6 @@ const waLink = (phone, text) => {
   return `https://wa.me/${d.length <= 11 ? `55${d}` : d}?text=${encodeURIComponent(text)}`;
 };
 
-const fmtPhone = (p) => {
-  const d = String(p).replace(/\D/g, '');
-  const n = d.length > 11 && d.startsWith('55') ? d.slice(2) : d;
-  if (n.length === 11) return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
-  if (n.length === 10) return `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
-  return String(p);
-};
 const brDate = (d) => d.split('-').reverse().join('/');
 
 router.get('/agendamentos', wrap(async (req, res) => {
@@ -208,6 +202,7 @@ router.get('/mensagens', wrap(async (req, res) => {
     return {
       ...m,
       when: fmtDateTime(m.created_at),
+      phoneFmt: fmtPhone(m.phone),
       wa: waLink(m.phone, `Olá, ${first}! Aqui é da DRMFIT. Recebemos sua mensagem pelo site e estamos retornando.`),
       mail: `mailto:${m.email}?subject=${encodeURIComponent('Sua mensagem para a DRMFIT')}`
     };

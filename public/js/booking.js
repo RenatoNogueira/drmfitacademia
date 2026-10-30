@@ -149,12 +149,6 @@
   window.addEventListener('hashchange', () => { if (location.hash === '#avaliacao') open(null); });
 
   // ---------- formulário ----------
-  const phone = form.querySelector('[name="phone"]');
-  phone.addEventListener('input', () => {
-    const d = phone.value.replace(/\D/g, '').slice(0, 11);
-    phone.value = d.length > 10 ? d.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3') : d.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
-  });
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });

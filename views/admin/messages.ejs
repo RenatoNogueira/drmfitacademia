@@ -20,7 +20,7 @@
         <div class="a-msg-body">
           <p class="a-msg-text"><%= m.message %></p>
           <div class="a-msg-meta">
-            <span>WhatsApp: <a href="<%= m.wa %>" target="_blank" rel="noopener"><%= m.phone %></a></span>
+            <span>WhatsApp: <a href="<%= m.wa %>" target="_blank" rel="noopener"><%= m.phoneFmt %></a></span>
             <span>E-mail: <a href="<%= m.mail %>"><%= m.email %></a></span>
             <% if (m.plan) { %><span>Plano de interesse: <%= m.plan %></span><% } %>
           </div>

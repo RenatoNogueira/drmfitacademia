@@ -313,16 +313,23 @@ if (lightbox) {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
 }
 
-// Máscara de telefone
-const tel = document.querySelector('input[name="telefone"]');
-if (tel) {
-  tel.addEventListener('input', () => {
-    const d = tel.value.replace(/\D/g, '').slice(0, 11);
-    tel.value = d.length > 10
-      ? d.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
-      : d.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+// Máscara de telefone em todos os campos de telefone do site: (98) 98141-9822
+const maskPhone = (value) => {
+  const d = value.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : '';
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}${d.length > 6 ? `-${d.slice(6)}` : ''}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+};
+window.maskPhone = maskPhone; // também usada pelo agendamento
+document.querySelectorAll('input[type="tel"]').forEach((input) => {
+  input.addEventListener('input', () => {
+    // Ao apagar, não "briga" com o cursor: deixa o navegador remover os símbolos
+    if (input.value === maskPhone(input.value)) return;
+    input.value = maskPhone(input.value);
   });
-}
+  if (input.value) input.value = maskPhone(input.value);
+});
 
 // Hero: leve parallax que acompanha o mouse (só em telas com mouse e sem "reduzir movimento")
 (() => {

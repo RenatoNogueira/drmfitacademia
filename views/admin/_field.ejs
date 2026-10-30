@@ -33,7 +33,7 @@
   </label>
 <% } else { %>
   <label class="a-field"><%= f.label %>
-    <input type="<%= f.type === 'email' ? 'email' : (f.type === 'url' ? 'url' : 'text') %>" name="<%= f.path %>" value="<%= S.display(f, val) %>" maxlength="<%= f.max || 300 %>" <%= f.optional ? '' : 'required' %>>
+    <input type="<%= f.type === 'email' ? 'email' : (f.type === 'url' ? 'url' : 'text') %>" name="<%= f.path %>" value="<%= S.display(f, val) %>" maxlength="<%= f.max || 300 %>" <%= f.optional ? '' : 'required' %><% if (f.mask) { %> data-mask="<%= f.mask %>" inputmode="tel" autocomplete="off"<% } %>>
     <% if (f.hint) { %><small class="a-muted"><%= f.hint %></small><% } %>
   </label>
 <% } %>

@@ -221,6 +221,30 @@ document.querySelectorAll('form[data-testimonial][data-id]').forEach((form) => {
   });
 });
 
+// ---- máscaras de telefone (campos com data-mask) ----
+const maskers = {
+  phone: (v) => {
+    const d = v.replace(/\D/g, '').slice(0, 11);
+    if (d.length <= 2) return d.length ? `(${d}` : '';
+    if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`.replace(/-$/, '');
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  },
+  // WhatsApp: mostra (98) 98141-9822; o servidor guarda com o 55 na frente
+  whatsapp: (v) => {
+    let d = v.replace(/\D/g, '');
+    if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+    return maskers.phone(d);
+  }
+};
+document.querySelectorAll('input[data-mask]').forEach((input) => {
+  const fn = maskers[input.dataset.mask];
+  if (!fn) return;
+  const apply = () => { const next = fn(input.value); if (next !== input.value) input.value = next; };
+  input.addEventListener('input', apply);
+  apply();
+});
+
 // ---- conteúdo do site ----
 const contentForm = document.querySelector('[data-content-form]');
 if (contentForm) {
