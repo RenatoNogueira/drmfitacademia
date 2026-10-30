@@ -1,43 +1,34 @@
-const fs = require('fs');
+// Variáveis de ambiente do arquivo .env (só localmente; na Vercel elas vêm do painel)
+try { process.loadEnvFile(); } catch { /* sem .env: tudo bem */ }
+
 const path = require('path');
 const express = require('express');
 const site = require('./data/site');
+const media = require('./lib/media');
+const apiRoutes = require('./routes/api');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.set('trust proxy', 1); // Vercel fica atrás de proxy: necessário para IP e cookie "secure"
+app.disable('x-powered-by');
+
+app.use((req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'X-Frame-Options': 'SAMEORIGIN' });
+  next();
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
-
-// Mídia: coloque suas fotos/vídeos em public/media (veja public/media/LEIAME.txt).
-// Se o arquivo não existir, a página mostra um espaço reservado.
-const MEDIA_DIR = path.join(__dirname, 'public', 'media');
-const IMG_EXT = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
-const VIDEO_EXT = ['mp4', 'webm'];
-const findMedia = (name, exts) => {
-  const ext = exts.find((e) => fs.existsSync(path.join(MEDIA_DIR, `${name}.${e}`)));
-  return ext ? `/media/${name}.${ext}` : null;
-};
-const listGallery = () => {
-  const dir = path.join(MEDIA_DIR, 'galeria');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir)
-    .filter((f) => IMG_EXT.includes(f.split('.').pop().toLowerCase()))
-    .sort()
-    .map((f) => `/media/galeria/${f}`);
-};
 
 // Versão dos arquivos css/js na URL: evita que o navegador/CDN use uma cópia antiga após cada deploy
 const ASSET_VERSION = (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || String(Date.now());
 
 // Variáveis disponíveis em todas as views
-app.use((req, res, next) => {
-  res.locals.img = (name) => findMedia(name, IMG_EXT);
-  res.locals.video = (name) => findMedia(name, VIDEO_EXT);
-  res.locals.galleryImages = listGallery;
+app.use(async (req, res, next) => {
   res.locals.site = site;
   res.locals.assetVersion = ASSET_VERSION;
   res.locals.status = null;
@@ -45,8 +36,18 @@ app.use((req, res, next) => {
   res.locals.values = {};
   res.locals.currentPath = req.path;
   res.locals.year = new Date().getFullYear();
+  if (req.path.startsWith('/admin') || req.path.startsWith('/api')) return next();
+  try {
+    Object.assign(res.locals, await media.helpers()); // img(), video(), galleryImages()
+  } catch (err) {
+    next(err);
+    return;
+  }
   next();
 });
+
+app.use('/api', apiRoutes);
+app.use('/admin', adminRoutes);
 
 const page = (view, title) => (req, res) => res.render(view, { title });
 
@@ -56,6 +57,7 @@ app.get('/modalidades', page('modalidades', 'Modalidades | DRMFIT'));
 app.get('/planos', page('planos', 'Planos e preços | DRMFIT'));
 app.get('/horarios', page('horarios', 'Horários das aulas | DRMFIT'));
 app.get('/equipe', page('equipe', 'Nossa equipe | DRMFIT'));
+app.get('/agendar', (req, res) => res.redirect(302, '/#avaliacao'));
 
 app.get('/contato', (req, res) => {
   res.render('contato', { title: 'Contato | DRMFIT', status: null, errors: {}, values: { plano: req.query.plano || '' } });
@@ -85,7 +87,14 @@ app.post('/contato', (req, res) => {
 });
 
 app.use((req, res) => {
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Não encontrado.' });
   res.status(404).render('404', { title: 'Página não encontrada | DRMFIT' });
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('Erro interno. Tente novamente em instantes.');
 });
 
 // Na Vercel o app é importado por api/index.js (função serverless); localmente, sobe o servidor.

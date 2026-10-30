@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %></title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css?v=<%= assetVersion %>">
+</head>
+<body class="admin">
+<% const tabs = [
+  { href: '/admin/agendamentos', label: 'Agendamentos', match: '/agendamentos' },
+  { href: '/admin/horarios', label: 'Horários', match: '/horarios' },
+  { href: '/admin/imagens', label: 'Imagens', match: '/imagens' },
+  { href: '/admin/galeria', label: 'Galeria', match: '/galeria' }
+]; %>
+<header class="a-header">
+  <div class="a-wrap a-header-in">
+    <a class="a-logo" href="/admin"><img src="/img/logo-transparent.png" alt="DRMFIT" height="40"><span>Painel</span></a>
+    <nav class="a-nav" aria-label="Admin">
+      <% tabs.forEach(t => { %><a href="<%= t.href %>" class="<%= adminPath.startsWith(t.match) ? 'on' : '' %>"><%= t.label %></a><% }) %>
+    </nav>
+    <div class="a-actions">
+      <a href="/" target="_blank" rel="noopener" class="a-link">Ver site ↗</a>
+      <form method="post" action="/admin/logout"><button class="a-btn a-btn-ghost" type="submit">Sair</button></form>
+    </div>
+  </div>
+</header>
+<main class="a-wrap a-main">
+<% if (storeName === 'local') { %>
+  <div class="a-note">Modo local: os dados ficam em arquivos deste computador. Para publicar na Vercel, configure o Supabase (veja o README).</div>
+<% } %>

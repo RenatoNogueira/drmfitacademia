@@ -1,0 +1,30 @@
+<%- include('_top') %>
+<div class="a-title"><h1>Horários de avaliação</h1></div>
+
+<% if (saved) { %><div class="a-alert a-ok" role="status">Horários salvos.</div><% } %>
+<% if (error) { %><div class="a-alert a-bad" role="alert"><%= error %></div><% } %>
+
+<form class="a-card a-form" method="post" action="/admin/horarios">
+  <p class="a-muted">Liste os horários livres de cada dia separados por vírgula (ex.: <code>08:00, 09:00, 17:30</code>). Deixe em branco os dias sem atendimento. Cada horário comporta um aluno.</p>
+  <div class="a-grid-days">
+    <% weekdays.forEach((name, d) => { %>
+      <label><%= name %>
+        <input type="text" name="slots_<%= d %>" value="<%= (agenda.slots[d] || []).join(', ') %>" placeholder="sem atendimento" inputmode="numeric">
+      </label>
+    <% }) %>
+  </div>
+  <div class="a-grid-2">
+    <label>Dias à frente que o aluno pode agendar
+      <input type="number" name="daysAhead" min="1" max="90" value="<%= agenda.daysAhead %>">
+    </label>
+    <label>Antecedência mínima (horas)
+      <input type="number" name="minNoticeHours" min="0" max="72" value="<%= agenda.minNoticeHours %>">
+    </label>
+  </div>
+  <label>Datas sem atendimento (feriados, folgas)
+    <textarea name="blocked" rows="2" placeholder="2026-12-25, 2027-01-01"><%= agenda.blocked.join(', ') %></textarea>
+    <small class="a-muted">Formato ano-mês-dia, separadas por vírgula.</small>
+  </label>
+  <button class="a-btn" type="submit">Salvar horários</button>
+</form>
+<%- include('_bottom') %>

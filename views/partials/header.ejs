@@ -29,10 +29,10 @@ const nav = [
   <div class="container header-inner">
     <a href="/" class="logo" aria-label="DRMFIT - página inicial"><img src="/img/logo-transparent.png" alt="DRMFIT Academia" width="133" height="52"></a>
     <nav class="main-nav" id="main-nav" aria-label="Principal">
-      <% nav.forEach((item, i) => { %>
-        <% const last = i === nav.length - 1; %>
-        <a href="<%= item.href %>" data-spy="<%= item.href.split('#')[1] %>"<% if (last) { %> class="btn btn-sm nav-cta"<% } %>><%= item.label %></a>
+      <% nav.forEach((item) => { %>
+        <a href="<%= item.href %>" data-spy="<%= item.href.split('#')[1] %>"><%= item.label %></a>
       <% }) %>
+      <a href="/#avaliacao" data-spy="avaliacao" class="btn btn-sm nav-cta">Agendar avaliação</a>
 
       <div class="nav-extra">
         <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Gostaria de agendar uma aula experimental na DRMFIT.') %>">

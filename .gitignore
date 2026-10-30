@@ -5,3 +5,8 @@ node_modules/
 *.log
 .DS_Store
 .claude/
+
+# Dados locais do painel (testes)
+data/runtime/
+public/media/uploads/
+!.env.example

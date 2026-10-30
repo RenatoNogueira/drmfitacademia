@@ -69,5 +69,6 @@
 </div>
 
 <script src="/js/main.js?v=<%= assetVersion %>" defer></script>
+<% if (typeof hasBooking !== 'undefined' || currentPath === '/') { %><script src="/js/booking.js?v=<%= assetVersion %>" defer></script><% } %>
 </body>
 </html>

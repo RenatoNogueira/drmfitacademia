@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title><%= title %></title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css?v=<%= assetVersion %>">
+</head>
+<body class="admin login-page">
+  <form class="a-card login-card" method="post" action="/admin/login" autocomplete="off">
+    <img src="/img/logo-transparent.png" alt="DRMFIT Academia" height="64">
+    <h1>Área administrativa</h1>
+    <% if (disabled) { %>
+      <p class="a-error">O painel está desativado. Defina a variável <code>ADMIN_PASSWORD</code> no servidor (veja o README).</p>
+    <% } else { %>
+      <% if (error) { %><p class="a-error" role="alert"><%= error %></p><% } %>
+      <label>Senha
+        <input type="password" name="password" required autofocus autocomplete="current-password">
+      </label>
+      <button class="a-btn" type="submit">Entrar</button>
+    <% } %>
+    <a class="a-link" href="/">← Voltar ao site</a>
+  </form>
+</body>
+</html>

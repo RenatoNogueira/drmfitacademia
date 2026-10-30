@@ -1,0 +1,29 @@
+<%- include('_top') %>
+<div class="a-title">
+  <h1>Galeria “Vida na DRMFIT”</h1>
+  <label class="a-btn">Adicionar fotos
+    <input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden data-gallery-upload>
+  </label>
+</div>
+
+<% if (!items.length) { %>
+  <div class="a-card a-empty">
+    <p>A galeria está usando as <%= defaults.length %> fotos padrão do site. Ao adicionar uma foto, a galeria passa a mostrar só as fotos deste painel.</p>
+    <% if (defaults.length) { %><button class="a-btn a-btn-ghost" type="button" data-gallery-import>Importar fotos padrão para editar</button><% } %>
+  </div>
+<% } else { %>
+  <p class="a-muted">Use as setas para mudar a ordem. A primeira foto aparece primeiro no site.</p>
+  <div class="a-cards a-gallery">
+    <% items.forEach((g, i) => { %>
+      <article class="a-card a-media" data-id="<%= g.id %>">
+        <div class="a-thumb"><img src="<%= g.url %>" alt="Foto <%= i + 1 %>" loading="lazy"><em class="a-badge"><%= i + 1 %></em></div>
+        <div class="a-row">
+          <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="up" <%= i === 0 ? 'disabled' : '' %> aria-label="Mover para antes">←</button>
+          <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="down" <%= i === items.length - 1 ? 'disabled' : '' %> aria-label="Mover para depois">→</button>
+          <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-photo>Excluir</button>
+        </div>
+      </article>
+    <% }) %>
+  </div>
+<% } %>
+<%- include('_bottom') %>

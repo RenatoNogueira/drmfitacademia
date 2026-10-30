@@ -84,8 +84,8 @@ if (isHome && spySections.length) {
   const updateSpy = () => {
     const mid = window.scrollY + window.innerHeight * 0.35;
     let current = spySections[0].id;
-    spySections.forEach((s) => { if (s.offsetTop <= mid) current = s.id; });
-    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = spySections[spySections.length - 1].id;
+    [...spySections].sort((a, b) => a.offsetTop - b.offsetTop).forEach((s) => { if (s.offsetTop <= mid) current = s.id; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) current = 'contato';
     spyLinks.forEach((l) => l.classList.toggle('active', l.dataset.spy === current));
   };
   window.addEventListener('scroll', updateSpy, { passive: true });

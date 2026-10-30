@@ -1,0 +1,42 @@
+<%- include('_top') %>
+<div class="a-title">
+  <h1>Agendamentos de avaliação</h1>
+  <a class="a-btn a-btn-ghost" href="/admin/agendamentos.csv">Baixar planilha (CSV)</a>
+</div>
+
+<div class="a-tabs" role="tablist">
+  <% [['proximos','Próximos'],['pendentes','Pendentes'],['passados','Passados'],['todos','Todos']].forEach(([k,l]) => { %>
+    <a href="/admin/agendamentos?f=<%= k %>" class="<%= filter === k ? 'on' : '' %>"><%= l %> <span class="a-count"><%= counts[k] %></span></a>
+  <% }) %>
+</div>
+
+<% if (!rows.length) { %>
+  <div class="a-card a-empty">Nenhum agendamento aqui ainda.</div>
+<% } else { %>
+<div class="a-table-wrap">
+  <table class="a-table">
+    <thead><tr><th>Data / hora</th><th>Aluno</th><th>Contato</th><th>Objetivo</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <% rows.forEach(b => { %>
+        <tr data-id="<%= b.id %>">
+          <td data-l="Data"><strong><%= b.dateLabel %></strong><br><span class="a-muted"><%= b.time %></span></td>
+          <td data-l="Aluno"><%= b.name %><% if (b.notes) { %><br><span class="a-muted a-notes"><%= b.notes %></span><% } %></td>
+          <td data-l="Contato"><a href="<%= b.wa %>" target="_blank" rel="noopener"><%= b.phone %></a><% if (b.email) { %><br><span class="a-muted"><%= b.email %></span><% } %></td>
+          <td data-l="Objetivo"><%= b.objective || '—' %></td>
+          <td data-l="Status">
+            <select class="a-status s-<%= b.status %>" data-status aria-label="Status do agendamento">
+              <% statuses.forEach(s => { %><option value="<%= s %>" <%= b.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option><% }) %>
+            </select>
+          </td>
+          <td class="a-row-actions">
+            <a class="a-btn a-btn-sm a-btn-wa" href="<%= b.wa %>" target="_blank" rel="noopener">WhatsApp</a>
+            <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-booking>Excluir</button>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
+<p class="a-muted a-small">Estes dados são pessoais dos alunos (LGPD): use-os apenas para contato sobre a avaliação e exclua quando não forem mais necessários.</p>
+<%- include('_bottom') %>

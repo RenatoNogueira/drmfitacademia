@@ -1,0 +1,70 @@
+<section class="section alt" id="avaliacao">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Avaliação física</span>
+      <h2>Agende sua <span class="outline">avaliação</span></h2>
+      <p>Escolha o melhor dia e horário e deixe seus dados. Nossa equipe confirma com você pelo WhatsApp.</p>
+    </div>
+
+    <div class="booking card reveal" id="booking" data-booking data-wa="<%= site.whatsappLink('Olá! Gostaria de agendar uma avaliação física na DRMFIT.') %>">
+      <div class="b-state" data-b-state>Carregando horários disponíveis…</div>
+
+      <div class="b-body" data-b-body hidden>
+        <div class="b-step">
+          <h3><span>1</span> Escolha o dia</h3>
+          <div class="b-days" data-b-days role="radiogroup" aria-label="Dias disponíveis"></div>
+        </div>
+
+        <div class="b-step" data-b-times-step hidden>
+          <h3><span>2</span> Escolha o horário</h3>
+          <div class="b-times" data-b-times role="radiogroup" aria-label="Horários disponíveis"></div>
+        </div>
+
+        <form class="b-form" data-b-form novalidate hidden>
+          <h3><span>3</span> Seus dados</h3>
+          <p class="b-summary" data-b-summary></p>
+          <div class="form-row">
+            <label>Nome completo
+              <input type="text" name="name" maxlength="80" required autocomplete="name">
+              <small class="error" data-error="name"></small>
+            </label>
+            <label>WhatsApp
+              <input type="tel" name="phone" maxlength="20" placeholder="(98) 99999-9999" required autocomplete="tel" inputmode="tel">
+              <small class="error" data-error="phone"></small>
+            </label>
+          </div>
+          <div class="form-row">
+            <label><span>E-mail <em>(opcional)</em></span>
+              <input type="email" name="email" maxlength="120" autocomplete="email">
+              <small class="error" data-error="email"></small>
+            </label>
+            <label>Objetivo
+              <select name="objective" data-b-objective>
+                <option value="">Selecione</option>
+              </select>
+            </label>
+          </div>
+          <label><span>Observações <em>(lesões, restrições, dúvidas)</em></span>
+            <textarea name="notes" rows="3" maxlength="300"></textarea>
+          </label>
+          <input class="b-trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <label class="b-consent">
+            <input type="checkbox" name="consent">
+            <span>Concordo que a DRMFIT use meus dados apenas para entrar em contato sobre a avaliação.</span>
+          </label>
+          <small class="error" data-error="consent"></small>
+          <small class="error" data-error="form" data-b-error></small>
+          <button class="btn btn-block" type="submit">Confirmar agendamento</button>
+        </form>
+      </div>
+
+      <div class="b-done" data-b-done hidden>
+        <div class="b-check"><%- include('../icon', { name: 'check' }) %></div>
+        <h3>Avaliação agendada!</h3>
+        <p data-b-when></p>
+        <p>Para agilizar, confirme sua presença pelo WhatsApp:</p>
+        <a class="btn btn-whatsapp" target="_blank" rel="noopener" data-b-wa href="#"><%- include('../icon', { name: 'whatsapp' }) %> Confirmar no WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
