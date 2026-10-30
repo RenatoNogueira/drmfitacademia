@@ -1,3 +1,4 @@
+<% if (typeof hideHead !== 'undefined' || site.sections.contact) { %><%# SECTION-FLAG %>
 <section class="section" id="contato">
   <% if (typeof hideHead === 'undefined') { %>
   <div class="container">
@@ -70,3 +71,4 @@
       src="https://www.google.com/maps?q=<%= encodeURIComponent(site.brand.mapQuery) %>&output=embed"></iframe>
   </div>
 </section>
+<% } %>

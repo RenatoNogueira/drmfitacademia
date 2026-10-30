@@ -1,5 +1,11 @@
 <% const val = S.getPath(current, f.path); %>
-<% if (f.type === 'head') { %>
+<% if (f.type === 'bool') { %>
+  <label class="a-switch">
+    <input type="checkbox" name="<%= f.path %>" <%= val ? 'checked' : '' %>>
+    <span class="a-switch-ui" aria-hidden="true"></span>
+    <span><%= f.label %></span>
+  </label>
+<% } else if (f.type === 'head') { %>
   <fieldset class="a-fs">
     <legend><%= f.label %></legend>
     <div class="a-grid-4">
@@ -17,9 +23,19 @@
     <div data-rows>
       <% (val || []).forEach((item, i) => { %><%- include('_row', { f, item, i, S }) %><% }) %>
     </div>
+    <p class="a-empty-note" data-empty-note <%= (val || []).length ? 'hidden' : '' %>>Nenhum item: esta parte fica oculta no site. Use o botão abaixo para adicionar de novo.</p>
     <% if (!f.fixed) { %>
       <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-add-row>+ Adicionar</button>
       <template data-row-template><%- include('_row', { f, item: {}, i: '__i__', S }) %></template>
+    <% } else { %>
+      <% const missing = S.defaultsOf(f.path).filter((d) => !(val || []).some((v) => v[f.idKey] === d[f.idKey])); %>
+      <div class="a-restore" data-restore-box <%= missing.length ? '' : 'hidden' %>>
+        <span class="a-muted a-small">Itens excluídos:</span>
+        <% S.defaultsOf(f.path).forEach((d) => { const gone = missing.includes(d); %>
+          <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-restore="<%= d[f.idKey] %>" <%= gone ? '' : 'hidden' %>>+ Voltar: <%= d[f.itemTitle] %></button>
+          <template data-restore-template="<%= d[f.idKey] %>"><%- include('_row', { f, item: d, i: '__i__', S }) %></template>
+        <% }) %>
+      </div>
     <% } %>
   </fieldset>
 <% } else if (f.type === 'textarea' || f.type === 'lines' || f.type === 'pairs' || f.type === 'table') { %>

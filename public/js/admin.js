@@ -266,6 +266,10 @@ if (contentForm) {
     });
     const add = list.querySelector('[data-add-row]');
     if (add) add.hidden = rows.length >= Number(list.dataset.max);
+    const note = list.querySelector('[data-empty-note]');
+    if (note) note.hidden = rows.length > 0;
+    const box = list.querySelector('[data-restore-box]');
+    if (box) box.hidden = ![...box.querySelectorAll('[data-restore]')].some((b) => !b.hidden);
   };
   contentForm.querySelectorAll('[data-list]').forEach((list) => {
     let counter = list.querySelectorAll('[data-row]').length + 100;
@@ -278,9 +282,19 @@ if (contentForm) {
         const html = list.querySelector('[data-row-template]').innerHTML.replaceAll('__i__', String(counter++));
         rows.insertAdjacentHTML('beforeend', html);
         rows.lastElementChild.querySelector('input')?.focus();
+      } else if (t.matches('[data-restore]')) {
+        const id = t.dataset.restore;
+        const tpl = list.querySelector(`[data-restore-template="${id}"]`);
+        rows.insertAdjacentHTML('beforeend', tpl.innerHTML.replaceAll('__i__', String(counter++)));
+        t.hidden = true;
       } else if (t.matches('[data-remove-row]')) {
-        if (rows.children.length > 1 && confirm('Remover este item?')) t.closest('[data-row]').remove();
-        else if (rows.children.length <= 1) toast('Mantenha ao menos um item.', true);
+        const row = t.closest('[data-row]');
+        const label = row.querySelector('[data-row-title]')?.textContent || 'este item';
+        if (confirm(`Excluir "${label}"? Para desfazer, use "Voltar" ou "Restaurar" antes de sair.`)) {
+          const rid = row.querySelector('input[name$="[_id]"]')?.value;
+          row.remove();
+          if (rid) { const back = list.querySelector(`[data-restore="${CSS.escape(rid)}"]`); if (back) { back.hidden = false; list.querySelector('[data-restore-box]').hidden = false; } }
+        }
       } else if (t.matches('[data-row-move]')) {
         const row = t.closest('[data-row]');
         if (t.dataset.rowMove === 'up' && row.previousElementSibling) row.previousElementSibling.before(row);

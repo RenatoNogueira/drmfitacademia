@@ -1,3 +1,4 @@
+<% if (site.sections.promo) { %><%# SECTION-FLAG %>
 <% const b = img('banner'); %>
 <section class="promo" <% if (b) { %>style="background-image:url('<%= b %>')"<% } %>>
   <div class="container center">
@@ -6,3 +7,4 @@
     <a class="btn" href="/#contato"><%= site.promo.cta %></a>
   </div>
 </section>
+<% } %>

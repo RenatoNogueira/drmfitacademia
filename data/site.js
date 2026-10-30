@@ -22,6 +22,9 @@ module.exports = {
     return `https://wa.me/${this.brand.whatsappNumber}?text=${encodeURIComponent(message)}`;
   },
 
+  // Quais seções aparecem no site (o painel pode esconder qualquer uma)
+  sections: { stats: true, about: true, features: true, services: true, classes: true, promo: true, plans: true, gallery: true, trainers: true, testimonials: true, faq: true, contact: true },
+
   // Cores principais (editáveis no painel)
   theme: { accent: '#f06c00', accentDark: '#c85800' },
 
@@ -143,10 +146,10 @@ module.exports = {
   },
 
   trainers: [
-    { name: 'Rodrigo Mendes', role: 'Head Coach · Musculação', initials: 'RM' },
-    { name: 'Camila Duarte', role: 'Funcional & Cross', initials: 'CD' },
-    { name: 'Diego Ramos', role: 'Boxe & Muay Thai', initials: 'DR' },
-    { name: 'Marina Souza', role: 'Yoga & Pilates', initials: 'MS' }
+    { key: 'equipe-1', name: 'Rodrigo Mendes', role: 'Head Coach · Musculação', initials: 'RM' },
+    { key: 'equipe-2', name: 'Camila Duarte', role: 'Funcional & Cross', initials: 'CD' },
+    { key: 'equipe-3', name: 'Diego Ramos', role: 'Boxe & Muay Thai', initials: 'DR' },
+    { key: 'equipe-4', name: 'Marina Souza', role: 'Yoga & Pilates', initials: 'MS' }
   ],
 
   testimonials: [

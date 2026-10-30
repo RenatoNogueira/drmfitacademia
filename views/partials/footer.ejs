@@ -28,11 +28,11 @@
     <div>
       <h4>Links</h4>
       <ul>
-        <li><a href="/#sobre">Sobre nós</a></li>
-        <li><a href="/#servicos">Modalidades</a></li>
-        <li><a href="/#planos">Planos</a></li>
-        <li><a href="/#aulas">Horários</a></li>
-        <li><a href="/#equipe">Equipe</a></li>
+        <% if (site.sections.about) { %><li><a href="/#sobre">Sobre nós</a></li><% } %>
+        <% if (site.sections.services && site.modalities.length) { %><li><a href="/#servicos">Modalidades</a></li><% } %>
+        <% if (site.sections.plans && site.plans.length) { %><li><a href="/#planos">Planos</a></li><% } %>
+        <% if (site.sections.classes && site.classes.length) { %><li><a href="/#aulas">Horários</a></li><% } %>
+        <% if (site.sections.trainers && site.trainers.length) { %><li><a href="/#equipe">Equipe</a></li><% } %>
       </ul>
     </div>
     <div>

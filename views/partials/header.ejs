@@ -15,15 +15,16 @@
 </head>
 <body>
 <%
+const sec = site.sections;
 const nav = [
-  { href: '/#inicio', label: site.copy.nav.home },
-  { href: '/#sobre', label: site.copy.nav.about },
-  { href: '/#servicos', label: site.copy.nav.services },
-  { href: '/#aulas', label: site.copy.nav.classes },
-  { href: '/#planos', label: site.copy.nav.plans },
-  { href: '/#equipe', label: site.copy.nav.team },
-  { href: '/#contato', label: site.copy.nav.contact }
-];
+  { href: '/#inicio', label: site.copy.nav.home, show: true },
+  { href: '/#sobre', label: site.copy.nav.about, show: sec.about },
+  { href: '/#servicos', label: site.copy.nav.services, show: sec.services && site.modalities.length },
+  { href: '/#aulas', label: site.copy.nav.classes, show: sec.classes && site.classes.length },
+  { href: '/#planos', label: site.copy.nav.plans, show: sec.plans && site.plans.length },
+  { href: '/#equipe', label: site.copy.nav.team, show: sec.trainers && site.trainers.length },
+  { href: '/#contato', label: site.copy.nav.contact, show: sec.contact }
+].filter((n) => n.show);
 %>
 <header class="site-header" id="top">
   <div class="scroll-progress" id="scroll-progress"></div>

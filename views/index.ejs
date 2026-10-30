@@ -29,7 +29,7 @@ const heroImg = img('hero');
       <p><%= site.copy.hero.text %></p>
       <div class="hero-actions">
         <a href="/#avaliacao" class="btn"><%= site.copy.hero.primary %></a>
-        <a href="/#planos" class="btn btn-outline"><%= site.copy.hero.secondary %></a>
+        <% if (site.sections.plans && site.plans.length) { %><a href="/#planos" class="btn btn-outline"><%= site.copy.hero.secondary %></a><% } %>
       </div>
       <div class="hero-social">
         <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('partials/icon', { name: 'facebook' }) %></a>
@@ -42,6 +42,7 @@ const heroImg = img('hero');
   <a class="scroll-cue" href="/#sobre" aria-label="Rolar para a próxima seção"><span class="mouse"><i></i></span><span class="txt">Role</span></a>
 </section>
 
+<% if (site.sections.stats && site.stats.length) { %>
 <section class="stats">
   <div class="container stats-grid">
     <% site.stats.forEach(s => { %>
@@ -52,6 +53,7 @@ const heroImg = img('hero');
     <% }) %>
   </div>
 </section>
+<% } %>
 
 <%- include('partials/sections/about') %>
 <%- include('partials/sections/modalities') %>
