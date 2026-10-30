@@ -3,18 +3,31 @@ document.documentElement.classList.add('js');
 // Menu mobile
 const toggle = document.getElementById('nav-toggle');
 const nav = document.getElementById('main-nav');
-// Com o menu aberto a página fica travada (funciona também no iOS, onde overflow:hidden não basta)
-let lockedY = 0;
-const lockScroll = () => {
-  lockedY = window.scrollY;
-  document.documentElement.classList.add('menu-open');
-  Object.assign(document.body.style, { position: 'fixed', top: `-${lockedY}px`, left: '0', right: '0', width: '100%' });
-};
-const unlockScroll = () => {
-  document.documentElement.classList.remove('menu-open');
-  Object.assign(document.body.style, { position: '', top: '', left: '', right: '', width: '' });
-  window.scrollTo(0, lockedY);
-};
+// Trava a rolagem da página (menu, modal de agendamento e foto ampliada). Fixa o <body> no ponto atual,
+// o que funciona também no iPhone (onde overflow:hidden não basta). Vários itens podem travar ao mesmo tempo.
+const pageLock = (() => {
+  let count = 0;
+  let y = 0;
+  return {
+    get locked() { return count > 0; },
+    lock() {
+      if (count++ > 0) return;
+      y = window.scrollY;
+      document.documentElement.classList.add('is-locked'); // mantém a barra de rolagem: o layout não "pula"
+      Object.assign(document.body.style, { position: 'fixed', top: `-${y}px`, left: '0', right: '0', width: '100%' });
+    },
+    unlock() {
+      if (count === 0 || --count > 0) return;
+      document.documentElement.classList.remove('is-locked');
+      Object.assign(document.body.style, { position: '', top: '', left: '', right: '', width: '' });
+      window.scrollTo(0, y);
+    }
+  };
+})();
+window.pageLock = pageLock;
+
+const lockScroll = () => { document.documentElement.classList.add('menu-open'); pageLock.lock(); };
+const unlockScroll = () => { document.documentElement.classList.remove('menu-open'); pageLock.unlock(); };
 const isMenuOpen = () => !!nav && nav.classList.contains('open');
 const setMenu = (open) => {
   if (!nav || !toggle || open === isMenuOpen()) return;
@@ -82,6 +95,7 @@ const spyLinks = [...document.querySelectorAll('[data-spy]')];
 const spySections = spyLinks.map((l) => document.getElementById(l.dataset.spy)).filter(Boolean);
 if (isHome && spySections.length) {
   const updateSpy = () => {
+    if (pageLock.locked) return;
     const mid = window.scrollY + window.innerHeight * 0.35;
     let current = spySections[0].id;
     [...spySections].sort((a, b) => a.offsetTop - b.offsetTop).forEach((s) => { if (s.offsetTop <= mid) current = s.id; });
@@ -131,6 +145,7 @@ if (form) {
 const header = document.querySelector('.site-header');
 const toTop = document.getElementById('to-top');
 const onScroll = () => {
+  if (pageLock.locked) return; // com a página travada o scrollY vira 0: não mexe no cabeçalho
   const y = window.scrollY;
   if (header) header.classList.toggle('scrolled', y > 40);
   if (toTop) toTop.classList.toggle('show', y > 600);
@@ -229,6 +244,7 @@ const heroImg = document.querySelector('.hero-bg img, .hero-bg video');
 const heroText = document.querySelector('.hero-text');
 let ticking = false;
 const onFrame = () => {
+  if (pageLock.locked) { ticking = false; return; }
   const y = window.scrollY;
   const max = document.documentElement.scrollHeight - window.innerHeight;
   if (progress) progress.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
@@ -286,11 +302,14 @@ document.querySelectorAll('[data-carousel]').forEach((track) => {
 const lightbox = document.getElementById('lightbox');
 const lightboxBody = document.getElementById('lightbox-body');
 const closeLightbox = () => {
+  if (lightbox.hidden) return;
   lightbox.hidden = true;
   lightboxBody.replaceChildren();
+  pageLock.unlock();
 };
 const openLightbox = (node) => {
   lightboxBody.replaceChildren(node);
+  if (lightbox.hidden) pageLock.lock();
   lightbox.hidden = false;
 };
 if (lightbox) {

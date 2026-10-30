@@ -84,15 +84,9 @@
   const focusables = () => [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not(.b-trap), select, textarea, [tabindex]:not([tabindex="-1"])')]
     .filter((el) => !el.closest('[hidden]') && el.offsetParent !== null);
 
-  const lock = () => {
-    const gap = window.innerWidth - document.documentElement.clientWidth; // largura da barra de rolagem
-    document.documentElement.classList.add('modal-open');
-    if (gap > 0) document.body.style.paddingRight = `${gap}px`;
-  };
-  const unlock = () => {
-    document.documentElement.classList.remove('modal-open');
-    document.body.style.paddingRight = '';
-  };
+  // Trava a página atrás do modal (função compartilhada em main.js)
+  const lock = () => window.pageLock?.lock();
+  const unlock = () => window.pageLock?.unlock();
 
   const resetUi = () => {
     done.hidden = true;
@@ -115,10 +109,12 @@
     if (location.hash !== '#avaliacao') history.replaceState(null, '', `${location.pathname}${location.search}#avaliacao`);
   };
 
+  let closing = false;
   const close = () => {
-    if (modal.hidden) return;
+    if (modal.hidden || closing) return;
+    closing = true;
     modal.classList.remove('is-open');
-    const finish = () => { modal.hidden = true; unlock(); };
+    const finish = () => { modal.hidden = true; closing = false; unlock(); };
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) finish(); else setTimeout(finish, 220);
     if (location.hash === '#avaliacao') history.replaceState(null, '', `${location.pathname}${location.search}`);
     if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
