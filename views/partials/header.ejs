@@ -42,9 +42,9 @@ const nav = [
         </a>
         <p class="nav-address"><%- include('icon', { name: 'pin' }) %> <%= site.brand.address %></p>
         <div class="nav-social">
-          <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('icon', { name: 'instagram' }) %></a>
-          <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('icon', { name: 'facebook' }) %></a>
-          <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('icon', { name: 'youtube' }) %></a>
+          <% [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['youtube', 'YouTube']].filter(([k]) => site.brand[k]).forEach(([k, label]) => { %>
+          <a href="<%= site.brand[k] %>" target="_blank" rel="noopener" aria-label="<%= label %>"><%- include('icon', { name: k }) %></a>
+          <% }) %>
         </div>
       </div>
     </nav>

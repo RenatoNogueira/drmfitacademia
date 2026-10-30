@@ -32,9 +32,9 @@ const heroImg = img('hero');
         <% if (site.sections.plans && site.plans.length) { %><a href="/#planos" class="btn btn-outline"><%= site.copy.hero.secondary %></a><% } %>
       </div>
       <div class="hero-social">
-        <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('partials/icon', { name: 'facebook' }) %></a>
-        <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('partials/icon', { name: 'instagram' }) %></a>
-        <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('partials/icon', { name: 'youtube' }) %></a>
+        <% [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube']].filter(([k]) => site.brand[k]).forEach(([k, label]) => { %>
+        <a href="<%= site.brand[k] %>" target="_blank" rel="noopener" aria-label="<%= label %>"><%- include('partials/icon', { name: k }) %></a>
+        <% }) %>
       </div>
     </div>
   </div>

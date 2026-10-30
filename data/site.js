@@ -58,7 +58,11 @@ module.exports = {
     contact: { eyebrow: 'Contato', before: 'Fale com a', highlight: 'DRMFIT', after: '' },
     schedule: { eyebrow: 'Grade de aulas', before: 'Horários que cabem na', highlight: 'sua rotina', after: '' },
     cta: { before: 'Pronto para', highlight: 'começar?', text: 'Agende sua aula experimental gratuita e conheça a DRMFIT.', button: 'Chamar no WhatsApp' },
-    footer: { about: 'Estrutura completa, profissionais dedicados e um ambiente que motiva.', copyright: 'Todos os direitos reservados.' },
+    footer: {
+      about: 'Estrutura completa, profissionais dedicados e um ambiente que motiva.', copyright: 'Todos os direitos reservados.', extra: '',
+      linksTitle: 'Links', hoursTitle: 'Horário', contactTitle: 'Contato',
+      showLinks: true, showHours: true, showContact: true, showSocial: true
+    },
     pages: {
       about: { eyebrow: 'Sobre nós', before: 'A academia que', highlight: 'move você', text: 'Há 12 anos ajudando pessoas a conquistar saúde, força e confiança.' },
       services: { eyebrow: 'Serviços', before: 'Treinos para', highlight: 'todos os gostos', text: 'Da musculação ao yoga: escolha uma modalidade ou combine várias.' },
@@ -87,6 +91,15 @@ module.exports = {
     signature: 'Rodrigo Mendes',
     role: 'Head Coach & Fundador'
   },
+
+  // Links do rodapé (os que apontam para seções ocultas somem sozinhos)
+  footerLinks: [
+    { label: 'Sobre nós', href: '/#sobre' },
+    { label: 'Modalidades', href: '/#servicos' },
+    { label: 'Planos', href: '/#planos' },
+    { label: 'Horários', href: '/#aulas' },
+    { label: 'Equipe', href: '/#equipe' }
+  ],
 
   // Aulas exibidas no carrossel (slug = nome da foto aula-<slug>.jpg)
   classes: [

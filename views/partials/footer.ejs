@@ -14,46 +14,57 @@
 </section>
 <% } %>
 
+<%
+const ft = site.copy.footer;
+const socials = [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['youtube', 'YouTube']].filter(([k]) => site.brand[k]);
+// Links que apontam para seções ocultas (ou sem itens) não aparecem
+const sectionOf = { '#sobre': () => site.sections.about, '#servicos': () => site.sections.services && site.modalities.length, '#planos': () => site.sections.plans && site.plans.length, '#aulas': () => site.sections.classes && site.classes.length, '#equipe': () => site.sections.trainers && site.trainers.length, '#contato': () => site.sections.contact };
+const footLinks = (site.footerLinks || []).filter((l) => { const m = String(l.href).match(/#[a-z]+$/); return !(m && sectionOf[m[0]]) || sectionOf[m[0]](); });
+const extLink = (h) => /^https?:/i.test(h);
+%>
 <footer class="site-footer">
   <div class="container footer-grid">
     <div>
       <a href="/" class="logo"><img src="<%= img('logo') || '/img/logo-transparent.png' %>" alt="<%= site.brand.name %> Academia" width="133" height="52"></a>
-      <p class="muted"><%= site.brand.tagline %> <%= site.copy.footer.about %></p>
+      <p class="muted"><%= site.brand.tagline %> <%= ft.about %></p>
+      <% if (ft.showSocial && socials.length) { %>
       <div class="social">
-        <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('icon', { name: 'instagram' }) %></a>
-        <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('icon', { name: 'facebook' }) %></a>
-        <a href="<%= site.brand.youtube %>" target="_blank" rel="noopener" aria-label="YouTube"><%- include('icon', { name: 'youtube' }) %></a>
+        <% socials.forEach(([k, label]) => { %><a href="<%= site.brand[k] %>" target="_blank" rel="noopener" aria-label="<%= label %>"><%- include('icon', { name: k }) %></a><% }) %>
       </div>
+      <% } %>
     </div>
+    <% if (ft.showLinks && footLinks.length) { %>
     <div>
-      <h4>Links</h4>
+      <h4><%= ft.linksTitle %></h4>
       <ul>
-        <% if (site.sections.about) { %><li><a href="/#sobre">Sobre nós</a></li><% } %>
-        <% if (site.sections.services && site.modalities.length) { %><li><a href="/#servicos">Modalidades</a></li><% } %>
-        <% if (site.sections.plans && site.plans.length) { %><li><a href="/#planos">Planos</a></li><% } %>
-        <% if (site.sections.classes && site.classes.length) { %><li><a href="/#aulas">Horários</a></li><% } %>
-        <% if (site.sections.trainers && site.trainers.length) { %><li><a href="/#equipe">Equipe</a></li><% } %>
+        <% footLinks.forEach((l) => { %><li><a href="<%= l.href %>"<%- extLink(l.href) ? ' target="_blank" rel="noopener"' : '' %>><%= l.label %></a></li><% }) %>
       </ul>
     </div>
+    <% } %>
+    <% if (ft.showHours && site.schedule.hours.length) { %>
     <div>
-      <h4>Horário</h4>
+      <h4><%= ft.hoursTitle %></h4>
       <ul class="muted">
         <% site.schedule.hours.forEach(h => { %>
           <li><%= h.label %>: <strong><%= h.value %></strong></li>
         <% }) %>
       </ul>
     </div>
+    <% } %>
+    <% if (ft.showContact) { %>
     <div>
-      <h4>Contato</h4>
+      <h4><%= ft.contactTitle %></h4>
       <ul class="muted">
         <li><%= site.brand.address %></li>
         <li><a href="tel:+<%= site.brand.whatsappNumber %>"><%= site.brand.phone %></a></li>
         <li><a href="mailto:<%= site.brand.email %>"><%= site.brand.email %></a></li>
       </ul>
     </div>
+    <% } %>
   </div>
   <div class="container footer-bottom">
-    <span>&copy; <%= year %> <%= site.brand.name %> Academia. <%= site.copy.footer.copyright %></span>
+    <span>&copy; <%= year %> <%= site.brand.name %> Academia. <%= ft.copyright %></span>
+    <% if (ft.extra) { %><span class="footer-extra"><%= ft.extra %></span><% } %>
   </div>
 </footer>
 

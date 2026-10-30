@@ -572,3 +572,7 @@ html.modal-open { overflow: hidden; }
 .plans[data-n="1"] .plan { padding: 2.6rem 2.4rem; }
 @media (max-width: 960px) { .plans { --c: min(var(--cols, 3), 2); } }
 @media (max-width: 600px) { .plans { --c: 1; } .plans[data-n="1"] .checklist { grid-template-columns: 1fr; } .plans[data-n="1"] .plan { padding: 2rem 1.4rem; } }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1.5rem; }
+.footer-extra { color: var(--muted); }
+.footer-grid { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+@media (min-width: 900px) { .footer-grid > div:first-child { grid-column: span 2; } }
