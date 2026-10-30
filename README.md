@@ -27,12 +27,12 @@ npm start        # http://localhost:3000
 A Vercel não guarda arquivos, então imagens e agendamentos vão para o Supabase (plano gratuito atende).
 1. Em supabase.com, crie um projeto.
 2. **SQL Editor → New query**, cole o conteúdo de `supabase/schema.sql` e clique em **Run** (cria as tabelas e o bucket público `media`).
-3. **Project Settings → API**: copie a *Project URL* e a chave **service_role** (secreta: nunca coloque no código nem no navegador).
+3. **Project Settings → API**: copie a *Project URL* e a chave **secret** (`sb_secret_...`, ou a antiga `service_role`). Ela é secreta: nunca coloque no código nem no navegador. A chave *publishable* (`sb_publishable_...`) não é usada.
 4. Na Vercel, **Settings → Environment Variables**, cadastre:
    - `ADMIN_PASSWORD` (a senha do painel)
    - `SESSION_SECRET` (um texto longo e aleatório)
    - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SUPABASE_SECRET_KEY`
 5. Faça um novo deploy e acesse `/admin`.
 
 ### Dados pessoais (LGPD)

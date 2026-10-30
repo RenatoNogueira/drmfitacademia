@@ -52,10 +52,28 @@ const needStore = (req, res, next) => {
 };
 router.use(needStore);
 
+
+// Traduz erros do banco em dicas para quem administra (esta tela só aparece depois do login)
+const explain = (err) => {
+  const msg = String(err?.message || err);
+  const code = String(err?.code || '');
+  let hint = 'Veja os logs da função na Vercel (Deployments → Functions/Logs) para mais detalhes.';
+  if (code === 'PGRST205' || code === '42P01' || /could not find the table|does not exist|schema cache/i.test(msg)) {
+    hint = 'As tabelas ainda não existem neste projeto Supabase. Rode o arquivo supabase/schema.sql no SQL Editor (do mesmo projeto da SUPABASE_URL).';
+  } else if (/invalid api key|jwt|unauthori[sz]ed|permission denied|apikey/i.test(msg) || code === '42501' || code === 'PGRST301') {
+    hint = 'O Supabase recusou a chave. Confira se SUPABASE_SECRET_KEY é a chave SECRETA (sb_secret_...), copiada inteira, do mesmo projeto da SUPABASE_URL.';
+  } else if (/fetch failed|enotfound|invalid url|econnrefused/i.test(msg)) {
+    hint = 'Não foi possível falar com o Supabase. Confira se SUPABASE_URL está certa (https://SEU-PROJETO.supabase.co, sem barra no final).';
+  } else if (/bucket not found/i.test(msg)) {
+    hint = 'O bucket de imagens não existe. Rode o supabase/schema.sql ou crie um bucket público chamado "media" em Storage.';
+  }
+  return `${hint} (Detalhe técnico: ${msg.slice(0, 200)})`;
+};
+
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch((err) => {
   console.error('admin:', err);
   if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'Erro no servidor. Tente de novo.' });
-  res.status(500).render('admin/setup', { title: 'Erro | Admin DRMFIT', problem: 'Ocorreu um erro ao acessar os dados. Veja os logs do servidor.' });
+  res.status(500).render('admin/setup', { title: 'Erro | Admin DRMFIT', problem: explain(err) });
 });
 
 // ---------- agendamentos ----------
