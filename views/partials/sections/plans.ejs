@@ -5,7 +5,8 @@
       <%- include('../head', { h: site.copy.plans }) %>
       <% if (site.copy.plans.text) { %><p><%= site.copy.plans.text %></p><% } %>
     </div>
-    <div class="grid grid-3 plans">
+    <% const n = site.plans.length; const cols = n <= 4 ? n : 3; %>
+    <div class="plans" data-n="<%= n %>" style="--cols: <%= cols %>">
       <% site.plans.forEach(p => { %>
         <article class="card plan reveal <%= p.highlight ? 'featured' : '' %>">
           <% if (p.highlight) { %><span class="badge"><%= site.copy.plans.badge %></span><% } %>

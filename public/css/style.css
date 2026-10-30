@@ -564,3 +564,11 @@ html.modal-open { overflow: hidden; }
   .b-days { flex-wrap: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) { .modal-backdrop, .modal-panel { transition: none; } }
+
+/* Planos: os cartões se ajustam à quantidade — 1 ocupa a linha toda, 2 dividem ao meio, 3 em terços... */
+.plans { --gap: 1.4rem; --c: var(--cols, 3); display: flex; flex-wrap: wrap; gap: var(--gap); }
+.plans > .plan { flex: 1 1 calc((100% - (var(--c) - 1) * var(--gap)) / var(--c)); min-width: 0; }
+.plans[data-n="1"] .checklist { grid-template-columns: repeat(2, 1fr); column-gap: 2rem; }
+.plans[data-n="1"] .plan { padding: 2.6rem 2.4rem; }
+@media (max-width: 960px) { .plans { --c: min(var(--cols, 3), 2); } }
+@media (max-width: 600px) { .plans { --c: 1; } .plans[data-n="1"] .checklist { grid-template-columns: 1fr; } .plans[data-n="1"] .plan { padding: 2rem 1.4rem; } }
