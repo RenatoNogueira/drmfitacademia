@@ -1,0 +1,39 @@
+<%- include('_top') %>
+<div class="a-title"><h1>Mensagens do site</h1></div>
+
+<div class="a-tabs">
+  <a href="/admin/mensagens?f=novas" class="<%= filter === 'novas' ? 'on' : '' %>">Novas <span class="a-count"><%= counts.novas %></span></a>
+  <a href="/admin/mensagens?f=todas" class="<%= filter === 'todas' ? 'on' : '' %>">Todas <span class="a-count"><%= counts.todas %></span></a>
+</div>
+
+<% if (!rows.length) { %>
+  <div class="a-card a-empty"><%= filter === 'novas' ? 'Nenhuma mensagem nova. Veja o histórico em “Todas”.' : 'Nenhuma mensagem recebida ainda.' %></div>
+<% } else { %>
+  <div class="a-msgs">
+    <% rows.forEach(m => { %>
+      <details class="a-msg <%= m.read ? '' : 'unread' %>" data-id="<%= m.id %>" data-read="<%= m.read ? '1' : '0' %>">
+        <summary>
+          <strong><%= m.name %><% if (!m.read) { %> <span class="a-badge-new">Nova</span><% } %></strong>
+          <span class="a-when"><%= m.when %></span>
+          <span class="a-preview"><%= m.message %></span>
+        </summary>
+        <div class="a-msg-body">
+          <p class="a-msg-text"><%= m.message %></p>
+          <div class="a-msg-meta">
+            <span>WhatsApp: <a href="<%= m.wa %>" target="_blank" rel="noopener"><%= m.phone %></a></span>
+            <span>E-mail: <a href="<%= m.mail %>"><%= m.email %></a></span>
+            <% if (m.plan) { %><span>Plano de interesse: <%= m.plan %></span><% } %>
+          </div>
+          <div class="a-row" style="margin-top:1rem">
+            <a class="a-btn a-btn-sm a-btn-wa" href="<%= m.wa %>" target="_blank" rel="noopener">Responder no WhatsApp</a>
+            <a class="a-btn a-btn-sm a-btn-ghost" href="<%= m.mail %>">Responder por e-mail</a>
+            <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-toggle-read><%= m.read ? 'Marcar como não lida' : 'Marcar como lida' %></button>
+            <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-message>Excluir</button>
+          </div>
+        </div>
+      </details>
+    <% }) %>
+  </div>
+<% } %>
+<p class="a-muted a-small">Abrir uma mensagem a marca como lida; você pode reabri-la quando quiser e marcá-la como não lida de novo. Os dados são pessoais (LGPD): exclua quando não forem mais necessários.</p>
+<%- include('_bottom') %>

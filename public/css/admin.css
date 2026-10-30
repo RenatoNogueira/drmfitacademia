@@ -95,3 +95,19 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); bo
   .a-table td::before { content: attr(data-l); display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
   .a-table td.a-row-actions::before { content: none; }
 }
+
+/* Cabeçalho do painel: no celular o menu vira uma faixa rolável */
+.a-nav a { white-space: nowrap; }
+.a-nav-wrap { display: contents; }
+@media (max-width: 860px) {
+  .a-header-in { display: grid; grid-template-columns: 1fr auto; gap: .4rem .8rem; padding: .5rem 0 0; }
+  .a-logo span { display: none; }
+  .a-nav { grid-column: 1 / -1; grid-row: 2; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -1rem; padding: .3rem 1rem .6rem; -webkit-overflow-scrolling: touch; }
+  .a-nav::-webkit-scrollbar { display: none; }
+  .a-nav a { padding: .55rem 1rem; background: #181818; border: 1px solid var(--line); }
+  .a-nav a.on { border-color: var(--accent); }
+  .a-main { padding: 1.2rem 0 3rem; }
+  .a-btn { min-height: 44px; }
+  .a-title h1 { font-size: 1.35rem; }
+  body.admin input, body.admin select, body.admin textarea { font-size: 16px; } /* evita zoom automático no iPhone */
+}

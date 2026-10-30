@@ -11,7 +11,7 @@
       <% } %>
     </div>
     <div class="reveal reveal-right">
-      <span class="eyebrow">Sobre nós</span>
+      <span class="eyebrow"><%= site.copy.about.eyebrow %></span>
       <h2><%= site.about.title %> <span class="outline"><%= site.about.highlight %></span></h2>
       <% site.about.paragraphs.forEach(p => { %><p><%= p %></p><% }) %>
       <div class="signature">

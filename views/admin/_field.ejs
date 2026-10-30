@@ -1,0 +1,39 @@
+<% const val = S.getPath(current, f.path); %>
+<% if (f.type === 'head') { %>
+  <fieldset class="a-fs">
+    <legend><%= f.label %></legend>
+    <div class="a-grid-4">
+      <% S.HEAD_KEYS.forEach(([key, label, max, optional]) => { %>
+        <label><%= label %><%= optional ? ' (opcional)' : '' %>
+          <input type="text" name="<%= f.path %>.<%= key %>" value="<%= (val && val[key]) || '' %>" maxlength="<%= max %>" <%= optional ? '' : 'required' %>>
+        </label>
+      <% }) %>
+    </div>
+    <p class="a-preview-line">Prévia: <span><%= val && val.before %></span> <b><%= val && val.highlight %></b> <span><%= val && val.after %></span></p>
+  </fieldset>
+<% } else if (f.type === 'list') { %>
+  <fieldset class="a-fs a-list" data-list data-fixed="<%= f.fixed ? '1' : '0' %>" data-max="<%= f.max || 12 %>">
+    <legend><%= f.label %></legend>
+    <div data-rows>
+      <% (val || []).forEach((item, i) => { %><%- include('_row', { f, item, i, S }) %><% }) %>
+    </div>
+    <% if (!f.fixed) { %>
+      <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-add-row>+ Adicionar</button>
+      <template data-row-template><%- include('_row', { f, item: {}, i: '__i__', S }) %></template>
+    <% } %>
+  </fieldset>
+<% } else if (f.type === 'textarea' || f.type === 'lines' || f.type === 'pairs' || f.type === 'table') { %>
+  <label class="a-field"><%= f.label %>
+    <textarea name="<%= f.path %>" rows="<%= f.type === 'textarea' ? 3 : (f.type === 'table' ? 6 : 4) %>" maxlength="<%= f.max || 4000 %>"><%= S.display(f, val) %></textarea>
+    <% if (f.hint) { %><small class="a-muted"><%= f.hint %></small><% } %>
+  </label>
+<% } else if (f.type === 'color') { %>
+  <label class="a-field a-color"><%= f.label %>
+    <span><input type="color" name="<%= f.path %>" value="<%= val %>"><code><%= val %></code></span>
+  </label>
+<% } else { %>
+  <label class="a-field"><%= f.label %>
+    <input type="<%= f.type === 'email' ? 'email' : (f.type === 'url' ? 'url' : 'text') %>" name="<%= f.path %>" value="<%= S.display(f, val) %>" maxlength="<%= f.max || 300 %>" <%= f.optional ? '' : 'required' %>>
+    <% if (f.hint) { %><small class="a-muted"><%= f.hint %></small><% } %>
+  </label>
+<% } %>

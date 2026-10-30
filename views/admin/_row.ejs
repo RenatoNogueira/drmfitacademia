@@ -1,0 +1,27 @@
+<div class="a-listrow" data-row>
+  <div class="a-listrow-head">
+    <strong data-row-title><%= item[f.itemTitle] || 'Novo item' %></strong>
+    <span class="a-spacer"></span>
+    <% if (!f.fixed) { %>
+      <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-row-move="up" aria-label="Subir">↑</button>
+      <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-row-move="down" aria-label="Descer">↓</button>
+      <button class="a-btn a-btn-sm a-btn-danger" type="button" data-remove-row>Remover</button>
+    <% } %>
+  </div>
+  <div class="a-listrow-grid">
+    <% f.fields.forEach(sub => { const n = `${f.path}[${i}][${sub.key}]`; const v = item[sub.key]; %>
+      <% if (sub.type === 'bool') { %>
+        <label class="a-check"><input type="checkbox" name="<%= n %>" <%= v ? 'checked' : '' %>> <%= sub.label %></label>
+      <% } else if (sub.type === 'textarea' || sub.type === 'lines' || sub.type === 'pairs') { %>
+        <label class="a-field a-wide"><%= sub.label %>
+          <textarea name="<%= n %>" rows="<%= sub.type === 'textarea' ? 2 : 4 %>" maxlength="<%= sub.max || 1500 %>"><%= S.display(sub, v) %></textarea>
+          <% if (sub.hint) { %><small class="a-muted"><%= sub.hint %></small><% } %>
+        </label>
+      <% } else { %>
+        <label class="a-field"><%= sub.label %>
+          <input type="<%= sub.type === 'number' ? 'number' : 'text' %>" name="<%= n %>" value="<%= S.display(sub, v) %>" maxlength="<%= sub.max || 120 %>" <%= sub.optional ? '' : 'required' %> <%= sub.key === f.itemTitle ? 'data-title-input' : '' %>>
+        </label>
+      <% } %>
+    <% }) %>
+  </div>
+</div>

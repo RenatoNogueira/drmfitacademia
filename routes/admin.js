@@ -5,13 +5,15 @@ const crypto = require('crypto');
 const auth = require('../lib/auth');
 const store = require('../lib/store');
 const media = require('../lib/media');
+const content = require('../lib/content');
 const agendaLib = require('../lib/agenda');
 const { slots, slotKeys } = require('../lib/slots');
-const site = require('../data/site');
+const siteContent = require('../lib/siteContent');
+const schema = require('../lib/siteSchema');
 const { getAgenda } = require('./api');
 
 const router = express.Router();
-router.use(express.urlencoded({ extended: false, limit: '50kb' }));
+router.use(express.urlencoded({ extended: true, limit: '200kb', parameterLimit: 3000 }));
 router.use(express.json({ limit: '20kb' }));
 router.use((req, res, next) => {
   res.set('Cache-Control', 'no-store');
@@ -76,6 +78,15 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
   res.status(500).render('admin/setup', { title: 'Erro | Admin DRMFIT', problem: explain(err) });
 });
 
+// Contador de mensagens novas para o menu (se a tabela ainda não existir, mostra 0)
+router.use(async (req, res, next) => {
+  res.locals.unreadMessages = 0;
+  if (!req.path.startsWith('/api/')) {
+    try { res.locals.unreadMessages = await store.countUnreadMessages(); } catch { /* sem tabela ainda */ }
+  }
+  next();
+});
+
 // ---------- agendamentos ----------
 const STATUSES = ['pendente', 'confirmado', 'cancelado'];
 const waLink = (phone, text) => {
@@ -83,27 +94,73 @@ const waLink = (phone, text) => {
   return `https://wa.me/${d.length <= 11 ? `55${d}` : d}?text=${encodeURIComponent(text)}`;
 };
 
+const fmtPhone = (p) => {
+  const d = String(p).replace(/\D/g, '');
+  const n = d.length > 11 && d.startsWith('55') ? d.slice(2) : d;
+  if (n.length === 11) return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+  if (n.length === 10) return `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
+  return String(p);
+};
+const brDate = (d) => d.split('-').reverse().join('/');
+
 router.get('/agendamentos', wrap(async (req, res) => {
   const all = await store.listBookings();
-  const today = agendaLib.nowInTz().date;
-  const filter = ['proximos', 'pendentes', 'passados', 'todos'].includes(req.query.f) ? req.query.f : 'proximos';
+  const now = agendaLib.nowInTz();
+  const today = now.date;
+  const tomorrow = agendaLib.addDays(today, 1);
+  const in7 = agendaLib.addDays(today, 7);
+  const active = (b) => b.status !== 'cancelado';
+  const FILTERS = ['hoje', 'proximos', 'pendentes', 'passados', 'todos'];
+  const filter = FILTERS.includes(req.query.f) ? req.query.f : 'proximos';
+
+  const stats = {
+    hoje: all.filter((b) => b.date === today && active(b)).length,
+    semana: all.filter((b) => b.date >= today && b.date <= in7 && active(b)).length,
+    pendentes: all.filter((b) => b.status === 'pendente' && b.date >= today).length,
+    total: all.filter(active).length
+  };
   const counts = {
-    proximos: all.filter((b) => b.date >= today && b.status !== 'cancelado').length,
+    hoje: stats.hoje,
+    proximos: all.filter((b) => b.date >= today && active(b)).length,
     pendentes: all.filter((b) => b.status === 'pendente').length,
     passados: all.filter((b) => b.date < today).length,
     todos: all.length
   };
-  let list = all;
-  if (filter === 'proximos') list = all.filter((b) => b.date >= today && b.status !== 'cancelado');
+
+  let list = all; // já vem ordenado por data e hora
+  if (filter === 'hoje') list = all.filter((b) => b.date === today && active(b));
+  if (filter === 'proximos') list = all.filter((b) => b.date >= today && active(b));
   if (filter === 'pendentes') list = all.filter((b) => b.status === 'pendente');
   if (filter === 'passados') list = all.filter((b) => b.date < today).reverse();
-  const rows = list.map((b) => ({
-    ...b,
-    time: String(b.time).slice(0, 5),
-    dateLabel: `${agendaLib.WEEKDAYS_SHORT[agendaLib.weekdayOf(b.date)]}, ${b.date.split('-').reverse().join('/')}`,
-    wa: waLink(b.phone, `Olá, ${b.name}! Aqui é da DRMFIT. Sua avaliação física está marcada para ${b.date.split('-').reverse().join('/')} às ${String(b.time).slice(0, 5)}. Podemos confirmar?`)
-  }));
-  res.render('admin/bookings', { title: 'Agendamentos | Admin DRMFIT', rows, filter, counts, statuses: STATUSES });
+
+  const rows = list.map((b) => {
+    const time = String(b.time).slice(0, 5);
+    const first = String(b.name).split(' ')[0];
+    const digits = String(b.phone).replace(/\D/g, '');
+    return {
+      ...b,
+      time,
+      phoneFmt: fmtPhone(b.phone),
+      tel: `tel:+${digits.length <= 11 ? `55${digits}` : digits}`,
+      isNew: Date.now() - new Date(b.created_at).getTime() < 24 * 60 * 60 * 1000,
+      past: b.date < today,
+      search: `${b.name} ${digits} ${b.email || ''} ${b.objective || ''}`.toLowerCase(),
+      wa: waLink(b.phone, `Olá, ${first}! Aqui é da ${res.locals.site.brand.name}. Sua avaliação física está marcada para ${brDate(b.date)} às ${time}. Podemos confirmar?`)
+    };
+  });
+
+  // Agrupa por dia ("Hoje", "Amanhã", "Quarta"...)
+  const groups = [];
+  rows.forEach((r) => {
+    let g = groups[groups.length - 1];
+    if (!g || g.date !== r.date) {
+      g = { date: r.date, label: r.date === today ? 'Hoje' : r.date === tomorrow ? 'Amanhã' : agendaLib.WEEKDAYS[agendaLib.weekdayOf(r.date)], sub: brDate(r.date), items: [] };
+      groups.push(g);
+    }
+    g.items.push(r);
+  });
+
+  res.render('admin/bookings', { title: 'Agendamentos | Admin DRMFIT', groups, total: rows.length, filter, counts, stats, today: brDate(today) });
 }));
 
 router.post('/api/agendamentos/:id/status', wrap(async (req, res) => {
@@ -136,6 +193,36 @@ router.get('/agendamentos.csv', wrap(async (req, res) => {
   const lines = all.map((b) => [b.date, String(b.time).slice(0, 5), b.name, b.phone, b.email, b.objective, b.notes, b.status, b.created_at].map(csvCell).join(';'));
   res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="agendamentos-drmfit.csv"' });
   res.send(`\ufeff${[head.map(csvCell).join(';'), ...lines].join('\r\n')}`);
+}));
+
+// ---------- mensagens do formulário de contato ----------
+const fmtDateTime = (iso) => new Intl.DateTimeFormat('pt-BR', { timeZone: agendaLib.TZ, dateStyle: 'short', timeStyle: 'short' }).format(new Date(iso));
+
+router.get('/mensagens', wrap(async (req, res) => {
+  const all = await store.listMessages();
+  const filter = req.query.f === 'todas' ? 'todas' : 'novas';
+  const counts = { novas: all.filter((m) => !m.read).length, todas: all.length };
+  const list = filter === 'novas' ? all.filter((m) => !m.read) : all;
+  const rows = list.map((m) => {
+    const first = String(m.name).split(' ')[0];
+    return {
+      ...m,
+      when: fmtDateTime(m.created_at),
+      wa: waLink(m.phone, `Olá, ${first}! Aqui é da DRMFIT. Recebemos sua mensagem pelo site e estamos retornando.`),
+      mail: `mailto:${m.email}?subject=${encodeURIComponent('Sua mensagem para a DRMFIT')}`
+    };
+  });
+  res.render('admin/messages', { title: 'Mensagens | Admin DRMFIT', rows, filter, counts });
+}));
+
+router.post('/api/mensagens/:id/lida', wrap(async (req, res) => {
+  const ok = await store.setMessageRead(req.params.id, req.body?.read !== false);
+  res.status(ok ? 200 : 404).json(ok ? { ok: true } : { error: 'Mensagem não encontrada.' });
+}));
+
+router.delete('/api/mensagens/:id', wrap(async (req, res) => {
+  const ok = await store.deleteMessage(req.params.id);
+  res.status(ok ? 200 : 404).json(ok ? { ok: true } : { error: 'Mensagem não encontrada.' });
 }));
 
 // ---------- horários de avaliação ----------
@@ -187,7 +274,7 @@ const fail = (res, err) => (err.status ? res.status(err.status).json({ error: er
 
 router.get('/imagens', wrap(async (req, res) => {
   const map = await store.getMedia();
-  const items = slots.map((s) => ({ ...s, custom: Boolean(map[s.key]), current: map[s.key]?.url || media.findLocal(s.key, media.IMG_EXT) }));
+  const items = slots.map((s) => ({ ...s, custom: Boolean(map[s.key]), current: map[s.key]?.url || media.findLocal(s.key, media.IMG_EXT) || s.fallback || null }));
   const groups = [...new Set(items.map((i) => i.group))].map((g) => ({ name: g, items: items.filter((i) => i.group === g) }));
   res.render('admin/media', { title: 'Imagens | Admin DRMFIT', groups });
 }));
@@ -210,6 +297,103 @@ router.delete('/api/media/:key', wrap(async (req, res) => {
   if (old) await store.removeFile(old);
   media.invalidate();
   res.json({ ok: true, fallback: media.findLocal(req.params.key, media.IMG_EXT) });
+}));
+
+// ---------- depoimentos ("Alunos que transformaram a rotina") ----------
+const parseId = (v) => (/^\d+$/.test(v) ? Number(v) : v);
+
+// Lê e valida os campos do formulário (multipart)
+const readTestimonial = (body) => {
+  const data = {
+    name: agendaLib.cleanText(body.name, 60),
+    result: agendaLib.cleanText(body.result, 30) || null,
+    quote: String(body.quote || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').replace(/\s+/g, ' ').trim().slice(0, 400),
+    visible: body.visible === 'on' || body.visible === 'true' || body.visible === '1'
+  };
+  const errors = {};
+  if (data.name.length < 2) errors.name = 'Informe o nome do aluno.';
+  if (data.quote.length < 10) errors.quote = 'Escreva o depoimento (mínimo 10 letras).';
+  return { data, errors };
+};
+
+router.get('/depoimentos', wrap(async (req, res) => {
+  const items = await store.listTestimonials();
+  res.render('admin/testimonials', { title: 'Depoimentos | Admin DRMFIT', items, defaults: require('../lib/content').defaults() });
+}));
+
+router.post('/api/depoimentos', uploadErrors(upload.single('photo')), wrap(async (req, res) => {
+  const { data, errors } = readTestimonial(req.body || {});
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  try {
+    if (req.file) { const saved = await storeImage('depoimentos', req.file); data.photo_url = saved.url; data.photo_path = saved.path; }
+    const item = await store.createTestimonial(data);
+    content.invalidate();
+    res.status(201).json({ ok: true, id: item.id });
+  } catch (err) { if (!fail(res, err)) throw err; }
+}));
+
+router.post('/api/depoimentos/importar', wrap(async (req, res) => {
+  if ((await store.listTestimonials()).length) return res.status(409).json({ error: 'Já existem depoimentos cadastrados.' });
+  for (const t of content.defaults()) await store.createTestimonial({ name: t.name, result: t.result, quote: t.quote, visible: true });
+  content.invalidate();
+  res.json({ ok: true });
+}));
+
+router.post('/api/depoimentos/:id', uploadErrors(upload.single('photo')), wrap(async (req, res) => {
+  const { data, errors } = readTestimonial(req.body || {});
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  try {
+    if (req.file) { const saved = await storeImage('depoimentos', req.file); data.photo_url = saved.url; data.photo_path = saved.path; }
+    else if (req.body.remove_photo === '1') { data.photo_url = null; data.photo_path = null; }
+    const out = await store.updateTestimonial(parseId(req.params.id), data);
+    if (!out) return res.status(404).json({ error: 'Depoimento não encontrado.' });
+    if (out.oldPath) await store.removeFile(out.oldPath);
+    content.invalidate();
+    res.json({ ok: true, photo_url: data.photo_url });
+  } catch (err) { if (!fail(res, err)) throw err; }
+}));
+
+router.post('/api/depoimentos/:id/mover', wrap(async (req, res) => {
+  await store.moveTestimonial(parseId(req.params.id), req.body?.dir === 'up' ? 'up' : 'down');
+  content.invalidate();
+  res.json({ ok: true });
+}));
+
+router.delete('/api/depoimentos/:id', wrap(async (req, res) => {
+  const out = await store.deleteTestimonial(parseId(req.params.id));
+  if (!out) return res.status(404).json({ error: 'Depoimento não encontrado.' });
+  if (out.path) await store.removeFile(out.path);
+  content.invalidate();
+  res.json({ ok: true });
+}));
+
+// ---------- conteúdo do site (textos, contato, cores...) ----------
+router.get('/conteudo', wrap(async (req, res) => {
+  const group = schema.byId[req.query.g] || schema.groups[0];
+  const current = await siteContent.get();
+  const overrides = await siteContent.getOverrides();
+  const edited = new Set(schema.groups.filter((g) => schema.flat(g).some((f) => f.path in overrides)).map((g) => g.id));
+  res.render('admin/content', { title: 'Conteúdo | Admin DRMFIT', groups: schema.groups, group, current, S: schema, edited });
+}));
+
+router.post('/api/conteudo/:group', wrap(async (req, res) => {
+  const group = schema.byId[req.params.group];
+  if (!group) return res.status(404).json({ error: 'Grupo desconhecido.' });
+  const { values, error } = schema.parseGroup(group, req.body || {});
+  if (error) return res.status(400).json({ error });
+  const overrides = await siteContent.getOverrides();
+  Object.assign(overrides, values);
+  await siteContent.saveOverrides(overrides);
+  res.json({ ok: true });
+}));
+
+router.delete('/api/conteudo/:group', wrap(async (req, res) => {
+  const group = schema.byId[req.params.group];
+  if (!group) return res.status(404).json({ error: 'Grupo desconhecido.' });
+  const overrides = await siteContent.getOverrides();
+  schema.flat(group).forEach((f) => { delete overrides[f.path]; });
+  await siteContent.saveOverrides(overrides);
+  res.json({ ok: true });
 }));
 
 // ---------- galeria ----------

@@ -1,14 +1,13 @@
 <section class="section" id="planos">
   <div class="container">
     <div class="section-head center">
-      <span class="eyebrow">Planos</span>
-      <h2>Nossos <span class="outline">planos</span></h2>
-      <p>Sem taxa de matrícula na primeira semana. Cancele quando quiser nos planos mensais.</p>
+      <%- include('../head', { h: site.copy.plans }) %>
+      <% if (site.copy.plans.text) { %><p><%= site.copy.plans.text %></p><% } %>
     </div>
     <div class="grid grid-3 plans">
       <% site.plans.forEach(p => { %>
         <article class="card plan reveal <%= p.highlight ? 'featured' : '' %>">
-          <% if (p.highlight) { %><span class="badge">Mais popular</span><% } %>
+          <% if (p.highlight) { %><span class="badge"><%= site.copy.plans.badge %></span><% } %>
           <h3><%= p.name %></h3>
           <div class="price"><small>R$</small><strong><%= p.price %></strong><span><%= p.period %></span></div>
           <ul class="checklist">
@@ -16,7 +15,7 @@
               <li><%- include('../icon', { name: 'check' }) %> <%= i %></li>
             <% }) %>
           </ul>
-          <a class="btn <%= p.highlight ? '' : 'btn-outline' %>" href="/contato?plano=<%= encodeURIComponent(p.name) %>">Assinar <%= p.name %></a>
+          <a class="btn <%= p.highlight ? '' : 'btn-outline' %>" href="/contato?plano=<%= encodeURIComponent(p.name) %>"><%= site.copy.plans.button %> <%= p.name %></a>
         </article>
       <% }) %>
     </div>

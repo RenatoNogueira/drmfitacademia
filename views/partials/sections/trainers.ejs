@@ -1,8 +1,7 @@
 <section class="section" id="equipe">
   <div class="container">
     <div class="section-head center">
-      <span class="eyebrow">Equipe</span>
-      <h2>Quem treina <span class="outline">com você</span></h2>
+      <%- include('../head', { h: site.copy.trainers }) %>
     </div>
     <div class="grid grid-4">
       <% site.trainers.forEach((t, i) => { %>

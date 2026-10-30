@@ -4,11 +4,11 @@
 <section class="cta-band">
   <div class="container cta-inner">
     <div>
-      <h2>Pronto para <span class="outline">começar?</span></h2>
-      <p>Agende sua aula experimental gratuita e conheça a DRMFIT.</p>
+      <h2><%= site.copy.cta.before %> <span class="outline"><%= site.copy.cta.highlight %></span></h2>
+      <p><%= site.copy.cta.text %></p>
     </div>
     <a class="btn btn-whatsapp" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Quero agendar uma aula experimental na DRMFIT.') %>">
-      <%- include('icon', { name: 'whatsapp' }) %> Chamar no WhatsApp
+      <%- include('icon', { name: 'whatsapp' }) %> <%= site.copy.cta.button %>
     </a>
   </div>
 </section>
@@ -17,8 +17,8 @@
 <footer class="site-footer">
   <div class="container footer-grid">
     <div>
-      <a href="/" class="logo"><img src="/img/logo-transparent.png" alt="DRMFIT Academia" width="133" height="52"></a>
-      <p class="muted"><%= site.brand.tagline %> Estrutura completa, profissionais dedicados e um ambiente que motiva.</p>
+      <a href="/" class="logo"><img src="<%= img('logo') || '/img/logo-transparent.png' %>" alt="<%= site.brand.name %> Academia" width="133" height="52"></a>
+      <p class="muted"><%= site.brand.tagline %> <%= site.copy.footer.about %></p>
       <div class="social">
         <a href="<%= site.brand.instagram %>" target="_blank" rel="noopener" aria-label="Instagram"><%- include('icon', { name: 'instagram' }) %></a>
         <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('icon', { name: 'facebook' }) %></a>
@@ -53,7 +53,7 @@
     </div>
   </div>
   <div class="container footer-bottom">
-    <span>&copy; <%= year %> DRMFIT Academia. Todos os direitos reservados.</span>
+    <span>&copy; <%= year %> <%= site.brand.name %> Academia. <%= site.copy.footer.copyright %></span>
   </div>
 </footer>
 
@@ -68,7 +68,9 @@
   <div class="lightbox-body" id="lightbox-body"></div>
 </div>
 
+<%- include('sections/booking') %>
+
 <script src="/js/main.js?v=<%= assetVersion %>" defer></script>
-<% if (typeof hasBooking !== 'undefined' || currentPath === '/') { %><script src="/js/booking.js?v=<%= assetVersion %>" defer></script><% } %>
+<script src="/js/booking.js?v=<%= assetVersion %>" defer></script>
 </body>
 </html>

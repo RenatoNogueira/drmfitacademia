@@ -4,35 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= title %></title>
-  <meta name="description" content="DRMFIT - academia completa com musculação, aulas coletivas, personal trainers e planos a partir de R$ 99. Agende sua aula experimental grátis.">
+  <meta name="description" content="<%= site.copy.seo.description %>">
   <meta name="theme-color" content="#0b0b0d">
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=<%= assetVersion %>">
+  <style>:root { --accent: <%= site.theme.accent %>; --accent-dark: <%= site.theme.accentDark %>; }</style>
 </head>
 <body>
 <%
 const nav = [
-  { href: '/#inicio', label: 'Início' },
-  { href: '/#sobre', label: 'Sobre' },
-  { href: '/#servicos', label: 'Serviços' },
-  { href: '/#aulas', label: 'Aulas' },
-  { href: '/#planos', label: 'Planos' },
-  { href: '/#equipe', label: 'Equipe' },
-  { href: '/#contato', label: 'Contato' }
+  { href: '/#inicio', label: site.copy.nav.home },
+  { href: '/#sobre', label: site.copy.nav.about },
+  { href: '/#servicos', label: site.copy.nav.services },
+  { href: '/#aulas', label: site.copy.nav.classes },
+  { href: '/#planos', label: site.copy.nav.plans },
+  { href: '/#equipe', label: site.copy.nav.team },
+  { href: '/#contato', label: site.copy.nav.contact }
 ];
 %>
 <header class="site-header" id="top">
   <div class="scroll-progress" id="scroll-progress"></div>
   <div class="container header-inner">
-    <a href="/" class="logo" aria-label="DRMFIT - página inicial"><img src="/img/logo-transparent.png" alt="DRMFIT Academia" width="133" height="52"></a>
+    <a href="/" class="logo" aria-label="DRMFIT - página inicial"><img src="<%= img('logo') || '/img/logo-transparent.png' %>" alt="<%= site.brand.name %> Academia" width="133" height="52"></a>
     <nav class="main-nav" id="main-nav" aria-label="Principal">
       <% nav.forEach((item) => { %>
         <a href="<%= item.href %>" data-spy="<%= item.href.split('#')[1] %>"><%= item.label %></a>
       <% }) %>
-      <a href="/#avaliacao" data-spy="avaliacao" class="btn btn-sm nav-cta">Agendar avaliação</a>
+      <a href="/#avaliacao" data-spy="avaliacao" class="btn btn-sm nav-cta"><%= site.copy.nav.cta %></a>
 
       <div class="nav-extra">
         <a class="btn btn-whatsapp btn-block" target="_blank" rel="noopener" href="<%= site.whatsappLink('Olá! Gostaria de agendar uma aula experimental na DRMFIT.') %>">

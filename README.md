@@ -14,7 +14,9 @@ npm start        # http://localhost:3000
 
 ## Painel admin (`/admin`)
 Área protegida por senha para:
+- **Conteúdo**: editar textos do site (topo, sobre, serviços, aulas, planos e preços, FAQ, rodapé...), contato/WhatsApp/redes, horários de funcionamento, cores e o logo (em Imagens). O que não for editado usa o texto padrão de `data/site.js`;
 - **Agendamentos**: ver as avaliações marcadas, confirmar/cancelar, chamar o aluno no WhatsApp e baixar planilha (CSV);
+- **Mensagens**: ler as mensagens enviadas em "Envie uma mensagem" (Contato), marcar como lida/não lida, responder por WhatsApp ou e-mail e excluir;
 - **Horários**: definir os horários livres de cada dia, antecedência, janela de dias e datas sem atendimento;
 - **Imagens**: trocar as fotos de cada espaço do site (topo, sobre, aulas, equipe...) ou voltar à foto padrão;
 - **Galeria**: adicionar, excluir e reordenar as fotos de "Vida na DRMFIT".

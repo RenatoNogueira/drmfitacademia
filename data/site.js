@@ -1,4 +1,5 @@
-// Conteúdo do site DRMFIT. Edite aqui para alterar textos, planos, horários etc.
+// Conteúdo PADRÃO do site DRMFIT. Tudo aqui pode ser alterado pelo painel (/admin → Conteúdo);
+// o que for editado no painel tem prioridade sobre estes valores.
 const whatsappNumber = '5598981419822'; // DDI + DDD + número, sem símbolos
 
 module.exports = {
@@ -16,8 +17,53 @@ module.exports = {
     youtube: 'https://youtube.com/@drmfit'
   },
 
+  // Usa o número atual do site (pode ter sido editado no painel)
   whatsappLink(message) {
-    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${this.brand.whatsappNumber}?text=${encodeURIComponent(message)}`;
+  },
+
+  // Cores principais (editáveis no painel)
+  theme: { accent: '#f06c00', accentDark: '#c85800' },
+
+  // Textos fixos das páginas (editáveis no painel). "Cabeçalho" = etiqueta + título com palavra destacada.
+  copy: {
+    seo: {
+      title: 'DRMFIT | Academia - Treine forte. Viva melhor.',
+      description: 'DRMFIT - academia completa com musculação, aulas coletivas, personal trainers e planos a partir de R$ 99. Agende sua aula experimental grátis.'
+    },
+    nav: { home: 'Início', about: 'Sobre', services: 'Serviços', classes: 'Aulas', plans: 'Planos', team: 'Equipe', contact: 'Contato', cta: 'Agendar avaliação' },
+    hero: {
+      eyebrow: 'Academia completa',
+      line1: 'Supere mais',
+      line2: 'a cada',
+      line3: 'treino!',
+      text: 'Musculação, aulas coletivas, personal e avaliação física em um só lugar. Comece hoje com uma aula experimental gratuita.',
+      primary: 'Agendar avaliação',
+      secondary: 'Ver planos',
+      marquee: ['DRMFIT', 'Treine forte', 'Sem limites', 'Supere mais']
+    },
+    about: { eyebrow: 'Sobre nós' },
+    features: { eyebrow: 'Por que a DRMFIT', before: 'Tudo para o seu', highlight: 'resultado', after: '' },
+    services: { eyebrow: 'O que fazemos', before: 'Nossos', highlight: 'serviços', after: '', link: 'Quero saber mais' },
+    classes: { eyebrow: 'Aulas', before: 'Nossas', highlight: 'aulas', after: '' },
+    plans: { eyebrow: 'Planos', before: 'Nossos', highlight: 'planos', after: '', text: 'Sem taxa de matrícula na primeira semana. Cancele quando quiser nos planos mensais.', badge: 'Mais popular', button: 'Assinar' },
+    booking: { eyebrow: 'Avaliação física', before: 'Agende sua', highlight: 'avaliação', after: '', text: 'Escolha o melhor dia e horário e deixe seus dados. Nossa equipe confirma com você pelo WhatsApp.' },
+    gallery: { eyebrow: 'Galeria', before: 'Vida na', highlight: 'DRMFIT', after: '' },
+    trainers: { eyebrow: 'Equipe', before: 'Quem treina', highlight: 'com você', after: '' },
+    testimonials: { eyebrow: 'Depoimentos', before: 'Alunos que', highlight: 'transformaram', after: 'a rotina' },
+    faq: { eyebrow: 'Dúvidas', before: 'Perguntas', highlight: 'frequentes', after: '' },
+    contact: { eyebrow: 'Contato', before: 'Fale com a', highlight: 'DRMFIT', after: '' },
+    schedule: { eyebrow: 'Grade de aulas', before: 'Horários que cabem na', highlight: 'sua rotina', after: '' },
+    cta: { before: 'Pronto para', highlight: 'começar?', text: 'Agende sua aula experimental gratuita e conheça a DRMFIT.', button: 'Chamar no WhatsApp' },
+    footer: { about: 'Estrutura completa, profissionais dedicados e um ambiente que motiva.', copyright: 'Todos os direitos reservados.' },
+    pages: {
+      about: { eyebrow: 'Sobre nós', before: 'A academia que', highlight: 'move você', text: 'Há 12 anos ajudando pessoas a conquistar saúde, força e confiança.' },
+      services: { eyebrow: 'Serviços', before: 'Treinos para', highlight: 'todos os gostos', text: 'Da musculação ao yoga: escolha uma modalidade ou combine várias.' },
+      plans: { eyebrow: 'Planos e preços', before: 'Invista na', highlight: 'sua saúde', text: 'Planos flexíveis, sem burocracia. Trimestral e anual com desconto.' },
+      schedule: { eyebrow: 'Aulas', before: 'Grade de', highlight: 'horários', text: 'Confira os horários e planeje a sua semana de treinos.' },
+      team: { eyebrow: 'Equipe', before: 'Profissionais', highlight: 'apaixonados', text: 'Instrutores certificados prontos para levar você ao próximo nível.' },
+      contact: { eyebrow: 'Contato', before: 'Fale com a', highlight: 'DRMFIT', text: 'Tire dúvidas, agende sua aula experimental ou venha nos visitar.' }
+    }
   },
 
   promo: {

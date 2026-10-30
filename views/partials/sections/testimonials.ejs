@@ -1,17 +1,21 @@
+<% if (testimonials && testimonials.length) { %>
 <section class="section alt">
   <div class="container">
     <div class="section-head center">
-      <span class="eyebrow">Depoimentos</span>
-      <h2>Alunos que <span class="outline">transformaram</span> a rotina</h2>
+      <%- include('../head', { h: site.copy.testimonials }) %>
     </div>
     <div class="grid grid-3">
-      <% site.testimonials.forEach(t => { %>
+      <% testimonials.forEach(t => { %>
         <figure class="card testimonial reveal">
-          <span class="result"><%= t.result %></span>
-          <blockquote>“<%= t.text %>”</blockquote>
-          <figcaption><%= t.name %></figcaption>
+          <% if (t.result) { %><span class="result"><%= t.result %></span><% } %>
+          <blockquote>“<%= t.quote %>”</blockquote>
+          <figcaption>
+            <% if (t.photo_url) { %><img class="t-avatar" src="<%= t.photo_url %>" alt="" loading="lazy" width="44" height="44"><% } %>
+            <span><%= t.name %></span>
+          </figcaption>
         </figure>
       <% }) %>
     </div>
   </div>
 </section>
+<% } %>

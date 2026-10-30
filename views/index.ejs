@@ -7,7 +7,7 @@ const heroImg = img('hero');
 <section class="hero" id="inicio">
   <div class="hero-marquee" aria-hidden="true">
     <div class="track">
-      <% for (let i = 0; i < 2; i++) { %><span>DRMFIT <i>•</i> Treine forte <i>•</i> Sem limites <i>•</i> Supere mais <i>•</i> </span><% } %>
+      <% for (let i = 0; i < 2; i++) { %><span><% site.copy.hero.marquee.forEach((w) => { %><%= w %> <i>•</i> <% }) %></span><% } %>
     </div>
   </div>
   <div class="hero-sweep" aria-hidden="true"></div>
@@ -20,16 +20,16 @@ const heroImg = img('hero');
   </div>
   <div class="container hero-inner">
     <div class="hero-text">
-      <span class="eyebrow line">Academia completa</span>
-      <h1 aria-label="Supere mais a cada treino!">
-        <span class="ln" aria-hidden="true"><span>Supere mais</span></span>
-        <span class="ln" aria-hidden="true"><span>a cada</span></span>
-        <span class="ln" aria-hidden="true"><span class="outline">treino!</span></span>
+      <span class="eyebrow line"><%= site.copy.hero.eyebrow %></span>
+      <h1 aria-label="<%= [site.copy.hero.line1, site.copy.hero.line2, site.copy.hero.line3].join(' ') %>">
+        <span class="ln" aria-hidden="true"><span><%= site.copy.hero.line1 %></span></span>
+        <span class="ln" aria-hidden="true"><span><%= site.copy.hero.line2 %></span></span>
+        <span class="ln" aria-hidden="true"><span class="outline"><%= site.copy.hero.line3 %></span></span>
       </h1>
-      <p>Musculação, aulas coletivas, personal e avaliação física em um só lugar. Comece hoje com uma aula experimental gratuita.</p>
+      <p><%= site.copy.hero.text %></p>
       <div class="hero-actions">
-        <a href="/#avaliacao" class="btn">Agendar avaliação</a>
-        <a href="/#planos" class="btn btn-outline">Ver planos</a>
+        <a href="/#avaliacao" class="btn"><%= site.copy.hero.primary %></a>
+        <a href="/#planos" class="btn btn-outline"><%= site.copy.hero.secondary %></a>
       </div>
       <div class="hero-social">
         <a href="<%= site.brand.facebook %>" target="_blank" rel="noopener" aria-label="Facebook"><%- include('partials/icon', { name: 'facebook' }) %></a>
@@ -58,7 +58,6 @@ const heroImg = img('hero');
 <%- include('partials/sections/classes') %>
 <%- include('partials/sections/promo') %>
 <%- include('partials/sections/plans') %>
-<%- include('partials/sections/booking') %>
 <%- include('partials/sections/gallery') %>
 <%- include('partials/sections/trainers') %>
 <%- include('partials/sections/testimonials') %>

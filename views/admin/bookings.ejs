@@ -1,42 +1,75 @@
 <%- include('_top') %>
 <div class="a-title">
-  <h1>Agendamentos de avaliação</h1>
-  <a class="a-btn a-btn-ghost" href="/admin/agendamentos.csv">Baixar planilha (CSV)</a>
+  <div>
+    <h1>Agendamentos</h1>
+    <p class="a-muted a-sub">Avaliações físicas marcadas pelo site</p>
+  </div>
+  <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/agendamentos.csv" download>Baixar planilha</a>
 </div>
 
-<div class="a-tabs" role="tablist">
-  <% [['proximos','Próximos'],['pendentes','Pendentes'],['passados','Passados'],['todos','Todos']].forEach(([k,l]) => { %>
-    <a href="/admin/agendamentos?f=<%= k %>" class="<%= filter === k ? 'on' : '' %>"><%= l %> <span class="a-count"><%= counts[k] %></span></a>
-  <% }) %>
+<section class="b-stats" aria-label="Resumo">
+  <a class="b-stat" href="/admin/agendamentos?f=hoje"><strong><%= stats.hoje %></strong><span>Hoje</span></a>
+  <a class="b-stat" href="/admin/agendamentos?f=proximos"><strong><%= stats.semana %></strong><span>Próx. 7 dias</span></a>
+  <a class="b-stat <%= stats.pendentes ? 'warn' : '' %>" href="/admin/agendamentos?f=pendentes"><strong><%= stats.pendentes %></strong><span>Pendentes</span></a>
+  <a class="b-stat" href="/admin/agendamentos?f=todos"><strong><%= stats.total %></strong><span>Ativos no total</span></a>
+</section>
+
+<div class="b-toolbar">
+  <nav class="b-filters" aria-label="Filtrar agendamentos">
+    <% [['hoje','Hoje'],['proximos','Próximos'],['pendentes','Pendentes'],['passados','Passados'],['todos','Todos']].forEach(([k,l]) => { %>
+      <a href="/admin/agendamentos?f=<%= k %>" class="<%= filter === k ? 'on' : '' %>" <%= filter === k ? 'aria-current="page"' : '' %>><%= l %><span><%= counts[k] %></span></a>
+    <% }) %>
+  </nav>
+  <div class="b-search">
+    <input type="search" id="b-search" placeholder="Buscar por nome, telefone ou e-mail" autocomplete="off" inputmode="search" aria-label="Buscar agendamentos">
+  </div>
 </div>
 
-<% if (!rows.length) { %>
-  <div class="a-card a-empty">Nenhum agendamento aqui ainda.</div>
+<% if (!groups.length) { %>
+  <div class="a-card a-empty b-empty">
+    <strong>Nenhum agendamento aqui.</strong>
+    <p class="a-muted"><%= filter === 'hoje' ? 'Nada marcado para hoje.' : filter === 'pendentes' ? 'Nenhum pedido aguardando confirmação.' : 'Quando alguém agendar pelo site, aparece aqui.' %></p>
+    <% if (filter !== 'todos') { %><a class="a-btn a-btn-ghost a-btn-sm" href="/admin/agendamentos?f=todos">Ver todos</a><% } %>
+  </div>
 <% } else { %>
-<div class="a-table-wrap">
-  <table class="a-table">
-    <thead><tr><th>Data / hora</th><th>Aluno</th><th>Contato</th><th>Objetivo</th><th>Status</th><th></th></tr></thead>
-    <tbody>
-      <% rows.forEach(b => { %>
-        <tr data-id="<%= b.id %>">
-          <td data-l="Data"><strong><%= b.dateLabel %></strong><br><span class="a-muted"><%= b.time %></span></td>
-          <td data-l="Aluno"><%= b.name %><% if (b.notes) { %><br><span class="a-muted a-notes"><%= b.notes %></span><% } %></td>
-          <td data-l="Contato"><a href="<%= b.wa %>" target="_blank" rel="noopener"><%= b.phone %></a><% if (b.email) { %><br><span class="a-muted"><%= b.email %></span><% } %></td>
-          <td data-l="Objetivo"><%= b.objective || '—' %></td>
-          <td data-l="Status">
-            <select class="a-status s-<%= b.status %>" data-status aria-label="Status do agendamento">
-              <% statuses.forEach(s => { %><option value="<%= s %>" <%= b.status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option><% }) %>
-            </select>
-          </td>
-          <td class="a-row-actions">
-            <a class="a-btn a-btn-sm a-btn-wa" href="<%= b.wa %>" target="_blank" rel="noopener">WhatsApp</a>
-            <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-booking>Excluir</button>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+  <div class="b-list" id="b-list">
+    <% groups.forEach(g => { %>
+      <section class="b-day" data-day>
+        <h2 class="b-day-head"><strong><%= g.label %></strong><span><%= g.sub %></span></h2>
+        <% g.items.forEach(b => { %>
+          <article class="b-card s-<%= b.status %> <%= b.past ? 'is-past' : '' %>" data-id="<%= b.id %>" data-status="<%= b.status %>" data-search="<%= b.search %>">
+            <div class="b-time"><%= b.time %></div>
+            <div class="b-main">
+              <div class="b-top">
+                <h3><%= b.name %></h3>
+                <% if (b.isNew) { %><em class="b-new">Novo</em><% } %>
+                <span class="b-pill s-<%= b.status %>" data-pill><%= b.status.charAt(0).toUpperCase() + b.status.slice(1) %></span>
+              </div>
+              <div class="b-meta">
+                <a href="<%= b.tel %>"><%= b.phoneFmt %></a>
+                <% if (b.email) { %><a href="mailto:<%= b.email %>"><%= b.email %></a><% } %>
+                <% if (b.objective) { %><span class="b-tag"><%= b.objective %></span><% } %>
+              </div>
+              <% if (b.notes) { %><p class="b-notes"><%= b.notes %></p><% } %>
+              <div class="b-actions">
+                <% if (b.status === 'pendente') { %>
+                  <button class="a-btn a-btn-sm b-ok" type="button" data-set-status="confirmado">Confirmar</button>
+                <% } else if (b.status === 'confirmado') { %>
+                  <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-set-status="pendente">Voltar p/ pendente</button>
+                <% } else { %>
+                  <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-set-status="pendente">Reativar</button>
+                <% } %>
+                <a class="a-btn a-btn-sm a-btn-wa" href="<%= b.wa %>" target="_blank" rel="noopener">WhatsApp</a>
+                <% if (b.status !== 'cancelado') { %><button class="a-btn a-btn-sm a-btn-ghost b-cancel" type="button" data-set-status="cancelado">Cancelar</button><% } %>
+                <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-booking aria-label="Excluir agendamento de <%= b.name %>">Excluir</button>
+              </div>
+            </div>
+          </article>
+        <% }) %>
+      </section>
+    <% }) %>
+  </div>
+  <p class="a-muted b-noresult" id="b-noresult" hidden>Nenhum resultado para a busca.</p>
 <% } %>
-<p class="a-muted a-small">Estes dados são pessoais dos alunos (LGPD): use-os apenas para contato sobre a avaliação e exclua quando não forem mais necessários.</p>
+<p class="a-muted a-small">Dados pessoais dos alunos (LGPD): use apenas para contato sobre a avaliação e exclua quando não forem mais necessários.</p>
 <%- include('_bottom') %>

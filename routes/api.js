@@ -1,7 +1,7 @@
 // API pública: horários livres e criação de agendamentos de avaliação.
 const express = require('express');
 const store = require('../lib/store');
-const site = require('../data/site');
+const siteContent = require('../lib/siteContent');
 const agendaLib = require('../lib/agenda');
 
 const router = express.Router();
@@ -74,7 +74,7 @@ router.post('/agendar', async (req, res) => {
     res.status(201).json({
       ok: true,
       when,
-      whatsapp: site.whatsappLink(`Olá! Sou ${values.name} e agendei uma avaliação física na DRMFIT para ${when}. Pode confirmar?`)
+      whatsapp: (await siteContent.get()).whatsappLink(`Olá! Sou ${values.name} e agendei uma avaliação física na DRMFIT para ${when}. Pode confirmar?`)
     });
   } catch (err) {
     if (err.code === 'SLOT_TAKEN') return res.status(409).json({ error: 'Esse horário acabou de ser reservado. Escolha outro.', refresh: true });

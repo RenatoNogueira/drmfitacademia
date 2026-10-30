@@ -10,10 +10,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/admin.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-messages.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-testimonials.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-content.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-bookings.css?v=<%= assetVersion %>">
 </head>
 <body class="admin">
 <% const tabs = [
+  { href: '/admin/conteudo', label: 'Conteúdo', match: '/conteudo' },
   { href: '/admin/agendamentos', label: 'Agendamentos', match: '/agendamentos' },
+  { href: '/admin/mensagens', label: 'Mensagens', match: '/mensagens', badge: typeof unreadMessages !== 'undefined' ? unreadMessages : 0 },
+  { href: '/admin/depoimentos', label: 'Depoimentos', match: '/depoimentos' },
   { href: '/admin/horarios', label: 'Horários', match: '/horarios' },
   { href: '/admin/imagens', label: 'Imagens', match: '/imagens' },
   { href: '/admin/galeria', label: 'Galeria', match: '/galeria' }
@@ -22,7 +29,7 @@
   <div class="a-wrap a-header-in">
     <a class="a-logo" href="/admin"><img src="/img/logo-transparent.png" alt="DRMFIT" height="40"><span>Painel</span></a>
     <nav class="a-nav" aria-label="Admin">
-      <% tabs.forEach(t => { %><a href="<%= t.href %>" class="<%= adminPath.startsWith(t.match) ? 'on' : '' %>"><%= t.label %></a><% }) %>
+      <% tabs.forEach(t => { %><a href="<%= t.href %>" class="<%= adminPath.startsWith(t.match) ? 'on' : '' %>"><%= t.label %><% if (t.badge) { %> <span class="a-dot"><%= t.badge %></span><% } %></a><% }) %>
     </nav>
     <div class="a-actions">
       <a href="/" target="_blank" rel="noopener" class="a-link">Ver site ↗</a>

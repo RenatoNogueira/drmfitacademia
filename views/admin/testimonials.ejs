@@ -1,0 +1,71 @@
+<%- include('_top') %>
+<div class="a-title"><h1>Depoimentos dos alunos</h1></div>
+<p class="a-muted">Gerencie a seção “Alunos que transformaram a rotina”. Use só depoimentos reais e com autorização do aluno para publicar nome e foto.</p>
+
+<form class="a-card a-t-form a-t-new" data-testimonial-new enctype="multipart/form-data">
+  <h2 class="a-h3">Novo depoimento</h2>
+  <div class="a-grid-2">
+    <label>Nome do aluno
+      <input type="text" name="name" maxlength="60" required placeholder="Ex.: Ana Paula L.">
+    </label>
+    <label>Resultado (etiqueta, opcional)
+      <input type="text" name="result" maxlength="30" placeholder="Ex.: -12 kg em 6 meses">
+    </label>
+  </div>
+  <label>Depoimento
+    <textarea name="quote" rows="3" maxlength="400" required placeholder="O que o aluno conta sobre a experiência na DRMFIT"></textarea>
+  </label>
+  <div class="a-row a-row-center">
+    <label class="a-btn a-btn-sm a-btn-ghost">Foto (opcional)
+      <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden data-photo-input>
+    </label>
+    <span class="a-muted a-small" data-photo-name>nenhuma foto</span>
+    <label class="a-check"><input type="checkbox" name="visible" checked> Mostrar no site</label>
+    <button class="a-btn" type="submit">Adicionar</button>
+  </div>
+</form>
+
+<% if (!items.length) { %>
+  <div class="a-card a-empty">
+    <p>O site está mostrando os <%= defaults.length %> depoimentos de exemplo. Ao adicionar o primeiro depoimento, a seção passa a mostrar só os que você cadastrar aqui.</p>
+    <button class="a-btn a-btn-ghost" type="button" data-testimonial-import>Importar os exemplos para editar</button>
+  </div>
+<% } else { %>
+  <h2 class="a-h2">Cadastrados (<%= items.length %>)</h2>
+  <div class="a-t-list">
+    <% items.forEach((t, i) => { %>
+      <form class="a-card a-t-form" data-testimonial data-id="<%= t.id %>" enctype="multipart/form-data">
+        <div class="a-t-head">
+          <div class="a-avatar"><% if (t.photo_url) { %><img src="<%= t.photo_url %>" alt=""><% } else { %><span><%= String(t.name).charAt(0).toUpperCase() %></span><% } %></div>
+          <strong><%= t.name %></strong>
+          <% if (!t.visible) { %><em class="a-pill">Oculto</em><% } %>
+          <span class="a-spacer"></span>
+          <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="up" <%= i === 0 ? 'disabled' : '' %> aria-label="Subir">↑</button>
+          <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="down" <%= i === items.length - 1 ? 'disabled' : '' %> aria-label="Descer">↓</button>
+        </div>
+        <div class="a-grid-2">
+          <label>Nome
+            <input type="text" name="name" maxlength="60" required value="<%= t.name %>">
+          </label>
+          <label>Resultado (etiqueta)
+            <input type="text" name="result" maxlength="30" value="<%= t.result || '' %>">
+          </label>
+        </div>
+        <label>Depoimento
+          <textarea name="quote" rows="3" maxlength="400" required><%= t.quote %></textarea>
+        </label>
+        <div class="a-row a-row-center">
+          <label class="a-btn a-btn-sm a-btn-ghost"><%= t.photo_url ? 'Trocar foto' : 'Adicionar foto' %>
+            <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden data-photo-input>
+          </label>
+          <% if (t.photo_url) { %><label class="a-check"><input type="checkbox" name="remove_photo" value="1"> Remover foto</label><% } %>
+          <label class="a-check"><input type="checkbox" name="visible" <%= t.visible ? 'checked' : '' %>> Mostrar no site</label>
+          <span class="a-spacer"></span>
+          <button class="a-btn a-btn-sm" type="submit">Salvar</button>
+          <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-testimonial>Excluir</button>
+        </div>
+      </form>
+    <% }) %>
+  </div>
+<% } %>
+<%- include('_bottom') %>

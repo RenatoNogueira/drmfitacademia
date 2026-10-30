@@ -1,8 +1,7 @@
 <section class="section">
   <div class="container narrow">
     <div class="section-head center">
-      <span class="eyebrow">Dúvidas</span>
-      <h2>Perguntas <span class="outline">frequentes</span></h2>
+      <%- include('../head', { h: site.copy.faq }) %>
     </div>
     <% site.faqs.forEach(f => { %>
       <details class="faq reveal">

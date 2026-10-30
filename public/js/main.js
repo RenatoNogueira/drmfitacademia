@@ -117,7 +117,7 @@ if (form) {
           const slot = form.querySelector(`[data-error="${k}"]`);
           if (slot) slot.textContent = v;
         });
-        showStatus('alert-error', 'Revise os campos destacados.');
+        showStatus('alert-error', data.error || 'Revise os campos destacados.');
       }
     } catch {
       showStatus('alert-error', 'Não foi possível enviar agora. Tente pelo WhatsApp.');

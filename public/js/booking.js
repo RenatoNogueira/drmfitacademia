@@ -1,9 +1,12 @@
-// Agendamento de avaliação: carrega horários livres, deixa o aluno escolher e envia o pedido.
+// Agendamento de avaliação em modal: abre por qualquer link/botão com href terminando em "#avaliacao",
+// carrega os horários livres, deixa o aluno escolher e envia o pedido.
 (() => {
-  const root = document.querySelector('[data-booking]');
-  if (!root) return;
+  const modal = document.getElementById('booking-modal');
+  const root = modal && modal.querySelector('[data-booking]');
+  if (!modal || !root) return;
 
   const $ = (sel) => root.querySelector(sel);
+  const panel = modal.querySelector('.modal-panel');
   const stateEl = $('[data-b-state]');
   const body = $('[data-b-body]');
   const daysEl = $('[data-b-days]');
@@ -17,6 +20,7 @@
   let days = [];
   let pickedDate = '';
   let pickedTime = '';
+  let opener = null;
 
   const waFallback = () => `<a href="${root.dataset.wa}" target="_blank" rel="noopener">Agendar pelo WhatsApp</a>`;
   const showState = (html) => { stateEl.hidden = false; stateEl.innerHTML = html; body.hidden = true; };
@@ -76,7 +80,75 @@
     }
   };
 
-  // Máscara simples de telefone brasileiro
+  // ---------- modal ----------
+  const focusables = () => [...panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not(.b-trap), select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.closest('[hidden]') && el.offsetParent !== null);
+
+  const lock = () => {
+    const gap = window.innerWidth - document.documentElement.clientWidth; // largura da barra de rolagem
+    document.documentElement.classList.add('modal-open');
+    if (gap > 0) document.body.style.paddingRight = `${gap}px`;
+  };
+  const unlock = () => {
+    document.documentElement.classList.remove('modal-open');
+    document.body.style.paddingRight = '';
+  };
+
+  const resetUi = () => {
+    done.hidden = true;
+    form.reset();
+    form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
+    pickedDate = ''; pickedTime = '';
+    timesStep.hidden = true; form.hidden = true;
+    showState('Carregando horários disponíveis…');
+  };
+
+  const open = (from) => {
+    if (!modal.hidden) return;
+    opener = from || document.activeElement;
+    resetUi();
+    modal.hidden = false;
+    lock();
+    requestAnimationFrame(() => { modal.classList.add('is-open'); panel.focus({ preventScroll: true }); });
+    panel.scrollTop = 0;
+    load();
+    if (location.hash !== '#avaliacao') history.replaceState(null, '', `${location.pathname}${location.search}#avaliacao`);
+  };
+
+  const close = () => {
+    if (modal.hidden) return;
+    modal.classList.remove('is-open');
+    const finish = () => { modal.hidden = true; unlock(); };
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) finish(); else setTimeout(finish, 220);
+    if (location.hash === '#avaliacao') history.replaceState(null, '', `${location.pathname}${location.search}`);
+    if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
+  };
+
+  // Qualquer link para #avaliacao abre o modal (em qualquer página)
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (link && /(^|\/)#avaliacao$/.test(link.getAttribute('href'))) {
+      e.preventDefault();
+      open(link);
+      return;
+    }
+    if (e.target.closest('[data-modal-close]')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (modal.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (e.key === 'Tab') { // mantém o foco dentro do modal
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0]; const last = items[items.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  if (location.hash === '#avaliacao') window.addEventListener('load', () => open(null), { once: true });
+  window.addEventListener('hashchange', () => { if (location.hash === '#avaliacao') open(null); });
+
+  // ---------- formulário ----------
   const phone = form.querySelector('[name="phone"]');
   phone.addEventListener('input', () => {
     const d = phone.value.replace(/\D/g, '').slice(0, 11);
@@ -99,7 +171,8 @@
         $('[data-b-when]').textContent = data.when || '';
         $('[data-b-wa]').href = data.whatsapp || root.dataset.wa;
         form.reset();
-        done.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        panel.scrollTop = 0;
+        done.querySelector('[data-b-wa]').focus({ preventScroll: true });
         return;
       }
       if (data.errors) {
@@ -115,6 +188,4 @@
       btn.disabled = false;
     }
   });
-
-  load();
 })();

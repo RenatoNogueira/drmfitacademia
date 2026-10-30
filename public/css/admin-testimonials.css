@@ -1,0 +1,17 @@
+/* Aba Depoimentos do painel */
+.a-h3 { font-family: var(--font-head); text-transform: uppercase; font-size: 1rem; margin-bottom: 1rem; color: var(--accent); }
+.a-t-form { display: grid; gap: .9rem; margin-bottom: 1rem; }
+.a-t-form label { display: grid; gap: .35rem; font-size: .88rem; font-weight: 500; }
+.a-t-form .a-btn { display: inline-flex; }
+.a-t-new { margin-top: 1.4rem; }
+.a-t-list { display: grid; gap: 1rem; }
+.a-t-head { display: flex; align-items: center; gap: .8rem; }
+.a-spacer { flex: 1; }
+.a-row-center { align-items: center; margin-top: 0; }
+.a-check { display: inline-flex !important; align-items: center; gap: .45rem; font-weight: 400 !important; color: var(--muted); cursor: pointer; }
+.a-check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.a-avatar { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: #262626; display: grid; place-items: center; font-family: var(--font-head); color: var(--accent); flex: 0 0 auto; }
+.a-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.a-pill { font-style: normal; font-size: .7rem; text-transform: uppercase; background: #3a3a3a; color: var(--muted); padding: .1rem .55rem; border-radius: 999px; }
+.a-t-form.is-busy { opacity: .55; pointer-events: none; }
+select { padding: .35rem .6rem; }

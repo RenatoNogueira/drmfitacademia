@@ -1,0 +1,32 @@
+<%- include('_top') %>
+<div class="a-title"><h1>Conteúdo do site</h1></div>
+<p class="a-muted">Edite textos, contato, preços, cores e mais. Fotos ficam em <a class="a-inline" href="/admin/imagens">Imagens</a>, depoimentos em <a class="a-inline" href="/admin/depoimentos">Depoimentos</a>. Campos que você não mexer continuam com o texto padrão.</p>
+
+<div class="a-content">
+  <nav class="a-groups" aria-label="Seções do site">
+    <% groups.forEach(g => { %>
+      <a href="/admin/conteudo?g=<%= g.id %>" class="<%= g.id === group.id ? 'on' : '' %>"><%= g.title %><% if (edited.has(g.id)) { %><i class="a-edited" title="Editado"></i><% } %></a>
+    <% }) %>
+  </nav>
+
+  <form class="a-card a-content-form" data-content-form data-group="<%= group.id %>" autocomplete="off">
+    <div class="a-content-head">
+      <div>
+        <h2><%= group.title %></h2>
+        <p class="a-muted"><%= group.hint %></p>
+      </div>
+    </div>
+
+    <% group.fields.forEach(f => { %>
+      <%- include('_field', { f, current, S }) %>
+    <% }) %>
+
+    <div class="a-row a-row-center a-sticky-actions">
+      <button class="a-btn" type="submit">Salvar alterações</button>
+      <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener">Ver site ↗</a>
+      <span class="a-spacer"></span>
+      <% if (edited.has(group.id)) { %><button class="a-btn a-btn-ghost a-btn-danger" type="button" data-reset-group>Restaurar textos padrão desta seção</button><% } %>
+    </div>
+  </form>
+</div>
+<%- include('_bottom') %>

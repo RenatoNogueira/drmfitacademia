@@ -37,6 +37,31 @@ create table if not exists public.bookings (
   created_at  timestamptz not null default now()
 );
 
+-- Mensagens do formulário "Envie uma mensagem" (página Contato)
+create table if not exists public.messages (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  email       text not null,
+  phone       text not null,
+  plan        text,
+  message     text not null,
+  read        boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+
+-- Depoimentos "Alunos que transformaram a rotina"
+create table if not exists public.testimonials (
+  id          bigint generated always as identity primary key,
+  name        text not null,
+  result      text,
+  quote       text not null,
+  photo_url   text,
+  photo_path  text,
+  position    integer not null default 0,
+  visible     boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+
 -- Impede dois alunos no mesmo horário (cancelados liberam o horário)
 create unique index if not exists bookings_slot_unique
   on public.bookings (date, time) where status <> 'cancelado';
@@ -46,6 +71,8 @@ alter table public.media    enable row level security;
 alter table public.gallery  enable row level security;
 alter table public.settings enable row level security;
 alter table public.bookings enable row level security;
+alter table public.messages enable row level security;
+alter table public.testimonials enable row level security;
 
 -- Bucket público para as imagens enviadas pelo painel
 insert into storage.buckets (id, name, public)
