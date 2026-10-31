@@ -48,14 +48,6 @@
           <small class="error" data-error="telefone"><%= errors.telefone || '' %></small>
         </label>
       </div>
-      <label>Plano de interesse
-        <select name="plano">
-          <option value="">Ainda não sei</option>
-          <% site.plans.forEach(p => { %>
-            <option value="<%= p.name %>" <%= values.plano === p.name ? 'selected' : '' %>><%= p.name %> - R$ <%= p.price %>/mês</option>
-          <% }) %>
-        </select>
-      </label>
       <label>Mensagem
         <textarea name="mensagem" rows="5" required><%= values.mensagem || '' %></textarea>
         <small class="error" data-error="mensagem"><%= errors.mensagem || '' %></small>

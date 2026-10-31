@@ -17,7 +17,7 @@
               <li><%- include('../icon', { name: 'check' }) %> <%= i %></li>
             <% }) %>
           </ul>
-          <a class="btn <%= p.highlight ? '' : 'btn-outline' %>" href="/contato?plano=<%= encodeURIComponent(p.name) %>"<% if (typeof payEnabled !== 'undefined' && payEnabled) { %> data-subscribe="<%= p.name %>" data-price="<%= p.price %><%= p.period %>"<% } %>><%= site.copy.plans.button %> <%= p.name %></a>
+          <a class="btn <%= p.highlight ? '' : 'btn-outline' %>" href="/contato"<% if (typeof payEnabled !== 'undefined' && payEnabled) { %> data-subscribe="<%= p.name %>" data-price="<%= p.price %><%= p.period %>"<% } %>><%= site.copy.plans.button %> <%= p.name %></a>
         </article>
       <% }) %>
     </div>

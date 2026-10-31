@@ -71,7 +71,7 @@ app.get('/equipe', page('equipe', 'Nossa equipe | DRMFIT'));
 app.get('/agendar', (req, res) => res.redirect(302, '/#avaliacao'));
 
 app.get('/contato', (req, res) => {
-  res.render('contato', { title: 'Contato | DRMFIT', status: null, errors: {}, values: { plano: req.query.plano || '' } });
+  res.render('contato', { title: 'Contato | DRMFIT', status: null, errors: {}, values: {} });
 });
 
 // Limite de mensagens por IP (em memória, por instância)
@@ -91,7 +91,6 @@ app.post('/contato', async (req, res) => {
     nome: cleanText(b.nome, 80),
     email: cleanText(b.email, 120),
     telefone: cleanText(b.telefone, 20),
-    plano: cleanText(b.plano, 40),
     mensagem: String(b.mensagem || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim().slice(0, 2000)
   };
   const respond = (status, view, errors = {}) => (wantsJson
@@ -110,7 +109,7 @@ app.post('/contato', async (req, res) => {
   if (contactLimited(req.ip)) return respond(429, 'error', { form: 'Muitas mensagens em pouco tempo. Tente novamente mais tarde ou use o WhatsApp.' });
 
   try {
-    const data = { name: values.nome, email: values.email, phone: values.telefone.replace(/\D/g, ''), plan: values.plano || null, message: values.mensagem };
+    const data = { name: values.nome, email: values.email, phone: values.telefone.replace(/\D/g, ''), plan: null, message: values.mensagem };
     if (store.ready) await store.createMessage(data);
     else console.log('Nova mensagem de contato (sem banco configurado):', data);
   } catch (err) {
