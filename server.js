@@ -120,12 +120,20 @@ app.post('/contato', async (req, res) => {
 });
 
 app.use((req, res) => {
-  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Não encontrado.' });
+  if (req.path.startsWith('/api/') || req.path.startsWith('/admin/api/')) return res.status(404).json({ error: 'Não encontrado.' });
+  if (req.path.startsWith('/admin')) return res.status(404).type('text').send('Página não encontrada. Volte para /admin.'); // o /admin não carrega as imagens do site
   res.status(404).render('404', { title: 'Página não encontrada | DRMFIT' });
 });
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  // Entrada ruim do visitante (JSON quebrado, corpo grande demais...) é erro 4xx, não falha do servidor
+  const status = Number.isInteger(err.status) && err.status >= 400 && err.status < 500 ? err.status : 500;
+  if (status < 500) {
+    const msg = status === 413 ? 'Os dados enviados são grandes demais.' : 'Requisição inválida.';
+    if (req.path.startsWith('/api/') || req.path.startsWith('/admin/api/') || req.get('x-requested-with') === 'fetch') return res.status(status).json({ error: msg });
+    return res.status(status).type('text').send(msg);
+  }
   console.error(err);
   res.status(500).send('Erro interno. Tente novamente em instantes.');
 });

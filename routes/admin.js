@@ -569,6 +569,7 @@ router.delete('/api/galeria/:id', wrap(async (req, res) => {
 // Qualquer erro não tratado no painel (inclusive ao montar a página) mostra o motivo, em vez de uma página em branco
 // eslint-disable-next-line no-unused-vars
 router.use((err, req, res, next) => {
+  if (Number.isInteger(err.status) && err.status >= 400 && err.status < 500) return next(err); // JSON quebrado, corpo grande: erro do pedido, não do painel
   console.error('admin (erro):', err);
   if (res.headersSent) return;
   if (req.path.startsWith('/api/')) return res.status(500).json({ error: 'Erro no servidor. Tente de novo.' });

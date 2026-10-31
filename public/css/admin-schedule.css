@@ -1,11 +1,11 @@
 /* Tela de horários de avaliação */
-.h-form { display: grid; gap: 1.1rem; margin-top: 1rem; }
+.h-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.1rem; margin-top: 1rem; }
 .h-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; padding: 1rem 1.2rem; }
 .h-summary div { display: grid; gap: .1rem; }
 .h-summary strong { font-family: var(--font-head); font-weight: 400; font-size: 1.8rem; line-height: 1; color: var(--accent); }
 .h-summary span { color: var(--muted); font-size: .82rem; }
 
-.h-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+.h-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 1rem; }
 .h-day { display: grid; gap: .8rem; align-content: start; padding: 1rem; }
 .h-day.is-closed { opacity: .8; border-style: dashed; }
 .h-day-head { display: flex; align-items: center; gap: .6rem; }
@@ -55,7 +55,7 @@
   .h-summary { grid-template-columns: repeat(3, 1fr); padding: .8rem; gap: .4rem; text-align: center; }
   .h-summary strong { font-size: 1.4rem; }
   .h-summary span { font-size: .7rem; }
-  .h-days { grid-template-columns: 1fr; }
+  .h-days { grid-template-columns: minmax(0, 1fr); }
   .h-rule-grid { grid-template-columns: 1fr; }
   .h-gen { grid-template-columns: 1fr 1fr; }
   .h-gen button { grid-column: 1 / -1; min-height: 44px; }
