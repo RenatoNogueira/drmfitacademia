@@ -378,9 +378,50 @@ const contentForm = document.querySelector('[data-content-form]');
 if (contentForm) {
   let dirty = false;
   const removedLabels = []; // nomes dos itens excluídos nesta edição (aparecem no aviso ao salvar)
-  const markDirty = () => { dirty = true; };
+  const saveState = contentForm.querySelector('[data-save-state]');
+  const markDirty = () => {
+    dirty = true;
+    if (saveState) { saveState.textContent = 'Alterações não salvas'; saveState.classList.add('dirty'); }
+  };
   contentForm.addEventListener('input', markDirty);
   contentForm.addEventListener('change', markDirty);
+  // Ctrl+S / Cmd+S salva a seção
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); contentForm.requestSubmit(); }
+  });
+  // Contador de caracteres nos campos de texto (aparece ao digitar/focar)
+  contentForm.querySelectorAll('input[type="text"][maxlength], input[type="url"][maxlength], input[type="email"][maxlength], textarea[maxlength]').forEach((el) => {
+    const max = Number(el.getAttribute('maxlength'));
+    if (!max || max < 30 || el.closest('.a-grid-4')) return;
+    const c = document.createElement('small');
+    c.className = 'a-count';
+    c.hidden = true;
+    const upd = () => { c.textContent = `${el.value.length}/${max}`; c.classList.toggle('warn', el.value.length > max * 0.9); };
+    el.addEventListener('input', upd);
+    el.addEventListener('focus', () => { upd(); c.hidden = false; });
+    el.addEventListener('blur', () => { c.hidden = true; });
+    el.insertAdjacentElement('afterend', c);
+  });
+  // Prévia ao vivo do título em 3 partes
+  contentForm.querySelectorAll('.a-fs:has(.a-grid-4)').forEach((fs) => {
+    const spans = fs.querySelectorAll('.a-preview-line span, .a-preview-line b');
+    const ins = fs.querySelectorAll('.a-grid-4 input');
+    if (spans.length !== 3 || ins.length < 3) return;
+    fs.addEventListener('input', () => { spans[0].textContent = ins[0].value; spans[1].textContent = ins[1].value; spans[2].textContent = ins[2].value; });
+  });
+  // Menu de seções: busca e abrir/fechar no celular
+  const side = document.querySelector('[data-side]');
+  if (side) {
+    const toggle = side.querySelector('[data-side-toggle]');
+    toggle.addEventListener('click', () => { const open = side.classList.toggle('open'); toggle.setAttribute('aria-expanded', String(open)); });
+    const links = [...side.querySelectorAll('[data-group-link]')];
+    side.querySelector('[data-group-search]').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      links.forEach((a) => { a.hidden = Boolean(q) && !a.dataset.text.includes(q); });
+      side.querySelectorAll('[data-cat]').forEach((cat) => { cat.hidden = ![...cat.querySelectorAll('[data-group-link]')].some((a) => !a.hidden); });
+      side.querySelector('[data-group-empty]').hidden = links.some((a) => !a.hidden);
+    });
+  }
   // Reordena os índices dos itens conforme a ordem na tela (o servidor lê pelo número do índice)
   const renumber = () => {
     contentForm.querySelectorAll('[data-list]').forEach((list) => {

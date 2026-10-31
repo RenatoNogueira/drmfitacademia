@@ -3,11 +3,38 @@
 <p class="a-muted">Edite textos, contato, preços, cores e mais. Fotos ficam em <a class="a-inline" href="/admin/imagens">Imagens</a>, depoimentos em <a class="a-inline" href="/admin/depoimentos">Depoimentos</a>. Campos que você não mexer continuam com o texto padrão.</p>
 
 <div class="a-content">
-  <nav class="a-groups" aria-label="Seções do site">
-    <% groups.forEach(g => { %>
-      <a href="/admin/conteudo?g=<%= g.id %>" class="<%= g.id === group.id ? 'on' : '' %>"><%= g.title %><% if (edited.has(g.id)) { %><i class="a-edited" title="Editado"></i><% } %></a>
-    <% }) %>
-  </nav>
+  <%
+    const cats = [
+      ['Geral', ['marca', 'tema', 'menu', 'seo']],
+      ['Página inicial', ['inicio', 'sobre', 'numeros', 'diferenciais', 'servicos', 'aulas', 'oferta']],
+      ['Planos e agendamento', ['planos', 'pagamento', 'avaliacao']],
+      ['Equipe e informações', ['equipe', 'faq', 'horarios', 'titulos']],
+      ['Rodapé e páginas', ['rodape', 'paginas']]
+    ];
+    const placed = new Set(cats.flatMap((c) => c[1]));
+    const rest = groups.filter((g) => !placed.has(g.id)).map((g) => g.id);
+    if (rest.length) cats.push(['Outros', rest]);
+    const byId = Object.fromEntries(groups.map((g) => [g.id, g]));
+    const isEdited = edited.has(group.id);
+  %>
+  <aside class="a-side" data-side>
+    <button class="a-side-toggle" type="button" aria-expanded="false" aria-controls="a-groups" data-side-toggle>
+      <span class="a-muted">Seção</span><strong><%= group.title %></strong><span aria-hidden="true">▾</span>
+    </button>
+    <nav class="a-groups" id="a-groups" aria-label="Seções do site">
+      <input type="search" class="a-search" placeholder="Buscar seção…" aria-label="Buscar seção" data-group-search autocomplete="off">
+      <% cats.forEach(([name, ids]) => { %>
+        <div class="a-cat" data-cat>
+          <p class="a-cat-name"><%= name %></p>
+          <% ids.filter((id) => byId[id]).forEach((id) => { const g = byId[id]; %>
+            <a href="/admin/conteudo?g=<%= g.id %>" class="<%= g.id === group.id ? 'on' : '' %>" data-group-link data-text="<%= (g.title + ' ' + g.hint).toLowerCase() %>" <%= g.id === group.id ? 'aria-current="page"' : '' %>><span><%= g.title %></span><% if (edited.has(g.id)) { %><i class="a-edited" title="Editado"></i><% } %></a>
+          <% }) %>
+        </div>
+      <% }) %>
+      <p class="a-empty-note" data-group-empty hidden>Nenhuma seção encontrada.</p>
+      <p class="a-legend"><i class="a-edited"></i> Seção com textos editados</p>
+    </nav>
+  </aside>
 
   <form class="a-card a-content-form" data-content-form data-group="<%= group.id %>" autocomplete="off">
     <div class="a-content-head">
@@ -15,6 +42,7 @@
         <h2><%= group.title %></h2>
         <p class="a-muted"><%= group.hint %></p>
       </div>
+      <span class="a-badge <%= isEdited ? 'a-badge-edited' : '' %>"><%= isEdited ? 'Editada' : 'Texto padrão' %></span>
     </div>
 
     <%- include('_paystatus') %>
@@ -40,6 +68,7 @@
 
     <div class="a-row a-row-center a-sticky-actions">
       <button class="a-btn" type="submit">Salvar alterações</button>
+      <span class="a-save-state" data-save-state role="status" aria-live="polite">Nenhuma alteração</span>
       <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener">Ver site ↗</a>
       <span class="a-spacer"></span>
       <% if (edited.has(group.id)) { %><button class="a-btn a-btn-ghost a-btn-danger" type="button" data-reset-group>Restaurar textos padrão desta seção</button><% } %>
