@@ -1,7 +1,7 @@
 <%# Assinatura de plano com PIX: abre ao clicar em "Assinar" (links com data-subscribe) %>
 <div class="modal" id="pay-modal" hidden>
   <div class="modal-backdrop" data-pay-close></div>
-  <div class="modal-panel pay-panel" role="dialog" aria-modal="true" aria-labelledby="pay-title" tabindex="-1" data-pay data-wa="<%= site.whatsappLink('') %>" data-success="<%= site.pix.successText %>">
+  <div class="modal-panel pay-panel" role="dialog" aria-modal="true" aria-labelledby="pay-title" tabindex="-1" data-pay data-ready="<%= typeof payReady !== 'undefined' && payReady ? '1' : '0' %>" data-wa="<%= site.whatsappLink('') %>" data-success="<%= site.pix.successText %>">
     <button class="modal-close" type="button" data-pay-close aria-label="Fechar"><%- include('../icon', { name: 'x' }) %></button>
 
     <header class="modal-head">
@@ -83,6 +83,17 @@
       <small class="error" data-pay-file-error></small>
       <button class="btn btn-block" type="button" data-pay-send disabled>Enviar comprovante</button>
       <button class="btn btn-outline btn-block" type="button" data-pay-back>Voltar ao QR Code</button>
+    </section>
+
+    <!-- Etapa 5: pagamento online ainda não liberado -->
+    <section class="pay-result" data-pay-step="5" hidden>
+      <div class="b-check is-info"><%- include('../icon', { name: 'whatsapp' }) %></div>
+      <h3>Vamos finalizar pelo WhatsApp</h3>
+      <p>O pagamento online deste plano ainda não está liberado. Fale com a nossa equipe e assine pelo WhatsApp em poucos minutos.</p>
+      <div class="pay-result-actions">
+        <a class="btn btn-whatsapp" target="_blank" rel="noopener" data-pay-wa-off href="#"><%- include('../icon', { name: 'whatsapp' }) %> Assinar pelo WhatsApp</a>
+        <button class="btn btn-outline" type="button" data-pay-close>Fechar</button>
+      </div>
     </section>
 
     <!-- Etapa 4: andamento -->

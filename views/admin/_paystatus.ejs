@@ -1,0 +1,12 @@
+<% if (typeof payProblems !== 'undefined' && payProblems) { %>
+  <% if (!payProblems.length) { %>
+    <div class="a-note a-note-ok"><strong>Pagamento ativo.</strong> O botão "Assinar" dos planos abre o QR Code PIX.</div>
+  <% } else { %>
+    <div class="a-note">
+      <strong>O botão "Assinar" ainda não abre o QR Code PIX.</strong> Enquanto isso, o aluno vê um aviso para assinar pelo WhatsApp. O que falta:
+      <ul class="a-note-list">
+        <% payProblems.forEach(p => { %><li><%= p.text %> <% if (p.cta) { %><% if (p.link) { %><a class="a-inline" href="<%= p.link %>"><%= p.cta %></a><% } else { %><em><%= p.cta %></em><% } %><% } %></li><% }) %>
+      </ul>
+    </div>
+  <% } %>
+<% } %>

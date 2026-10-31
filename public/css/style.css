@@ -637,3 +637,5 @@ html.is-locked { overflow-y: scroll; } /* página travada (menu, modal, foto): b
   .pay-steps li span { display: none; }
 }
 .btn[hidden], .link-btn[hidden], .pay-steps[hidden] { display: none !important; }
+
+.pay-result .b-check.is-info { background: rgba(37, 211, 102, .15); color: var(--wa); }

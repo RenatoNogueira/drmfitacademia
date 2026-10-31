@@ -36,7 +36,7 @@ const context = async () => {
   const site = await siteContent.get();
   const helpers = await media.helpers();
   const imageUrl = helpers.img('pix-qr');
-  const ready = pay.isReady(site, { storeReady: store.ready, hasImage: Boolean(imageUrl) });
+  const ready = pay.isReady(site, { storeReady: store.ready, hasImage: Boolean(imageUrl) }) && await pay.dbOk();
   return { site, imageUrl, ready };
 };
 

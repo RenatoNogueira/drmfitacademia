@@ -43,7 +43,7 @@
   const showStep = (n) => {
     steps.forEach((s) => { s.hidden = s.dataset.payStep !== String(n); });
     stepDots.forEach((d, i) => { d.classList.toggle('on', i + 1 <= Math.min(n, 3)); d.classList.toggle('done', i + 1 < Math.min(n, 3)); });
-    $('[data-pay-steps]').hidden = n === 4;
+    $('[data-pay-steps]').hidden = n >= 4;
     panel.scrollTop = 0;
   };
 
@@ -135,6 +135,12 @@
     modal.hidden = false;
     window.pageLock?.lock();
     requestAnimationFrame(() => { modal.classList.add('is-open'); panel.focus({ preventScroll: true }); });
+    // Pagamento ainda não liberado (PIX desativado, sem chave ou banco sem tabela): mostra o caminho pelo WhatsApp
+    if (panel.dataset.ready !== '1') {
+      $('[data-pay-wa-off]').href = waLink(`Olá! Quero assinar o plano ${planName}${price ? ' (R$ ' + price + ')' : ''}. Como faço o pagamento?`);
+      showStep(5);
+      return;
+    }
     const saved = recall();
     if (saved && saved.plan === planName) { state = saved; $('[data-pay-resume]').hidden = false; }
   };

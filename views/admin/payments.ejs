@@ -7,9 +7,7 @@
   <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/conteudo?g=pagamento">Configurar PIX</a>
 </div>
 
-<% if (!site.pix.enabled) { %>
-  <div class="a-note">O pagamento por PIX está <strong>desativado</strong> no site. Ative em <a class="a-inline" href="/admin/conteudo?g=pagamento">Conteúdo → Pagamento (PIX)</a>.</div>
-<% } %>
+<%- include('_paystatus') %>
 
 <section class="b-stats" aria-label="Resumo">
   <a class="b-stat <%= counts.analise ? 'warn' : '' %>" href="/admin/pagamentos?f=analise"><strong><%= counts.analise %></strong><span>Para conferir</span></a>

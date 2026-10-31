@@ -164,3 +164,8 @@ html.a-dialog-open { overflow: hidden; }
 .a-dialog-field { display: grid; gap: .4rem; margin: 0 0 1.1rem; font-size: .85rem; color: var(--muted); }
 .a-dialog-field textarea { width: 100%; padding: .7rem .8rem; background: #0e0e0e; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; resize: vertical; }
 .a-dialog-field textarea.is-bad { border-color: #ff6b6b; }
+
+.a-note-ok { background: #10241a; border-color: #1d6b3d; color: #9af0bd; }
+.a-note-list { margin: .6rem 0 0; padding-left: 1.2rem; display: grid; gap: .3rem; }
+.a-note-list em { color: #f3d98b; font-style: normal; font-weight: 600; }
+.a-note a { color: inherit; }

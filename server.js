@@ -46,8 +46,9 @@ app.use(async (req, res, next) => {
   try {
     Object.assign(res.locals, await media.helpers()); // img(), video(), galleryImages()
     res.locals.testimonials = await content.testimonials();
-    // Botão "Assinar" abre o pagamento por PIX só quando está ativado e configurado
-    res.locals.payEnabled = payLib.isReady(res.locals.site, { storeReady: store.ready, hasImage: Boolean(res.locals.img('pix-qr')) });
+    // Janela de pagamento (PIX): disponível para pagar só quando ativada, configurada e com o banco pronto
+    res.locals.payEnabled = true; // o botão "Assinar" sempre abre a janela de pagamento
+    res.locals.payReady = payLib.isReady(res.locals.site, { storeReady: store.ready, hasImage: Boolean(res.locals.img('pix-qr')) }) && await payLib.dbOk();
   } catch (err) {
     next(err);
     return;

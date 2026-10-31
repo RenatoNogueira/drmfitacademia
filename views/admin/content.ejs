@@ -17,6 +17,8 @@
       </div>
     </div>
 
+    <%- include('_paystatus') %>
+
     <% group.fields.forEach(f => { %>
       <%- include('_field', { f, current, S }) %>
     <% }) %>

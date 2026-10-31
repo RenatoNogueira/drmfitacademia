@@ -249,7 +249,8 @@ router.get('/pagamentos', wrap(async (req, res) => {
         ? `Olá, ${String(s.name).split(' ')[0]}! Aqui é da ${site.brand.name}. Não conseguimos confirmar o comprovante do plano ${s.plan} (protocolo ${s.protocol})${s.reject_reason ? `: ${s.reject_reason}` : ''}. Pode enviar novamente?`
         : `Olá, ${String(s.name).split(' ')[0]}! Aqui é da ${site.brand.name}. Recebemos seu pedido do plano ${s.plan} (protocolo ${s.protocol}).`)
   }));
-  res.render('admin/payments', { title: 'Pagamentos | Admin DRMFIT', rows, filter, counts, received: pix.fmtBRL(received), site });
+  const payProblems = await pay.problems(site, { storeReady: store.ready, hasImage: Boolean((await media.helpers()).img('pix-qr')) });
+  res.render('admin/payments', { title: 'Pagamentos | Admin DRMFIT', rows, filter, counts, received: pix.fmtBRL(received), site, payProblems });
 }));
 
 router.post('/api/pagamentos/:id/confirmar', wrap(async (req, res) => {
@@ -481,6 +482,11 @@ router.get('/conteudo', wrap(async (req, res) => {
   const overrides = await siteContent.getOverrides();
   const edited = new Set(schema.groups.filter((g) => schema.flat(g).some((f) => f.path in overrides)).map((g) => g.id));
   let pixPreview = null;
+  let payProblems = null;
+  if (group.id === 'pagamento' || group.id === 'planos') {
+    pay.resetHealth();
+    payProblems = await pay.problems(current, { storeReady: store.ready, hasImage: Boolean((await media.helpers()).img('pix-qr')) });
+  }
   if (group.id === 'pagamento') {
     const c = current.pix;
     const amountCents = pix.parseAmountCents(current.plans[0]?.price);
@@ -496,7 +502,7 @@ router.get('/conteudo', wrap(async (req, res) => {
       }
     } catch (err) { pixPreview.error = err.message; }
   }
-  res.render('admin/content', { title: 'Conteúdo | Admin DRMFIT', groups: schema.groups, group, current, S: schema, edited, pixPreview });
+  res.render('admin/content', { title: 'Conteúdo | Admin DRMFIT', groups: schema.groups, group, current, S: schema, edited, pixPreview, payProblems });
 }));
 
 router.post('/api/conteudo/:group', wrap(async (req, res) => {
