@@ -158,7 +158,7 @@ router.get('/agendamentos', wrap(async (req, res) => {
     g.items.push(r);
   });
 
-  res.render('admin/bookings', { title: 'Agendamentos | Admin DRMFIT', groups, total: rows.length, filter, counts, stats, today: brDate(today) });
+  res.render('admin/bookings', { title: 'Agendamentos | Admin DRMFIT', groups, total: rows.length, filter, counts, stats, today: brDate(today), objectives: agendaLib.OBJECTIVES });
 }));
 
 router.post('/api/agendamentos/:id/status', wrap(async (req, res) => {
@@ -172,6 +172,35 @@ router.post('/api/agendamentos/:id/status', wrap(async (req, res) => {
     if (err.code === 'SLOT_TAKEN') return res.status(409).json({ error: 'Esse horário já foi ocupado por outro aluno.' });
     throw err;
   }
+}));
+
+// Criar e editar agendamento pelo painel (a mesma validação do site; o horário não pode repetir)
+const readBooking = (b = {}) => {
+  const { values, errors } = agendaLib.validateBooking({ ...b, consent: true });
+  const status = STATUSES.includes(b.status) ? b.status : 'pendente';
+  return {
+    errors,
+    data: { date: values.date, time: values.time, name: values.name, phone: values.phone, email: values.email || null, objective: values.objective || null, notes: values.notes || null, status }
+  };
+};
+const bookingSaved = (res, fn) => fn().catch((err) => {
+  if (err.code === 'SLOT_TAKEN') return res.status(409).json({ error: 'Esse dia e horário já têm um agendamento ativo. Escolha outro horário.' });
+  throw err;
+});
+
+router.post('/api/agendamentos', wrap(async (req, res) => {
+  const { data, errors } = readBooking(req.body);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  await bookingSaved(res, async () => { const item = await store.createBooking(data); res.status(201).json({ ok: true, id: item.id }); });
+}));
+
+router.post('/api/agendamentos/:id/editar', wrap(async (req, res) => {
+  const { data, errors } = readBooking(req.body);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  await bookingSaved(res, async () => {
+    const item = await store.updateBooking(req.params.id, data);
+    res.status(item ? 200 : 404).json(item ? { ok: true } : { error: 'Agendamento não encontrado.' });
+  });
 }));
 
 router.delete('/api/agendamentos/:id', wrap(async (req, res) => {
@@ -214,6 +243,36 @@ router.get('/mensagens', wrap(async (req, res) => {
   res.render('admin/messages', { title: 'Mensagens | Admin DRMFIT', rows, filter, counts });
 }));
 
+// Registrar um contato recebido por outro canal (telefone, balcão, Instagram) e editar mensagens
+const readMessage = (b = {}) => {
+  const data = {
+    name: agendaLib.cleanText(b.name, 80),
+    phone: String(b.phone || '').replace(/\D/g, ''),
+    email: agendaLib.cleanText(b.email, 120),
+    message: String(b.message || '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim().slice(0, 2000)
+  };
+  const errors = {};
+  if (data.name.length < 2) errors.name = 'Informe o nome.';
+  if (data.phone.length < 10 || data.phone.length > 13) errors.phone = 'Informe um telefone com DDD.';
+  if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = 'E-mail inválido.';
+  if (data.message.length < 3) errors.message = 'Escreva a mensagem.';
+  return { data, errors };
+};
+
+router.post('/api/mensagens', wrap(async (req, res) => {
+  const { data, errors } = readMessage(req.body);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  const item = await store.createMessage({ ...data, plan: null, read: true }); // quem registra já viu a mensagem
+  res.status(201).json({ ok: true, id: item.id });
+}));
+
+router.post('/api/mensagens/:id/editar', wrap(async (req, res) => {
+  const { data, errors } = readMessage(req.body);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  const item = await store.updateMessage(req.params.id, data);
+  res.status(item ? 200 : 404).json(item ? { ok: true } : { error: 'Mensagem não encontrada.' });
+}));
+
 router.post('/api/mensagens/:id/lida', wrap(async (req, res) => {
   const ok = await store.setMessageRead(req.params.id, req.body?.read !== false);
   res.status(ok ? 200 : 404).json(ok ? { ok: true } : { error: 'Mensagem não encontrada.' });
@@ -251,6 +310,48 @@ router.get('/pagamentos', wrap(async (req, res) => {
   }));
   const payProblems = await pay.problems(site, { storeReady: store.ready, hasImage: Boolean((await media.helpers()).img('pix-qr')) });
   res.render('admin/payments', { title: 'Pagamentos | Admin DRMFIT', rows, filter, counts, received: pix.fmtBRL(received), site, payProblems });
+}));
+
+// Registrar um pagamento recebido fora do site (dinheiro, balcão) e corrigir dados de um pedido
+const readPayment = (b = {}, site) => {
+  const plan = (site.plans || []).find((p) => p.name === agendaLib.cleanText(b.plan, 40));
+  const data = {
+    plan: plan?.name,
+    name: agendaLib.cleanText(b.name, 80),
+    phone: String(b.phone || '').replace(/\D/g, ''),
+    email: agendaLib.cleanText(b.email, 120) || null
+  };
+  const errors = {};
+  if (!plan) errors.plan = 'Escolha um plano da lista.';
+  if (data.name.length < 3) errors.name = 'Informe o nome completo.';
+  if (data.phone.length < 10 || data.phone.length > 13) errors.phone = 'Informe um telefone com DDD.';
+  if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = 'E-mail inválido.';
+  const rawAmount = String(b.amount || '').trim();
+  const cents = rawAmount ? pix.parseAmountCents(rawAmount) : (plan ? pix.parseAmountCents(plan.price) : null);
+  if (rawAmount && !cents) errors.amount = 'Valor inválido (ex.: 99,90).';
+  data.amount_cents = cents;
+  return { data, errors };
+};
+
+router.post('/api/pagamentos', wrap(async (req, res) => {
+  const { data, errors } = readPayment(req.body, res.locals.site);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  const status = req.body?.status === 'confirmado' ? 'confirmado' : 'aguardando_pagamento';
+  let item = null;
+  for (let i = 0; i < 4 && !item; i++) {
+    try {
+      item = await store.createSubscription({ ...data, status, decided_at: status === 'confirmado' ? new Date().toISOString() : null, protocol: pay.newProtocol(), upload_token: pay.newToken() });
+    } catch (err) { if (err.code !== 'PROTOCOL_TAKEN' && err.code !== 'SLOT_TAKEN') throw err; }
+  }
+  if (!item) throw new Error('Não foi possível gerar o protocolo');
+  res.status(201).json({ ok: true, id: item.id, protocol: item.protocol });
+}));
+
+router.post('/api/pagamentos/:id/editar', wrap(async (req, res) => {
+  const { data, errors } = readPayment(req.body, res.locals.site);
+  if (Object.keys(errors).length) return res.status(400).json({ error: Object.values(errors)[0], errors });
+  const item = await store.updateSubscription(req.params.id, data);
+  res.status(item ? 200 : 404).json(item ? { ok: true } : { error: 'Pagamento não encontrado.' });
 }));
 
 router.post('/api/pagamentos/:id/confirmar', wrap(async (req, res) => {
@@ -540,6 +641,20 @@ router.post('/api/galeria', uploadErrors(upload.array('files', 10)), wrap(async 
     }
     media.invalidate();
     res.json({ ok: true, count: req.files.length });
+  } catch (err) { if (!fail(res, err)) throw err; }
+}));
+
+// Trocar a foto de um item mantendo a posição na galeria
+router.post('/api/galeria/:id/trocar', uploadErrors(upload.single('file')), wrap(async (req, res) => {
+  const id = parseId(req.params.id);
+  if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+  try {
+    const saved = await storeImage('galeria', req.file);
+    const out = await store.updateGallery(id, saved.url, saved.path);
+    if (!out) { await store.removeFile(saved.path); return res.status(404).json({ error: 'Foto não encontrada.' }); }
+    if (out.oldPath) await store.removeFile(out.oldPath);
+    media.invalidate();
+    res.json({ ok: true, url: saved.url });
   } catch (err) { if (!fail(res, err)) throw err; }
 }));
 

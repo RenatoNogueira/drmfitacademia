@@ -169,3 +169,19 @@ html.a-dialog-open { overflow: hidden; }
 .a-note-list { margin: .6rem 0 0; padding-left: 1.2rem; display: grid; gap: .3rem; }
 .a-note-list em { color: #f3d98b; font-style: normal; font-weight: 600; }
 .a-note a { color: inherit; }
+
+/* Janela com formulário (Novo / Editar) */
+.a-form-panel { width: min(560px, 100%); border-top-color: var(--accent); }
+.a-form-panel h2 { margin-bottom: .3rem; }
+.a-form-text { margin: 0 0 1rem; }
+.a-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin: 1rem 0; }
+.a-form-field { display: grid; gap: .3rem; font-size: .82rem; color: var(--muted); font-weight: 500; align-content: start; }
+.a-form-field.wide { grid-column: 1 / -1; }
+.a-form-field input, .a-form-field select, .a-form-field textarea { width: 100%; padding: .65rem .8rem; background: #0e0e0e; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font: inherit; font-size: .95rem; }
+.a-form-field textarea { resize: vertical; }
+.a-form-field input:focus, .a-form-field select:focus, .a-form-field textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.a-form-field .is-bad { border-color: #ff6b6b; }
+.a-form-field small { font-weight: 400; }
+.a-form-error { margin: 0 0 .8rem; padding: .6rem .8rem; border-radius: 10px; background: rgba(255, 107, 107, .12); border: 1px solid rgba(255, 107, 107, .4); color: #ffb4b4; font-size: .88rem; }
+.a-form-error[hidden] { display: none; }
+@media (max-width: 600px) { .a-form-grid { grid-template-columns: 1fr; } .a-form-panel { max-height: 94vh; } }

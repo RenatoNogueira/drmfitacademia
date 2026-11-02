@@ -4,7 +4,10 @@
     <h1>Agendamentos</h1>
     <p class="a-muted a-sub">Avaliações físicas marcadas pelo site</p>
   </div>
-  <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/agendamentos.csv" download>Baixar planilha</a>
+  <div class="a-row">
+    <button class="a-btn a-btn-sm" type="button" data-new-booking>+ Novo agendamento</button>
+    <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/agendamentos.csv" download>Baixar planilha</a>
+  </div>
 </div>
 
 <section class="b-stats" aria-label="Resumo">
@@ -37,7 +40,7 @@
       <section class="b-day" data-day>
         <h2 class="b-day-head"><strong><%= g.label %></strong><span><%= g.sub %></span></h2>
         <% g.items.forEach(b => { %>
-          <article class="b-card s-<%= b.status %> <%= b.past ? 'is-past' : '' %>" data-id="<%= b.id %>" data-status="<%= b.status %>" data-search="<%= b.search %>">
+          <article class="b-card s-<%= b.status %> <%= b.past ? 'is-past' : '' %>" data-id="<%= b.id %>" data-status="<%= b.status %>" data-search="<%= b.search %>" data-date="<%= b.date %>" data-time="<%= b.time %>" data-name="<%= b.name %>" data-phone="<%= b.phoneFmt %>" data-email="<%= b.email || '' %>" data-objective="<%= b.objective || '' %>" data-notes="<%= b.notes || '' %>">
             <div class="b-time"><%= b.time %></div>
             <div class="b-main">
               <div class="b-top">
@@ -61,6 +64,7 @@
                 <% } %>
                 <a class="a-btn a-btn-sm a-btn-wa" href="<%= b.wa %>" target="_blank" rel="noopener">WhatsApp</a>
                 <% if (b.status !== 'cancelado') { %><button class="a-btn a-btn-sm a-btn-ghost b-cancel" type="button" data-set-status="cancelado">Cancelar</button><% } %>
+                <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-edit-booking>Editar</button>
                 <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-booking aria-label="Excluir agendamento de <%= b.name %>">Excluir</button>
               </div>
             </div>
@@ -71,5 +75,6 @@
   </div>
   <p class="a-muted b-noresult" id="b-noresult" hidden>Nenhum resultado para a busca.</p>
 <% } %>
+<div hidden data-b-meta data-objectives="<%= JSON.stringify(objectives) %>"></div>
 <p class="a-muted a-small">Dados pessoais dos alunos (LGPD): use apenas para contato sobre a avaliação e exclua quando não forem mais necessários.</p>
 <%- include('_bottom') %>

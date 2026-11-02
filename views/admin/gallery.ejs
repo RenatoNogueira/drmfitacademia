@@ -20,6 +20,9 @@
         <div class="a-row">
           <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="up" <%= i === 0 ? 'disabled' : '' %> aria-label="Mover para antes">←</button>
           <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-move="down" <%= i === items.length - 1 ? 'disabled' : '' %> aria-label="Mover para depois">→</button>
+          <label class="a-btn a-btn-sm a-btn-ghost">Trocar
+            <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-replace-photo>
+          </label>
           <button class="a-btn a-btn-sm a-btn-danger" type="button" data-delete-photo>Excluir</button>
         </div>
       </article>

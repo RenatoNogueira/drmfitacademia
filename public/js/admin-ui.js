@@ -132,7 +132,102 @@
     });
   });
 
-  Object.assign(window, { notify, toast, flash, ask });
+  // ---------- janela com formulário (Novo / Editar) ----------
+  // formDialog({ title, text, fields: [{ name, label, type, value, required, options, placeholder, max, hint, mask, wide }], submitText, onSubmit })
+  // onSubmit(values) é assíncrona: se lançar erro, a mensagem aparece na janela e ela continua aberta. Resolve true se salvou.
+  const formDialog = ({ title, text = '', fields = [], submitText = 'Salvar', onSubmit }) => new Promise((resolve) => {
+    const opener = document.activeElement;
+    const root = el('div', 'a-dialog');
+    const backdrop = el('div', 'a-dialog-backdrop');
+    const panel = el('form', 'a-dialog-panel tone-info a-form-panel');
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.noValidate = true; panel.tabIndex = -1;
+    const uid = `f${Date.now()}`;
+    panel.setAttribute('aria-labelledby', `${uid}-t`);
+    const h = el('h2', '', title); h.id = `${uid}-t`;
+    panel.append(h);
+    if (text) panel.append(el('p', 'a-muted a-small a-form-text', text));
+
+    const grid = el('div', 'a-form-grid');
+    const inputs = {};
+    fields.forEach((f) => {
+      const wrap = el('label', `a-form-field${f.wide || f.type === 'textarea' ? ' wide' : ''}`);
+      wrap.append(el('span', '', f.label + (f.required ? ' *' : '')));
+      let input;
+      if (f.type === 'select') {
+        input = el('select');
+        (f.options || []).forEach(([v, l]) => { const o = el('option', '', l); o.value = v; input.append(o); });
+      } else if (f.type === 'textarea') {
+        input = el('textarea'); input.rows = 3;
+      } else {
+        input = el('input'); input.type = f.type || 'text';
+      }
+      input.name = f.name;
+      if (f.max) input.maxLength = f.max;
+      if (f.placeholder) input.placeholder = f.placeholder;
+      if (f.type === 'tel') input.inputMode = 'tel';
+      input.value = f.value ?? '';
+      if (f.mask && typeof maskers !== 'undefined' && maskers[f.mask]) {
+        const fn = maskers[f.mask];
+        const apply = () => { const next = fn(input.value); if (next !== input.value) input.value = next; };
+        input.addEventListener('input', apply); apply();
+      }
+      input.addEventListener('input', () => input.classList.remove('is-bad'));
+      wrap.append(input);
+      if (f.hint) wrap.append(el('small', 'a-muted', f.hint));
+      grid.append(wrap);
+      inputs[f.name] = { input, f };
+    });
+    const err = el('p', 'a-form-error'); err.setAttribute('role', 'alert'); err.hidden = true;
+    const actions = el('div', 'a-dialog-actions');
+    const cancel = el('button', 'a-btn a-btn-ghost', 'Cancelar'); cancel.type = 'button';
+    const ok = el('button', 'a-btn', submitText); ok.type = 'submit';
+    actions.append(cancel, ok);
+    panel.append(grid, err, actions);
+    root.append(backdrop, panel);
+    document.body.appendChild(root);
+    document.documentElement.classList.add('a-dialog-open');
+    requestAnimationFrame(() => root.classList.add('in'));
+    (Object.values(inputs)[0]?.input || ok).focus();
+
+    const done = (value) => {
+      document.removeEventListener('keydown', onKey, true);
+      root.classList.remove('in');
+      document.documentElement.classList.remove('a-dialog-open');
+      setTimeout(() => root.remove(), 200);
+      if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
+      resolve(value);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); return; }
+      if (e.key === 'Tab') {
+        const items = [...panel.querySelectorAll('input, select, textarea, button')].filter((x) => !x.disabled);
+        const i = items.indexOf(document.activeElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); items[items.length - 1].focus(); }
+        else if (!e.shiftKey && i === items.length - 1) { e.preventDefault(); items[0].focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKey, true);
+    backdrop.addEventListener('click', () => done(false));
+    cancel.addEventListener('click', () => done(false));
+    panel.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      const values = {};
+      let firstBad = null;
+      Object.entries(inputs).forEach(([name, { input, f }]) => {
+        values[name] = input.value.trim();
+        if (f.required && !values[name]) { input.classList.add('is-bad'); firstBad ||= input; }
+      });
+      if (firstBad) { err.textContent = 'Preencha os campos obrigatórios (*).'; err.hidden = false; firstBad.focus(); return; }
+      ok.disabled = true; cancel.disabled = true; ok.textContent = 'Salvando…';
+      try { await onSubmit(values); done(true); } catch (ex) {
+        err.textContent = ex.message || 'Não foi possível salvar.'; err.hidden = false;
+        ok.disabled = false; cancel.disabled = false; ok.textContent = submitText;
+      }
+    });
+  });
+
+  Object.assign(window, { notify, toast, flash, ask, formDialog });
   const showPageNotice = () => {
     const n = document.querySelector('[data-notify]');
     if (!n) return;

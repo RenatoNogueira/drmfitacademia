@@ -4,8 +4,12 @@
     <h1>Pagamentos dos planos</h1>
     <p class="a-muted a-sub">Alunos que assinaram pelo PIX. Confira o comprovante e confirme o pagamento.</p>
   </div>
-  <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/conteudo?g=pagamento">Configurar PIX</a>
+  <div class="a-row">
+    <button class="a-btn a-btn-sm" type="button" data-new-payment>+ Novo pagamento</button>
+    <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/conteudo?g=pagamento">Configurar PIX</a>
+  </div>
 </div>
+<div hidden data-p-meta data-plans="<%= JSON.stringify((site.plans || []).map((p) => [p.name, p.name + ' — R$ ' + p.price + (p.period || '')])) %>"></div>
 
 <%- include('_paystatus') %>
 
@@ -33,7 +37,7 @@
 <% } else { %>
   <div class="b-list" id="p-list">
     <% rows.forEach(s => { %>
-      <article class="b-card p-card st-<%= s.status %>" data-id="<%= s.id %>" data-status="<%= s.status %>" data-name="<%= s.name %>" data-protocol="<%= s.protocol %>" data-plan="<%= s.plan %>" data-amount="<%= s.amountLabel %>">
+      <article class="b-card p-card st-<%= s.status %>" data-id="<%= s.id %>" data-status="<%= s.status %>" data-name="<%= s.name %>" data-protocol="<%= s.protocol %>" data-plan="<%= s.plan %>" data-amount="<%= s.amountLabel %>" data-phone="<%= s.phoneFmt %>" data-email="<%= s.email || '' %>" data-value="<%= s.amount_cents ? (s.amount_cents / 100).toFixed(2).replace('.', ',') : '' %>">
         <div class="b-time p-amount"><%= s.amountLabel %></div>
         <div class="b-main">
           <div class="b-top">
@@ -69,6 +73,7 @@
               <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-pay-act="reabrir">Desfazer confirmação</button>
             <% } %>
             <a class="a-btn a-btn-sm a-btn-wa" href="<%= s.wa %>" target="_blank" rel="noopener"><%= s.status === 'confirmado' ? 'Avisar aluno' : 'WhatsApp' %></a>
+            <button class="a-btn a-btn-sm a-btn-ghost" type="button" data-edit-payment>Editar</button>
             <button class="a-btn a-btn-sm a-btn-danger" type="button" data-pay-act="excluir" aria-label="Excluir pedido de <%= s.name %>">Excluir</button>
           </div>
         </div>
