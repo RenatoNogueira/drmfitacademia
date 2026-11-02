@@ -6,7 +6,7 @@
   <%
     const cats = [
       ['Geral', ['marca', 'tema', 'menu', 'seo']],
-      ['Página inicial', ['inicio', 'sobre', 'numeros', 'diferenciais', 'servicos', 'aulas', 'oferta']],
+      ['Página inicial', ['inicio', 'popup', 'sobre', 'numeros', 'diferenciais', 'servicos', 'aulas', 'oferta']],
       ['Planos e agendamento', ['planos', 'pagamento', 'avaliacao']],
       ['Equipe e informações', ['equipe', 'faq', 'horarios', 'titulos']],
       ['Rodapé e páginas', ['rodape', 'paginas']]
@@ -69,6 +69,7 @@
     <div class="a-row a-row-center a-sticky-actions">
       <button class="a-btn" type="submit">Salvar alterações</button>
       <span class="a-save-state" data-save-state role="status" aria-live="polite">Nenhuma alteração</span>
+      <% if (group.id === 'popup') { %><a class="a-btn a-btn-ghost" href="/?popup=1" target="_blank" rel="noopener">Testar popup ↗</a><a class="a-btn a-btn-ghost" href="/admin/imagens">Imagem do popup</a><% } %>
       <a class="a-btn a-btn-ghost" href="/" target="_blank" rel="noopener">Ver site ↗</a>
       <span class="a-spacer"></span>
       <% if (edited.has(group.id)) { %><button class="a-btn a-btn-ghost a-btn-danger" type="button" data-reset-group>Restaurar textos padrão desta seção</button><% } %>

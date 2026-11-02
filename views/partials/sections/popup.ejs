@@ -1,0 +1,30 @@
+<%# Popup da página inicial: configurado em Conteúdo → Popup, imagem em Imagens → Popup %>
+<%
+const P = site.popup || {};
+const pImg = img('popup');
+const hasContent = Boolean(pImg || P.title || P.text);
+// Muda quando o conteúdo é editado: quem já fechou a versão antiga volta a ver o popup novo
+const sig = [P.title, P.text, P.cta, P.href, pImg].join('|');
+let ver = 0; for (let i = 0; i < sig.length; i++) ver = (ver * 31 + sig.charCodeAt(i)) >>> 0;
+const external = /^https?:\/\//i.test(P.href || '');
+%>
+<% if (P.enabled && hasContent) { %>
+<div class="modal popup" id="site-popup" hidden data-delay="<%= P.delay %>" data-frequency="<%= P.frequency %>" data-version="<%= ver %>">
+  <div class="modal-backdrop" data-popup-close></div>
+  <div class="modal-panel popup-panel<%= pImg ? ' has-image' : '' %>" role="dialog" aria-modal="true" aria-label="<%= P.title || 'Aviso da DRMFIT' %>" tabindex="-1">
+    <button class="modal-close" type="button" data-popup-close aria-label="Fechar"><%- include('../icon', { name: 'x' }) %></button>
+    <% if (pImg) { %>
+      <% if (P.href) { %><a class="popup-media" href="<%= P.href %>" data-popup-link <%= external ? 'target="_blank" rel="noopener"' : '' %>><img src="<%= pImg %>" alt="<%= P.title || '' %>"></a>
+      <% } else { %><div class="popup-media"><img src="<%= pImg %>" alt="<%= P.title || '' %>"></div><% } %>
+    <% } %>
+    <% if (P.title || P.text || (P.cta && P.href)) { %>
+      <div class="popup-body">
+        <% if (P.title) { %><h2><%= P.title %></h2><% } %>
+        <% if (P.text) { %><p><%= P.text %></p><% } %>
+        <% if (P.cta && P.href) { %><a class="btn" href="<%= P.href %>" data-popup-link <%= external ? 'target="_blank" rel="noopener"' : '' %>><%= P.cta %></a><% } %>
+      </div>
+    <% } %>
+  </div>
+</div>
+<script src="/js/popup.js?v=<%= assetVersion %>" defer></script>
+<% } %>

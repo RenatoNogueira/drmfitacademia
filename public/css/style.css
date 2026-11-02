@@ -565,6 +565,21 @@ html.is-locked { overflow-y: scroll; } /* página travada (menu, modal, foto): b
 }
 @media (prefers-reduced-motion: reduce) { .modal-backdrop, .modal-panel { transition: none; } }
 
+/* Popup da página inicial */
+.popup-panel { width: min(440px, 100%); padding: 0; overflow-y: auto; }
+.popup-media { display: block; background: #0e0e0e; line-height: 0; }
+.popup-media img { width: 100%; height: auto; max-height: min(48vh, 520px); object-fit: cover; display: block; }
+.popup-body { padding: 1.4rem 1.5rem 1.6rem; display: grid; gap: .7rem; justify-items: start; }
+.popup-panel:not(.has-image) .popup-body { padding-top: 2.6rem; }
+.popup-body h2 { font-size: clamp(1.4rem, 4.5vw, 1.8rem); margin: 0; padding-right: 2rem; }
+.popup-body p { margin: 0; font-size: .98rem; color: var(--muted); }
+.popup-panel .modal-close { background: rgba(0, 0, 0, .6); border-color: rgba(255, 255, 255, .25); }
+@media (max-width: 600px) {
+  .popup { align-items: center; padding: 1rem; }
+  .popup-panel { width: min(440px, 100%); max-height: 88vh; border-radius: 20px; padding: 0; transform: translateY(24px) scale(.98); }
+  .popup-media img { max-height: 52vh; }
+}
+
 /* Planos: os cartões se ajustam à quantidade — 1 ocupa a linha toda, 2 dividem ao meio, 3 em terços... */
 .plans { --gap: 1.4rem; --c: var(--cols, 3); display: flex; flex-wrap: wrap; gap: var(--gap); }
 .plans > .plan { flex: 1 1 calc((100% - (var(--c) - 1) * var(--gap)) / var(--c)); min-width: 0; }

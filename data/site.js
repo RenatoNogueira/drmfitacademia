@@ -42,6 +42,17 @@ module.exports = {
     successText: 'Recebemos o seu comprovante! Nossa equipe confirma o pagamento em breve e avisa você pelo WhatsApp.'
   },
 
+  // Popup da página inicial (Conteúdo → Popup; a imagem fica em Imagens → Popup)
+  popup: {
+    enabled: false,
+    title: '',
+    text: '',
+    cta: '',
+    href: '',
+    delay: '3', // segundos até abrir
+    frequency: 'day' // visit = sempre | session = 1x por sessão | day = 1x por dia | week = 1x por semana
+  },
+
   // Quais seções aparecem no site (o painel pode esconder qualquer uma)
   sections: { stats: true, about: true, features: true, services: true, classes: true, promo: true, plans: true, gallery: true, trainers: true, testimonials: true, faq: true, contact: true },
 
