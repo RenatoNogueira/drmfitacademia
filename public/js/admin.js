@@ -187,24 +187,45 @@ document.querySelector('.a-nav a.on')?.scrollIntoView({ inline: 'center', block:
 // ---- imagens dos espaços ----
 document.querySelectorAll('.a-media[data-key]').forEach((card) => {
   const key = card.dataset.key;
-  card.querySelector('[data-upload]')?.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    e.target.value = '';
+  const thumb = card.querySelector('.a-thumb');
+  const overlay = card.querySelector('.m-busy');
+  const sendFile = async (file) => {
     if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { notify({ type: 'error', title: 'Arquivo não aceito', text: 'Envie uma imagem JPG, PNG ou WebP.' }); return; }
     busy(card, true);
+    if (overlay) overlay.hidden = false;
     try {
       const keepPng = key === 'logo' || key === 'pix-qr'; // logo e QR Code ficam em PNG (transparência e nitidez)
       const small = await shrink(file, keepPng ? 1200 : MAX_SIDE, keepPng);
       const fd = new FormData();
       fd.append('file', small);
       await api('POST', `/admin/api/media/${key}`, fd);
-      toast('Foto atualizada.');
-      setTimeout(() => location.reload(), 500);
-    } catch (err) { toast(err.message, true); busy(card, false); }
-  });
+      flash({ type: 'success', title: 'Foto atualizada', text: `${card.querySelector('h3').textContent.trim()}: já está no site (pode levar até 15 segundos).` });
+      location.reload();
+    } catch (err) { notify({ type: 'error', title: 'Não foi possível enviar', text: err.message }); busy(card, false); if (overlay) overlay.hidden = true; }
+  };
+  card.querySelectorAll('[data-upload]').forEach((input) => input.addEventListener('change', (e) => { const file = e.target.files[0]; e.target.value = ''; sendFile(file); }));
+  // Arrastar uma imagem do computador e soltar sobre a foto
+  if (thumb) {
+    let depth = 0;
+    thumb.addEventListener('dragenter', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { depth++; thumb.classList.add('is-over'); } });
+    thumb.addEventListener('dragover', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+    thumb.addEventListener('dragleave', () => { if (--depth <= 0) { depth = 0; thumb.classList.remove('is-over'); } });
+    thumb.addEventListener('drop', (e) => { e.preventDefault(); depth = 0; thumb.classList.remove('is-over'); sendFile(e.dataTransfer.files[0]); });
+  }
+  // Tamanho real da foto (avisa se for pequena demais para ficar nítida)
+  const img = thumb?.querySelector('img');
+  const dim = card.querySelector('[data-dim]');
+  const showDim = () => {
+    if (!img || !dim || !img.naturalWidth) return;
+    dim.textContent = `${img.naturalWidth} × ${img.naturalHeight} px${img.naturalWidth < 700 && key !== 'logo' && key !== 'pix-qr' ? ' — baixa resolução, pode ficar borrada' : ''}`;
+    dim.classList.toggle('warn', img.naturalWidth < 700 && key !== 'logo' && key !== 'pix-qr');
+    dim.hidden = false;
+  };
+  if (img) { if (img.complete) showDim(); else img.addEventListener('load', showDim); }
   card.querySelector('[data-remove-media]')?.addEventListener('click', async () => {
     const label = card.querySelector('h3').textContent.trim();
-    const custom = Boolean(card.querySelector('.a-badge:not(.a-badge-off)'));
+    const custom = card.dataset.state === 'custom';
     const yes = await ask({
       tone: 'danger', title: 'Remover esta foto?', text: label,
       image: card.querySelector('.a-thumb img')?.src || '',
@@ -249,6 +270,33 @@ document.querySelectorAll('.a-media[data-key]').forEach((card) => {
     } catch (err) { notify({ type: 'error', title: 'Não foi possível remover', text: err.message }); busy(card, false); }
   });
 });
+
+// Filtro e busca da tela de imagens
+const mFilters = document.querySelector('[data-m-filters]');
+if (mFilters) {
+  const cards = [...document.querySelectorAll('.m-card')];
+  const sections = [...document.querySelectorAll('[data-m-section]')];
+  const search = document.querySelector('[data-m-search]');
+  let filter = 'all';
+  const apply = () => {
+    const q = search.value.trim().toLowerCase();
+    cards.forEach((c) => {
+      const st = c.dataset.state;
+      const byFilter = filter === 'all' || st === filter || (filter === 'off' && (st === 'removed' || st === 'empty'));
+      c.hidden = !(byFilter && (!q || c.dataset.text.includes(q)));
+    });
+    sections.forEach((s) => { s.hidden = ![...s.querySelectorAll('.m-card')].some((c) => !c.hidden); });
+    document.querySelector('[data-m-empty]').hidden = cards.some((c) => !c.hidden);
+  };
+  mFilters.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filter]');
+    if (!b) return;
+    filter = b.dataset.filter;
+    mFilters.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+    apply();
+  });
+  search.addEventListener('input', apply);
+}
 
 // ---- mensagens do contato ----
 const adjustDot = (delta) => {
