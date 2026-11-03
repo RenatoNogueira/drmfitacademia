@@ -40,7 +40,7 @@
       <section class="b-day" data-day>
         <h2 class="b-day-head"><strong><%= g.label %></strong><span><%= g.sub %></span></h2>
         <% g.items.forEach(b => { %>
-          <article class="b-card s-<%= b.status %> <%= b.past ? 'is-past' : '' %>" data-id="<%= b.id %>" data-status="<%= b.status %>" data-search="<%= b.search %>" data-date="<%= b.date %>" data-time="<%= b.time %>" data-name="<%= b.name %>" data-phone="<%= b.phoneFmt %>" data-email="<%= b.email || '' %>" data-objective="<%= b.objective || '' %>" data-notes="<%= b.notes || '' %>">
+          <article class="b-card s-<%= b.status %> <%= b.past ? 'is-past' : '' %>" data-id="<%= b.id %>" data-status="<%= b.status %>" data-search="<%= b.search %>" data-date="<%= b.date %>" data-time="<%= b.time %>" data-name="<%= b.name %>" data-phone="<%= b.phoneFmt %>" data-email="<%= b.email || '' %>" data-objective="<%= b.objective || '' %>" data-birth="<%= b.birth_date || '' %>" data-health="<%= b.health || '' %>" data-notes="<%= b.notes || '' %>">
             <div class="b-time"><%= b.time %></div>
             <div class="b-main">
               <div class="b-top">
@@ -52,7 +52,9 @@
                 <a href="<%= b.tel %>"><%= b.phoneFmt %></a>
                 <% if (b.email) { %><a href="mailto:<%= b.email %>"><%= b.email %></a><% } %>
                 <% if (b.objective) { %><span class="b-tag"><%= b.objective %></span><% } %>
+                <% if (b.birthFmt) { %><span class="b-tag" title="Data de nascimento"><%= b.birthFmt %><% if (b.age !== null) { %> · <%= b.age %> anos<% } %></span><% } %>
               </div>
+              <% if (b.health) { %><p class="b-health-note"><strong>Comorbidades:</strong> <%= b.health %></p><% } %>
               <% if (b.notes) { %><p class="b-notes"><%= b.notes %></p><% } %>
               <div class="b-actions">
                 <% if (b.status === 'pendente') { %>

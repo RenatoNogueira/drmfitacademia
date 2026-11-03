@@ -64,3 +64,5 @@
   .b-actions .b-ok, .b-actions .a-btn-wa { grid-column: auto; }
   .b-actions .a-btn-danger { grid-column: 1 / -1; }
 }
+.b-health-note { margin: 0; padding: .45rem .7rem; border-left: 3px solid #d6a21f; background: rgba(214, 162, 31, .08); border-radius: 8px; font-size: .88rem; color: #f0d48a; }
+.b-health-note strong { font-weight: 600; }

@@ -45,7 +45,7 @@ router.get('/agenda', async (req, res) => {
       if (times.length) days.push({ date, label: fmtDate(date), weekday: agendaLib.WEEKDAYS_SHORT[agendaLib.weekdayOf(date)], times });
     }
     res.set('Cache-Control', 'no-store');
-    res.json({ days, objectives: agendaLib.OBJECTIVES });
+    res.json({ days, objectives: agendaLib.OBJECTIVES, health: agendaLib.HEALTH });
   } catch (err) {
     console.error('agenda:', err.message);
     unavailable(res);
@@ -57,7 +57,7 @@ router.post('/agendar', async (req, res) => {
   if (req.body?.website) return res.json({ ok: true }); // campo-isca para robôs
   if (limited(req.ip)) return res.status(429).json({ error: 'Muitas tentativas. Tente novamente mais tarde.' });
 
-  const { values, errors } = agendaLib.validateBooking(req.body || {});
+  const { values, errors } = agendaLib.validateBooking(req.body || {}, { requireBirth: true });
   if (Object.keys(errors).length) return res.status(400).json({ errors });
 
   try {
@@ -68,7 +68,8 @@ router.post('/agendar', async (req, res) => {
     }
     await store.createBooking({
       date: values.date, time: values.time, name: values.name, phone: values.phone,
-      email: values.email || null, objective: values.objective || null, notes: values.notes || null
+      email: values.email || null, objective: values.objective || null, notes: values.notes || null,
+      birth_date: values.birth_date, health: values.health || null
     });
     const when = `${fmtDate(values.date)} às ${values.time}`;
     res.status(201).json({

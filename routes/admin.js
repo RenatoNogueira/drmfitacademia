@@ -142,7 +142,9 @@ router.get('/agendamentos', wrap(async (req, res) => {
       tel: `tel:+${digits.length <= 11 ? `55${digits}` : digits}`,
       isNew: Date.now() - new Date(b.created_at).getTime() < 24 * 60 * 60 * 1000,
       past: b.date < today,
-      search: `${b.name} ${digits} ${b.email || ''} ${b.objective || ''}`.toLowerCase(),
+      birthFmt: b.birth_date ? brDate(b.birth_date) : '',
+      age: b.birth_date ? agendaLib.ageFrom(b.birth_date) : null,
+      search: `${b.name} ${digits} ${b.email || ''} ${b.objective || ''} ${b.health || ''}`.toLowerCase(),
       wa: waLink(b.phone, `Olá, ${first}! Aqui é da ${res.locals.site.brand.name}. Sua avaliação física está marcada para ${brDate(b.date)} às ${time}. Podemos confirmar?`)
     };
   });
@@ -180,7 +182,7 @@ const readBooking = (b = {}) => {
   const status = STATUSES.includes(b.status) ? b.status : 'pendente';
   return {
     errors,
-    data: { date: values.date, time: values.time, name: values.name, phone: values.phone, email: values.email || null, objective: values.objective || null, notes: values.notes || null, status }
+    data: { date: values.date, time: values.time, name: values.name, phone: values.phone, email: values.email || null, objective: values.objective || null, notes: values.notes || null, birth_date: values.birth_date || null, health: values.health || null, status }
   };
 };
 const bookingSaved = (res, fn) => fn().catch((err) => {
@@ -216,8 +218,8 @@ const csvCell = (v) => {
 };
 router.get('/agendamentos.csv', wrap(async (req, res) => {
   const all = await store.listBookings();
-  const head = ['Data', 'Horário', 'Nome', 'Telefone', 'E-mail', 'Objetivo', 'Observações', 'Status', 'Criado em'];
-  const lines = all.map((b) => [b.date, String(b.time).slice(0, 5), b.name, b.phone, b.email, b.objective, b.notes, b.status, b.created_at].map(csvCell).join(';'));
+  const head = ['Data', 'Horário', 'Nome', 'Telefone', 'E-mail', 'Nascimento', 'Comorbidades', 'Objetivo', 'Observações', 'Status', 'Criado em'];
+  const lines = all.map((b) => [b.date, String(b.time).slice(0, 5), b.name, b.phone, b.email, b.birth_date, b.health, b.objective, b.notes, b.status, b.created_at].map(csvCell).join(';'));
   res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="agendamentos-drmfit.csv"' });
   res.send(`\ufeff${[head.map(csvCell).join(';'), ...lines].join('\r\n')}`);
 }));

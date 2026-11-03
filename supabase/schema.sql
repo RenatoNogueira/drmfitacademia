@@ -33,6 +33,8 @@ create table if not exists public.bookings (
   email       text,
   objective   text,
   notes       text,
+  birth_date  date,
+  health      text,
   status      text not null default 'pendente' check (status in ('pendente', 'confirmado', 'cancelado')),
   created_at  timestamptz not null default now()
 );
@@ -90,6 +92,10 @@ create unique index if not exists bookings_slot_unique
 alter table public.media    enable row level security;
 alter table public.gallery  enable row level security;
 alter table public.settings enable row level security;
+-- Bancos criados antes: data de nascimento e comorbidades do aluno
+alter table public.bookings add column if not exists birth_date date;
+alter table public.bookings add column if not exists health text;
+
 alter table public.bookings enable row level security;
 alter table public.messages enable row level security;
 alter table public.testimonials enable row level security;

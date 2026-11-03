@@ -21,6 +21,8 @@
           { name: 'email', label: 'E-mail', type: 'email', max: 120, value: d.email },
           { name: 'date', label: 'Data', required: true, type: 'date', value: d.date || todayIso() },
           { name: 'time', label: 'Horário', required: true, type: 'time', value: d.time || '' },
+          { name: 'birth_date', label: 'Data de nascimento', type: 'date', value: d.birth || '' },
+          { name: 'health', label: 'Comorbidades', max: 200, value: d.health, placeholder: 'Ex.: Pressão alta, Diabetes', hint: 'Deixe em branco se não tiver nenhuma.' },
           { name: 'objective', label: 'Objetivo', type: 'select', value: d.objective || '', options: [['', '—'], ...objectives.map((o) => [o, o])] },
           { name: 'status', label: 'Situação', type: 'select', value: card ? d.status : 'confirmado', options: [['pendente', 'Pendente'], ['confirmado', 'Confirmado'], ['cancelado', 'Cancelado']] },
           { name: 'notes', label: 'Observações', type: 'textarea', max: 300, value: d.notes }

@@ -70,6 +70,14 @@
       days = data.days;
       const sel = $('[data-b-objective]');
       if (sel.options.length === 1) data.objectives.forEach((o) => sel.add(new Option(o, o)));
+      const healthBox = $('[data-b-health]');
+      if (!healthBox.children.length) (data.health || []).forEach((h) => {
+        const l = document.createElement('label'); l.className = 'b-check';
+        const c = document.createElement('input'); c.type = 'checkbox'; c.value = h; c.dataset.bCond = '';
+        l.append(c, document.createTextNode(` ${h}`)); healthBox.append(l);
+      });
+      const birth = $('[data-b-birth]');
+      if (!birth.max) birth.max = new Date().toISOString().slice(0, 10);
       if (!days.length) { showState(`No momento não há horários livres. ${waFallback()}`); return; }
       stateEl.hidden = true; body.hidden = false;
       if (!keepSelection || !days.some((d) => d.date === pickedDate)) { pickedDate = ''; pickedTime = ''; timesStep.hidden = true; form.hidden = true; }
@@ -150,7 +158,8 @@
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
     const fd = new FormData(form);
     const payload = { date: pickedDate, time: pickedTime, consent: fd.get('consent') === 'on' };
-    ['name', 'phone', 'email', 'objective', 'notes', 'website'].forEach((k) => { payload[k] = fd.get(k) || ''; });
+    ['name', 'phone', 'email', 'objective', 'notes', 'website', 'birth_date'].forEach((k) => { payload[k] = fd.get(k) || ''; });
+    payload.health = [...form.querySelectorAll('[data-b-cond]:checked'), ...[(fd.get('health_other') || '').trim()].filter(Boolean).map((v) => ({ value: v }))].map((x) => x.value).join(', ');
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true; btn.classList.add('is-loading');
     try {

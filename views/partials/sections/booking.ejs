@@ -48,6 +48,19 @@
               </select>
             </label>
           </div>
+          <div class="form-row">
+            <label>Data de nascimento
+              <input type="date" name="birth_date" required autocomplete="bday" min="1910-01-01" data-b-birth>
+              <small class="error" data-error="birth_date"></small>
+            </label>
+          </div>
+          <fieldset class="b-health">
+            <legend>Tem alguma comorbidade? <em>(marque as que tiver; deixe em branco se não tiver nenhuma)</em></legend>
+            <div class="b-health-list" data-b-health></div>
+            <label class="b-health-other"><span>Outra condição <em>(opcional)</em></span>
+              <input type="text" name="health_other" maxlength="100" placeholder="Ex.: hipertireoidismo, colesterol alto" data-b-health-other>
+            </label>
+          </fieldset>
           <label><span>Observações <em>(lesões, restrições, dúvidas)</em></span>
             <textarea name="notes" rows="3" maxlength="300"></textarea>
           </label>

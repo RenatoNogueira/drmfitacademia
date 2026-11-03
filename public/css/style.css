@@ -532,6 +532,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .b-form label em { font-style: normal; color: var(--muted); font-weight: 400; }
 .b-summary { margin: 0; color: var(--accent); font-weight: 600; }
 .b-trap { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.b-health { border: 1px solid var(--line); border-radius: 14px; padding: .9rem 1rem 1rem; margin: 0; display: grid; gap: .8rem; min-width: 0; }
+.b-health legend { padding: 0 .4rem; font-size: .9rem; font-weight: 500; }
+.b-health legend em { color: var(--muted); font-style: normal; font-size: .8rem; font-weight: 400; }
+.b-health-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .5rem .9rem; }
+.b-check { display: flex !important; align-items: center; gap: .55rem; font-weight: 400 !important; color: var(--text); cursor: pointer; }
+.b-check input { width: 18px; height: 18px; accent-color: var(--accent); flex: 0 0 auto; }
 .b-consent { display: flex !important; gap: .7rem; align-items: flex-start; color: var(--muted); font-weight: 400 !important; }
 .b-consent input { width: 20px; height: 20px; margin-top: .15rem; accent-color: var(--accent); flex: 0 0 auto; }
 .b-done { text-align: center; padding: 1.5rem 0; }
