@@ -115,7 +115,7 @@ if (form) {
     e.preventDefault();
     const btn = form.querySelector('button[type="submit"]');
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
-    btn.disabled = true;
+    btn.disabled = true; btn.classList.add('is-loading');
     try {
       const res = await fetch(form.action, {
         method: 'POST',
@@ -136,7 +136,7 @@ if (form) {
     } catch {
       showStatus('alert-error', 'Não foi possível enviar agora. Tente pelo WhatsApp.');
     } finally {
-      btn.disabled = false;
+      btn.disabled = false; btn.classList.remove('is-loading');
     }
   });
 }

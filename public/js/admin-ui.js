@@ -219,10 +219,10 @@
         if (f.required && !values[name]) { input.classList.add('is-bad'); firstBad ||= input; }
       });
       if (firstBad) { err.textContent = 'Preencha os campos obrigatórios (*).'; err.hidden = false; firstBad.focus(); return; }
-      ok.disabled = true; cancel.disabled = true; ok.textContent = 'Salvando…';
+      ok.disabled = true; cancel.disabled = true; ok.textContent = 'Salvando…'; ok.classList.add('is-loading');
       try { await onSubmit(values); done(true); } catch (ex) {
         err.textContent = ex.message || 'Não foi possível salvar.'; err.hidden = false;
-        ok.disabled = false; cancel.disabled = false; ok.textContent = submitText;
+        ok.disabled = false; cancel.disabled = false; ok.textContent = submitText; ok.classList.remove('is-loading');
       }
     });
   });

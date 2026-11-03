@@ -23,7 +23,8 @@
   form.addEventListener('submit', () => {
     submit.disabled = true;
     submit.textContent = 'Entrando…';
+    submit.classList.add('is-loading');
   });
   // voltar pelo histórico não deve deixar o botão travado
-  addEventListener('pageshow', () => { submit.disabled = false; submit.textContent = 'Entrar'; });
+  addEventListener('pageshow', () => { submit.disabled = false; submit.textContent = 'Entrar'; submit.classList.remove('is-loading'); });
 })();

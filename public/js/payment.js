@@ -185,7 +185,7 @@
     const payload = { plan: plan.name, consent: fd.get('consent') === 'on' };
     ['name', 'phone', 'email', 'website'].forEach((k) => { payload[k] = fd.get(k) || ''; });
     const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
+    btn.disabled = true; btn.classList.add('is-loading');
     try {
       const r = await api('POST', '/api/assinaturas', payload);
       if (r.ok && r.data.id) {
@@ -200,7 +200,7 @@
       }
     } catch {
       $('[data-pay-error]').textContent = 'Sem conexão. Tente de novo ou fale pelo WhatsApp.';
-    } finally { btn.disabled = false; }
+    } finally { btn.disabled = false; btn.classList.remove('is-loading'); }
   });
 
   // ---------- etapa 2 ----------
@@ -275,6 +275,7 @@
     sendBtn.disabled = true;
     const old = sendBtn.textContent;
     sendBtn.textContent = 'Enviando…';
+    sendBtn.classList.add('is-loading');
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -290,7 +291,7 @@
     } catch {
       fileErr.textContent = 'Sem conexão. Tente de novo.';
       sendBtn.disabled = false;
-    } finally { sendBtn.textContent = old; }
+    } finally { sendBtn.textContent = old; sendBtn.classList.remove('is-loading'); }
   });
 
   $('[data-pay-retry]').addEventListener('click', () => { clearFile(); showStep(3); });

@@ -94,7 +94,7 @@
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
     pickedDate = ''; pickedTime = '';
     timesStep.hidden = true; form.hidden = true;
-    showState('Carregando horários disponíveis…');
+    showState('<span class="spinner" aria-hidden="true"></span> Carregando horários disponíveis…');
   };
 
   const open = (from) => {
@@ -152,7 +152,7 @@
     const payload = { date: pickedDate, time: pickedTime, consent: fd.get('consent') === 'on' };
     ['name', 'phone', 'email', 'objective', 'notes', 'website'].forEach((k) => { payload[k] = fd.get(k) || ''; });
     const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
+    btn.disabled = true; btn.classList.add('is-loading');
     try {
       const res = await fetch('/api/agendar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
@@ -175,7 +175,7 @@
     } catch {
       formError.textContent = 'Sem conexão. Tente de novo ou use o WhatsApp.';
     } finally {
-      btn.disabled = false;
+      btn.disabled = false; btn.classList.remove('is-loading');
     }
   });
 })();

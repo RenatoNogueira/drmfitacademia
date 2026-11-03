@@ -654,3 +654,12 @@ html.is-locked { overflow-y: scroll; } /* página travada (menu, modal, foto): b
 .btn[hidden], .link-btn[hidden], .pay-steps[hidden] { display: none !important; }
 
 .pay-result .b-check.is-info { background: rgba(37, 211, 102, .15); color: var(--wa); }
+
+/* Spinners de carregamento */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner, .btn.is-loading::before { display: inline-block; width: 1em; height: 1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; flex: none; }
+.spinner { vertical-align: -.15em; margin-right: .35em; }
+.btn.is-loading { pointer-events: none; opacity: .85; }
+.btn.is-loading::before { content: ''; }
+.b-state .spinner { width: 1.2em; height: 1.2em; color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .spinner, .btn.is-loading::before { animation-duration: 1.8s; } }

@@ -192,3 +192,13 @@ html.a-dialog-open { overflow: hidden; }
 .a-form-error { margin: 0 0 .8rem; padding: .6rem .8rem; border-radius: 10px; background: rgba(255, 107, 107, .12); border: 1px solid rgba(255, 107, 107, .4); color: #ffb4b4; font-size: .88rem; }
 .a-form-error[hidden] { display: none; }
 @media (max-width: 600px) { .a-form-grid { grid-template-columns: 1fr; } .a-form-panel { max-height: 94vh; } }
+
+/* Spinners */
+@keyframes a-spin { to { transform: rotate(360deg); } }
+.a-spin, .a-btn.is-loading::before, .is-busy::after { display: inline-block; width: 1em; height: 1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: a-spin .7s linear infinite; flex: none; }
+.a-btn.is-loading { pointer-events: none; }
+.a-btn.is-loading::before { content: ''; }
+.a-btn:disabled.is-loading { opacity: .8; cursor: progress; }
+.is-busy { position: relative; opacity: .6; pointer-events: none; }
+.is-busy::after { content: ''; position: absolute; top: 50%; left: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-width: 3px; color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .a-spin, .a-btn.is-loading::before, .is-busy::after { animation-duration: 1.8s; } }
