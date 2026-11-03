@@ -27,10 +27,6 @@ const heroImg = img('hero');
         <span class="ln" aria-hidden="true"><span class="outline"><%= site.copy.hero.line3 %></span></span>
       </h1>
       <p><%= site.copy.hero.text %></p>
-      <div class="hero-actions">
-        <a href="/#avaliacao" class="btn"><%= site.copy.hero.primary %></a>
-        <% if (site.sections.plans && site.plans.length) { %><a href="/#planos" class="btn btn-outline"><%= site.copy.hero.secondary %></a><% } %>
-      </div>
       <div class="hero-social">
         <% [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['youtube', 'YouTube']].filter(([k]) => site.brand[k]).forEach(([k, label]) => { %>
         <a href="<%= site.brand[k] %>" target="_blank" rel="noopener" aria-label="<%= label %>"><%- include('partials/icon', { name: k }) %></a>

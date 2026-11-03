@@ -72,8 +72,6 @@ module.exports = {
       line2: 'a cada',
       line3: 'treino!',
       text: 'Musculação, aulas coletivas, personal e avaliação física em um só lugar. Comece hoje com uma aula experimental gratuita.',
-      primary: 'Agendar avaliação',
-      secondary: 'Ver planos',
       marquee: ['DRMFIT', 'Treine forte', 'Sem limites', 'Supere mais']
     },
     about: { eyebrow: 'Sobre nós' },

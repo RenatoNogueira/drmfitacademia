@@ -69,7 +69,6 @@ code { font-size: .85em; color: var(--accent); }
 .hero-inner { position: relative; z-index: 2; }
 .hero-text { max-width: 720px; }
 .hero-text p { font-size: 1.15rem; max-width: 520px; color: #dcdcdc; }
-.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.8rem; }
 .hero-social { display: flex; gap: .6rem; margin-top: 2.5rem; }
 .hero-social a { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); transition: .2s; }
 .hero-social a:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
