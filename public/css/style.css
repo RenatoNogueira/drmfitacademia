@@ -485,10 +485,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @keyframes sweep { 0% { transform: translateX(-110%) skewX(-14deg); } 50% { transform: translateX(0) skewX(-14deg); } 100% { transform: translateX(110%) skewX(-14deg); visibility: hidden; } }
 
 /* 4) Texto gigante rolando ao fundo */
-.hero-marquee { position: absolute; left: 0; right: 0; bottom: 6%; z-index: 0; overflow: hidden; pointer-events: none; opacity: .9; }
+.hero-marquee { position: absolute; left: 0; right: 0; bottom: 6%; z-index: 2; overflow: hidden; pointer-events: none; }
 .hero-marquee .track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
-.hero-marquee span { font-family: var(--font-head); text-transform: uppercase; font-size: clamp(5rem, 13vw, 11rem); line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .09); }
-.hero-marquee i { font-style: normal; color: var(--accent); -webkit-text-stroke: 0; opacity: .35; padding: 0 .25em; }
+.hero-marquee span { font-family: var(--font-head); text-transform: uppercase; font-size: clamp(5rem, 13vw, 11rem); line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px rgba(255, 255, 255, .32); text-shadow: 0 0 40px rgba(240, 108, 0, .15); }
+.hero-marquee i { font-style: normal; color: var(--accent); -webkit-text-stroke: 0; opacity: .75; padding: 0 .25em; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
 /* 6) Indicador de rolagem */
