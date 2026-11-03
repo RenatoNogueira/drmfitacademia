@@ -3,7 +3,7 @@
 .lg { width: 100%; margin: 0; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
 .lg-brand { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; padding: 3rem clamp(2rem, 6vw, 5rem); background: radial-gradient(120% 90% at 0% 0%, rgba(240, 108, 0, .28), transparent 60%), linear-gradient(160deg, #1a1a1a, #0a0a0a); border-right: 1px solid var(--line); overflow: hidden; }
 .lg-brand::after { content: ''; position: absolute; right: -120px; bottom: -120px; width: 360px; height: 360px; border-radius: 50%; border: 60px solid rgba(240, 108, 0, .08); }
-.lg-brand img { width: auto; }
+.lg-brand img { width: auto; height: 72px; align-self: flex-start; object-fit: contain; }
 .lg-brand h2 { font-family: var(--font-head); text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1.1; max-width: 14ch; }
 .lg-brand ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; color: var(--muted); }
 .lg-brand li { display: flex; align-items: center; gap: .6rem; }
@@ -12,7 +12,7 @@
 .lg-form { width: min(400px, 100%); display: grid; gap: 1rem; }
 .lg-form h1 { font-size: 1.7rem; }
 .lg-form p { margin: .3rem 0 0; }
-.lg-logo { display: none; width: auto; }
+.lg-logo { display: none; width: auto; height: 64px; justify-self: start; object-fit: contain; }
 .lg-form label { font-size: .88rem; font-weight: 500; margin-bottom: -.5rem; }
 .lg-field { position: relative; display: flex; align-items: center; }
 .lg-field input { width: 100%; padding: .9rem 3rem .9rem 2.7rem; background: #141414; border: 1px solid var(--line); border-radius: 12px; color: var(--text); font: inherit; transition: border-color .2s, box-shadow .2s; }
