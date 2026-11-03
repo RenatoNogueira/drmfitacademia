@@ -8,21 +8,46 @@
   <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/admin.css?v=<%= assetVersion %>">
+  <link rel="stylesheet" href="/css/admin-login.css?v=<%= assetVersion %>">
 </head>
 <body class="admin login-page">
-  <form class="a-card login-card" method="post" action="/admin/login" autocomplete="off">
-    <img src="/img/logo-transparent.png" alt="DRMFIT Academia" height="64">
-    <h1>Área administrativa</h1>
-    <% if (disabled) { %>
-      <p class="a-error">O painel está desativado. Defina a variável <code>ADMIN_PASSWORD</code> no servidor (veja o README).</p>
-    <% } else { %>
-      <% if (error) { %><p class="a-error" role="alert"><%= error %></p><% } %>
-      <label>Senha
-        <input type="password" name="password" required autofocus autocomplete="current-password">
-      </label>
-      <button class="a-btn" type="submit">Entrar</button>
-    <% } %>
-    <a class="a-link" href="/">← Voltar ao site</a>
-  </form>
+  <main class="lg">
+    <aside class="lg-brand" aria-hidden="true">
+      <img src="/img/logo-transparent.png" alt="" height="56">
+      <h2>Tudo da sua academia em um só lugar</h2>
+      <ul>
+        <li>Agendamentos e horários</li>
+        <li>Pagamentos e mensagens</li>
+        <li>Conteúdo, imagens e galeria</li>
+      </ul>
+    </aside>
+    <section class="lg-panel">
+      <form class="lg-form" method="post" action="/admin/login" autocomplete="off" data-login>
+        <img class="lg-logo" src="/img/logo-transparent.png" alt="DRMFIT Academia" height="48">
+        <div>
+          <h1>Entrar no painel</h1>
+          <p class="a-muted">Acesso restrito à equipe da DRMFIT.</p>
+        </div>
+        <% if (disabled) { %>
+          <p class="a-error" role="alert">O painel está desativado. Defina a variável <code>ADMIN_PASSWORD</code> no servidor (veja o README).</p>
+        <% } else { %>
+          <% if (error) { %><p class="a-error" role="alert"><%= error %></p><% } %>
+          <label for="lg-pass">Senha</label>
+          <div class="lg-field">
+            <svg class="lg-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+            <input id="lg-pass" type="password" name="password" required autofocus autocomplete="current-password" placeholder="Digite sua senha">
+            <button class="lg-eye" type="button" data-eye aria-label="Mostrar senha" aria-pressed="false">
+              <svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10 10 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4M6.4 6.4C3.7 8.2 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.2-1M9.9 9.9a3 3 0 004.2 4.2"/></svg>
+            </button>
+          </div>
+          <p class="lg-caps" data-caps hidden>Caps Lock está ligado.</p>
+          <button class="a-btn lg-submit" type="submit" data-submit>Entrar</button>
+        <% } %>
+        <a class="a-link" href="/">← Voltar ao site</a>
+      </form>
+    </section>
+  </main>
+  <script src="/js/admin-login.js?v=<%= assetVersion %>" defer></script>
 </body>
 </html>
