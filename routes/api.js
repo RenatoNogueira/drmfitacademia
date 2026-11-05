@@ -54,7 +54,7 @@ router.get('/agenda', async (req, res) => {
 
 router.post('/agendar', async (req, res) => {
   if (!store.ready) return unavailable(res);
-  if (req.body?.website) return res.json({ ok: true }); // campo-isca para robôs
+  if (req.body?.hp_extra) return res.json({ ok: true }); // campo-isca para robôs
   if (limited(req.ip)) return res.status(429).json({ error: 'Muitas tentativas. Tente novamente mais tarde.' });
 
   const { values, errors } = agendaLib.validateBooking(req.body || {}, { requireBirth: true });

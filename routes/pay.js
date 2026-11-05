@@ -58,7 +58,7 @@ router.post('/assinaturas', wrap(async (req, res) => {
   const ctx = await context();
   if (!ctx.ready) return unavailable(res);
   const b = req.body || {};
-  if (b.website) return res.json({ ok: true }); // campo-isca para robôs
+  if (b.hp_extra) return res.json({ ok: true }); // campo-isca para robôs
   if (limited('create', req.ip, 10)) return res.status(429).json({ error: 'Muitas tentativas. Tente novamente mais tarde.' });
 
   const plan = ctx.site.plans.find((p) => p.name === cleanText(b.plan, 40));

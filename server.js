@@ -97,7 +97,7 @@ app.post('/contato', async (req, res) => {
     ? res.status(status).json(view === 'ok' ? { ok: true } : { ok: false, errors, error: errors.form })
     : res.status(status).render('contato', { title: 'Contato | DRMFIT', status: view, errors, values: view === 'ok' ? {} : values }));
 
-  if (b.website) return respond(200, 'ok'); // campo-isca: robôs preenchem, pessoas não veem
+  if (b.hp_extra) return respond(200, 'ok'); // campo-isca: robôs preenchem, pessoas não veem
 
   const errors = {};
   if (values.nome.length < 3) errors.nome = 'Informe seu nome completo.';

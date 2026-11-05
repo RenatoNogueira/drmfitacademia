@@ -158,7 +158,7 @@
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
     const fd = new FormData(form);
     const payload = { date: pickedDate, time: pickedTime, consent: fd.get('consent') === 'on' };
-    ['name', 'phone', 'email', 'objective', 'notes', 'website', 'birth_date'].forEach((k) => { payload[k] = fd.get(k) || ''; });
+    ['name', 'phone', 'email', 'objective', 'notes', 'hp_extra', 'birth_date'].forEach((k) => { payload[k] = fd.get(k) || ''; });
     payload.health = [...form.querySelectorAll('[data-b-cond]:checked'), ...[(fd.get('health_other') || '').trim()].filter(Boolean).map((v) => ({ value: v }))].map((x) => x.value).join(', ');
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true; btn.classList.add('is-loading');

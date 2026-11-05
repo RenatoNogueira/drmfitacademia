@@ -183,7 +183,7 @@
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
     const fd = new FormData(form);
     const payload = { plan: plan.name, consent: fd.get('consent') === 'on' };
-    ['name', 'phone', 'email', 'website'].forEach((k) => { payload[k] = fd.get(k) || ''; });
+    ['name', 'phone', 'email', 'hp_extra'].forEach((k) => { payload[k] = fd.get(k) || ''; });
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true; btn.classList.add('is-loading');
     try {
@@ -196,7 +196,7 @@
         Object.entries(r.data.errors).forEach(([k, v]) => { const s = form.querySelector(`[data-error="${k}"]`); if (s) s.textContent = v; });
         if (r.data.errors.plan) $('[data-pay-error]').textContent = r.data.errors.plan;
       } else {
-        $('[data-pay-error]').textContent = r.data.error || 'Não foi possível gerar o QR Code. Tente de novo.';
+        $('[data-pay-error]').textContent = r.data.error || `Não foi possível gerar o QR Code. Tente de novo. (código ${r.status})`;
       }
     } catch {
       $('[data-pay-error]').textContent = 'Sem conexão. Tente de novo ou fale pelo WhatsApp.';
