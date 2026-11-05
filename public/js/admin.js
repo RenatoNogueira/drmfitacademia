@@ -300,7 +300,7 @@ if (mFilters) {
 
 // ---- mensagens do contato ----
 const adjustDot = (delta) => {
-  const dot = document.querySelector('.a-nav .a-dot');
+  const dot = document.querySelector('.a-nav .a-dot[data-dot="mensagens"]');
   if (!dot) return;
   const n = Math.max(0, Number(dot.textContent) + delta);
   dot.textContent = n;

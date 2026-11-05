@@ -66,3 +66,10 @@
 }
 .b-health-note { margin: 0; padding: .45rem .7rem; border-left: 3px solid #d6a21f; background: rgba(214, 162, 31, .08); border-radius: 8px; font-size: .88rem; color: #f0d48a; }
 .b-health-note strong { font-weight: 600; }
+.b-alert { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: 1rem; padding: .8rem 1rem; border: 1px solid rgba(214, 162, 31, .5); background: rgba(214, 162, 31, .1); border-radius: 12px; color: #f0d48a; text-decoration: none; }
+.b-alert:hover { background: rgba(214, 162, 31, .16); }
+.b-alert strong { color: #fff; font-weight: 600; }
+.b-alert em { margin-left: auto; font-style: normal; font-weight: 600; white-space: nowrap; }
+.b-alert-dot { width: 10px; height: 10px; border-radius: 50%; background: #d6a21f; flex: none; animation: b-pulse 1.6s ease-in-out infinite; }
+@keyframes b-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(214, 162, 31, .6); } 50% { box-shadow: 0 0 0 7px rgba(214, 162, 31, 0); } }
+@media (prefers-reduced-motion: reduce) { .b-alert-dot { animation: none; } }

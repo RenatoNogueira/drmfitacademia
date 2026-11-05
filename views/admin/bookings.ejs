@@ -10,6 +10,14 @@
   </div>
 </div>
 
+<% if (stats.pendentes && filter !== 'pendentes') { %>
+  <a class="b-alert" href="/admin/agendamentos?f=pendentes" role="status">
+    <span class="b-alert-dot" aria-hidden="true"></span>
+    <span><strong><%= stats.pendentes %> <%= stats.pendentes === 1 ? 'agendamento pendente aguardando' : 'agendamentos pendentes aguardando' %> confirmação.</strong> Confirme ou cancele para avisar o aluno.</span>
+    <em>Ver pendentes →</em>
+  </a>
+<% } %>
+
 <section class="b-stats" aria-label="Resumo">
   <a class="b-stat" href="/admin/agendamentos?f=hoje"><strong><%= stats.hoje %></strong><span>Hoje</span></a>
   <a class="b-stat" href="/admin/agendamentos?f=proximos"><strong><%= stats.semana %></strong><span>Próx. 7 dias</span></a>

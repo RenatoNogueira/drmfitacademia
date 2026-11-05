@@ -85,8 +85,10 @@ const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).cat
 router.use(async (req, res, next) => {
   res.locals.unreadMessages = 0;
   res.locals.pendingPayments = 0;
+  res.locals.pendingBookings = 0;
   if (!req.path.startsWith('/api/')) {
     try { res.locals.unreadMessages = await store.countUnreadMessages(); } catch { /* sem tabela ainda */ }
+    try { res.locals.pendingBookings = await store.countPendingBookings(); } catch { /* sem tabela ainda */ }
     try { res.locals.pendingPayments = await store.countPendingPayments(); } catch { /* sem tabela ainda */ }
   }
   next();
