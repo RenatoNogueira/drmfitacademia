@@ -183,7 +183,7 @@
     form.querySelectorAll('[data-error]').forEach((s) => { s.textContent = ''; });
     const fd = new FormData(form);
     const payload = { plan: plan.name, consent: fd.get('consent') === 'on' };
-    ['name', 'phone', 'email', 'hp_extra'].forEach((k) => { payload[k] = fd.get(k) || ''; });
+    ['name', 'phone', 'email'].forEach((k) => { payload[k] = fd.get(k) || ''; });
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true; btn.classList.add('is-loading');
     try {
