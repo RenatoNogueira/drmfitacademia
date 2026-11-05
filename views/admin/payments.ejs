@@ -9,7 +9,7 @@
     <a class="a-btn a-btn-ghost a-btn-sm" href="/admin/conteudo?g=pagamento">Configurar PIX</a>
   </div>
 </div>
-<div hidden data-p-meta data-plans="<%= JSON.stringify((site.plans || []).map((p) => [p.name, p.name + ' — R$ ' + p.price + (p.period || '')])) %>"></div>
+<div hidden data-p-meta data-plans="<%= JSON.stringify((site.plans || []).map((p) => [p.name, p.name + ' — R$ ' + p.price + (p.period || ''), p.price])) %>"></div>
 
 <%- include('_paystatus') %>
 

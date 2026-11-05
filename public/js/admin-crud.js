@@ -73,6 +73,14 @@
   const newPayment = document.querySelector('[data-new-payment]');
   if (payMeta && newPayment) {
     const plans = JSON.parse(payMeta.dataset.plans || '[]');
+    // "99" / "99,90" / "R$ 1.299,90" -> "99,00" / "99,90" / "1299,90"
+    const money = (raw) => {
+      let t = String(raw || '').replace(/[^\d,.]/g, '');
+      t = t.includes(',') ? t.replace(/\./g, '').replace(',', '.') : t;
+      const n = parseFloat(t);
+      return Number.isFinite(n) ? n.toFixed(2).replace('.', ',') : '';
+    };
+    const planPrice = (name) => money((plans.find((p) => p[0] === name) || [])[2]);
     const open = (card) => {
       const d = card ? card.dataset : {};
       formDialog({
@@ -84,7 +92,7 @@
           { name: 'phone', label: 'WhatsApp / telefone', required: true, type: 'tel', mask: 'phone', value: d.phone },
           { name: 'email', label: 'E-mail', type: 'email', max: 120, value: d.email },
           { name: 'plan', label: 'Plano', required: true, type: 'select', value: d.plan || (plans[0] && plans[0][0]), options: plans },
-          { name: 'amount', label: 'Valor (R$)', placeholder: 'vazio = valor do plano', max: 12, value: d.value, hint: 'Preencha só se for diferente do plano (ex.: desconto).' },
+          { name: 'amount', label: 'Valor (R$)', placeholder: 'Ex.: 99,90', max: 12, value: card ? d.value : planPrice(plans[0] && plans[0][0]), hint: 'Já vem com o valor do plano; altere se houve desconto ou outro valor.' },
           ...(card ? [] : [{ name: 'status', label: 'Situação', type: 'select', value: 'confirmado', options: [['confirmado', 'Já pago (confirmado)'], ['aguardando_pagamento', 'Aguardando pagamento']], wide: true }])
         ],
         onSubmit: async (v) => {
@@ -93,7 +101,17 @@
         }
       });
     };
-    newPayment.addEventListener('click', () => open(null));
+    // Ao trocar o plano, o valor acompanha, a menos que a pessoa já tenha digitado outro
+    const followPlan = () => {
+      const dlg = [...document.querySelectorAll('.a-dialog')].pop();
+      const plan = dlg?.querySelector('[name="plan"]');
+      const amount = dlg?.querySelector('[name="amount"]');
+      if (!plan || !amount) return;
+      let auto = amount.value; // valor sugerido pelo plano; some se a pessoa digitar outro
+      amount.addEventListener('input', () => { if (amount.value !== auto) auto = null; });
+      plan.addEventListener('change', () => { if (auto !== null) { auto = planPrice(plan.value); amount.value = auto; } });
+    };
+    newPayment.addEventListener('click', () => { open(null); followPlan(); });
     document.getElementById('p-list')?.addEventListener('click', (e) => {
       const b = e.target.closest('[data-edit-payment]');
       if (b) open(b.closest('.p-card'));
